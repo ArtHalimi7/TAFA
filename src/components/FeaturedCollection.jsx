@@ -45,7 +45,7 @@ export default function FeaturedCollection() {
   return (
     <section className="relative w-full py-20 lg:py-32 bg-black overflow-hidden">
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-black pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-b from-black via-black/95 to-black pointer-events-none" />
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -94,7 +94,7 @@ export default function FeaturedCollection() {
                 />
                 
                 {/* Overlay Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-60 group-hover:opacity-50 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-linear-to-t from-black via-black/30 to-transparent opacity-60 group-hover:opacity-50 transition-opacity duration-500" />
 
                 {/* Content */}
                 <div className="absolute inset-0 flex flex-col justify-between p-6">
@@ -119,7 +119,7 @@ export default function FeaturedCollection() {
                       <span className="text-lg font-semibold text-white">
                         {vehicle.price}
                       </span>
-                      <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center group-hover:border-white/100 group-hover:bg-white/10 transition-all duration-300">
+                      <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center group-hover:border-white group-hover:bg-white/10 transition-all duration-300">
                         <span className="text-white/70 group-hover:text-white transition-colors duration-300">→</span>
                       </div>
                     </div>
@@ -128,7 +128,7 @@ export default function FeaturedCollection() {
               </div>
 
               {/* Glow Border Effect */}
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-white/20 via-white/5 to-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute -inset-0.5 bg-linear-to-r from-white/20 via-white/5 to-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             </Link>
           ))}
         </div>

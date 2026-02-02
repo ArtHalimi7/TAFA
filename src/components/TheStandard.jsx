@@ -74,7 +74,7 @@ export default function TheStandard() {
     });
 
     return () => observers.forEach(obs => obs.disconnect());
-  }, []);
+  }, );
 
   // Mobile: Observe each stat section to trigger horizontal slide-in
   useEffect(() => {
@@ -94,7 +94,7 @@ export default function TheStandard() {
     });
 
     return () => observers.forEach(obs => obs.disconnect());
-  }, []);
+  }, );
 
   const features = [
     { title: 'Precision', description: 'Every detail curated and vetted' },
@@ -171,7 +171,7 @@ export default function TheStandard() {
           {/* Mobile: Horizontal scroll showcase | Desktop: Vertical scroll */}
           <div className="w-full lg:w-1/2 relative">
             {/* Vertical line accent - hidden on mobile */}
-            <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+            <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-white/20 to-transparent" />
 
             {/* Mobile horizontal scroll-on-scroll stats */}
             {/* Mobile: Each stat gets its own scroll section, slides in from right */}
@@ -231,7 +231,7 @@ export default function TheStandard() {
                     </p>
                     {/* Accent line */}
                     <div 
-                      className="mt-4 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto"
+                      className="mt-4 h-px bg-linear-to-r from-transparent via-white/40 to-transparent mx-auto"
                       style={{
                         width: mobileActiveIndex === index ? '80px' : '0px',
                         opacity: mobileActiveIndex === index ? 1 : 0,
@@ -306,7 +306,7 @@ export default function TheStandard() {
 
                     {/* Accent line */}
                     <div 
-                      className="mt-6 h-px bg-gradient-to-l from-white/50 via-white/30 to-transparent ml-auto"
+                      className="mt-6 h-px bg-linear-to-l from-white/50 via-white/30 to-transparent ml-auto"
                       style={{
                         width: activeStatIndex === index ? '100px' : '0px',
                         opacity: activeStatIndex === index ? 1 : 0,

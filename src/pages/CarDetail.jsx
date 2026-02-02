@@ -264,8 +264,8 @@ export default function CarDetail() {
               className="w-full h-full object-cover object-center"
             />
             {/* Gradient overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-r from-black/60 via-transparent to-transparent" />
           </div>
 
           {/* Image Navigation Dots */}
@@ -492,7 +492,7 @@ export default function CarDetail() {
       </section>
 
       {/* Features Section */}
-      <section ref={featuresRef} className="relative py-20 lg:py-32 bg-gradient-to-b from-black via-neutral-950 to-black">
+      <section ref={featuresRef} className="relative py-20 lg:py-32 bg-linear-to-b from-black via-neutral-950 to-black">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           {/* Section Header */}
           <div className="mb-12 lg:mb-20 text-center">
@@ -525,7 +525,7 @@ export default function CarDetail() {
             {car.features.map((feature, index) => (
               <div 
                 key={feature}
-                className={`group relative p-5 lg:p-6 border border-white/10 rounded-lg hover:border-white/30 hover:bg-white/5 transition-all duration-500 cursor-default min-h-[72px] flex items-center ${
+                className={`group relative p-5 lg:p-6 border border-white/10 rounded-lg hover:border-white/30 hover:bg-white/5 transition-all duration-500 cursor-default min-h-18 flex items-center ${
                   featuresVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
                 style={{ transitionDelay: `${300 + index * 50}ms` }}
@@ -604,7 +604,7 @@ export default function CarDetail() {
               <button
                 key={index}
                 onClick={() => openGallery(index)}
-                className={`group relative aspect-[4/3] overflow-hidden rounded-lg transition-all duration-700 ${
+                className={`group relative aspect-4/3 overflow-hidden rounded-lg transition-all duration-700 ${
                   galleryVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
                 style={{ transitionDelay: `${200 + index * 100}ms` }}
@@ -787,7 +787,7 @@ export default function CarDetail() {
                 <button
                   key={index}
                   onClick={() => setModalImageIndex(index)}
-                  className={`relative flex-shrink-0 w-16 h-12 sm:w-20 sm:h-14 lg:w-24 lg:h-16 rounded-md overflow-hidden transition-all duration-300 ${
+                  className={`relative shrink-0 w-16 h-12 sm:w-20 sm:h-14 lg:w-24 lg:h-16 rounded-md overflow-hidden transition-all duration-300 ${
                     modalImageIndex === index 
                       ? 'ring-2 ring-white ring-offset-2 ring-offset-black opacity-100' 
                       : 'opacity-40 hover:opacity-70'
