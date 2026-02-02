@@ -1,5 +1,25 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Cera+Pro:wght@400;500&family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+/* Fonts are loaded via index.html with font-display: swap to prevent render blocking */
+/* Fallback font stacks for system fonts */
+@font-face {
+  font-family: 'Cera Pro';
+  font-display: swap;
+  src: local('Cera Pro');
+}
+
+/* Screen reader only utility class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -83,7 +103,7 @@ body {
   }
 }
 
-/* Shimmer animation for skeleton loaders */
+/* Shimmer animation for skeleton loaders - GPU accelerated */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
@@ -92,4 +112,5 @@ body {
 
 .animate-shimmer {
   animation: shimmer 1.5s infinite;
+  will-change: transform;
 }

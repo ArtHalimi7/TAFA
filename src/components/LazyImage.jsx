@@ -8,6 +8,8 @@ export function LazyImage({
   alt,
   className = "",
   placeholderColor = "bg-white/5",
+  width,
+  height,
   ...props
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -56,6 +58,10 @@ export function LazyImage({
         <img
           src={src}
           alt={alt}
+          width={width}
+          height={height}
+          loading="lazy"
+          decoding="async"
           onLoad={() => setIsLoaded(true)}
           className={`w-full h-full object-cover transition-all duration-700 ${
             isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
@@ -74,6 +80,8 @@ export function LazyImageContain({
   alt,
   className = "",
   placeholderColor = "bg-white/5",
+  width,
+  height,
   ...props
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -121,6 +129,10 @@ export function LazyImageContain({
         <img
           src={src}
           alt={alt}
+          width={width}
+          height={height}
+          loading="lazy"
+          decoding="async"
           onLoad={() => setIsLoaded(true)}
           className={`w-full h-full object-contain transition-all duration-700 ${
             isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"

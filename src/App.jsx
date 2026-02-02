@@ -43,13 +43,15 @@ function MainSite() {
       {isLoading && <Loader onComplete={handleLoadComplete} />}
       <Navbar />
       <ScrollToTopButton />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/collection" element={<Collection />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/car/:slug" element={<CarDetail />} />
-      </Routes>
+      <main id="main-content">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/collection" element={<Collection />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/car/:slug" element={<CarDetail />} />
+        </Routes>
+      </main>
     </>
   );
 }

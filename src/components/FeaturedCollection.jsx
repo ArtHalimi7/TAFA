@@ -76,7 +76,7 @@ export default function FeaturedCollection() {
             style={{ transformOrigin: "center" }}
           />
           <p
-            className={`text-gray-400 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-200 ${
+            className={`text-gray-300 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-200 ${
               isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
@@ -120,7 +120,7 @@ export default function FeaturedCollection() {
                       {/* Top - Category Badge */}
                       <div>
                         <div className="inline-block px-3 py-1 border border-white/40 rounded-full">
-                          <span className="text-xs font-light text-white/80 tracking-widest uppercase">
+                          <span className="text-xs font-light text-white/90 tracking-widest uppercase">
                             {vehicle.category}
                           </span>
                         </div>

@@ -21,7 +21,10 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative h-[70vh] lg:min-h-screen w-full overflow-hidden bg-black">
+    <section
+      className="relative h-[70vh] lg:min-h-screen w-full overflow-hidden bg-black"
+      aria-label="Hero section"
+    >
       {/* Background Image - revealed on the right side */}
       <div
         className={`absolute inset-0 transition-all duration-[1.5s] ease-out ${isLoaded ? "opacity-100" : "opacity-0"}`}
@@ -36,7 +39,14 @@ const Hero = () => {
               "linear-gradient(to right, transparent 0%, transparent 20%, black 50%, black 100%)",
           }}
         >
-          <LazyImage src={bgImage} alt="" className="w-full h-full" />
+          {/* Hero background image - not lazy loaded for LCP optimization */}
+          <img
+            src={bgImage}
+            alt=""
+            className="w-full h-full object-cover"
+            fetchpriority="high"
+            decoding="async"
+          />
         </div>
         {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black/5 lg:bg-linear-to-r lg:from-black/80 lg:via-black/60 lg:to-black/20" />
@@ -51,7 +61,7 @@ const Hero = () => {
             className={`mb-4 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <span
-              className="text-xs tracking-[0.3em] uppercase text-white/50"
+              className="text-xs tracking-[0.3em] uppercase text-white/70"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Premium Automotive
@@ -77,7 +87,7 @@ const Hero = () => {
 
           {/* Subtitle - Tighter spacing */}
           <p
-            className={`mt-4 max-w-md text-base sm:text-lg text-white/60 font-light leading-relaxed transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+            className={`mt-4 max-w-md text-base sm:text-lg text-white/80 font-light leading-relaxed transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             style={{
               fontFamily: "Montserrat, sans-serif",
               letterSpacing: "0.02em",
@@ -133,8 +143,12 @@ const Hero = () => {
                 >
                   <img
                     src={brand.logo}
-                    alt={brand.name}
-                    className="w-13 h-13 sm:w-14 sm:h-14 object-contain opacity-80 hover:opacity-100 transition-opacity duration-300"
+                    alt={`${brand.name} logo`}
+                    width="56"
+                    height="56"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-13 h-13 sm:w-14 sm:h-14 object-contain opacity-90 hover:opacity-100 transition-opacity duration-300"
                     style={
                       brand.filter ? { filter: "brightness(0) invert(1)" } : {}
                     }
@@ -165,8 +179,12 @@ const Hero = () => {
               >
                 <img
                   src={brand.logo}
-                  alt={brand.name}
-                  className="w-16 h-16 xl:w-24 xl:h-24 object-contain opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
+                  alt={`${brand.name} logo`}
+                  width="96"
+                  height="96"
+                  loading="lazy"
+                  decoding="async"
+                  className="w-16 h-16 xl:w-24 xl:h-24 object-contain opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
                   style={
                     brand.filter ? { filter: "brightness(0) invert(1)" } : {}
                   }

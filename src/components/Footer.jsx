@@ -30,36 +30,42 @@ export default function Footer() {
               <div className="flex gap-4">
                 <a
                   href="#"
-                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                  aria-label="Follow us on Facebook"
+                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
                 >
                   <svg
-                    className="w-5 h-5 text-white/60 hover:text-white"
+                    className="w-5 h-5 text-white/80 hover:text-white"
                     fill="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                  aria-label="Follow us on Twitter"
+                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
                 >
                   <svg
-                    className="w-5 h-5 text-white/60 hover:text-white"
+                    className="w-5 h-5 text-white/80 hover:text-white"
                     fill="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-7 7-7" />
                   </svg>
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
+                  aria-label="Follow us on Instagram"
+                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
                 >
                   <svg
-                    className="w-5 h-5 text-white/60 hover:text-white"
+                    className="w-5 h-5 text-white/80 hover:text-white"
                     fill="currentColor"
                     viewBox="0 0 24 24"
+                    aria-hidden="true"
                   >
                     <rect
                       x="2"
@@ -87,7 +93,7 @@ export default function Footer() {
             {/* Quick Links */}
             <div>
               <h4
-                className="text-sm uppercase tracking-widest text-white/40 mb-8 font-bold"
+                className="text-sm uppercase tracking-widest text-white/60 mb-8 font-bold"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Explore
@@ -96,7 +102,7 @@ export default function Footer() {
                 <li>
                   <Link
                     to="/collection"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Our Collection
@@ -105,7 +111,7 @@ export default function Footer() {
                 <li>
                   <Link
                     to="/about"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     About Us
@@ -114,7 +120,7 @@ export default function Footer() {
                 <li>
                   <Link
                     to="/contact"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Contact
@@ -126,7 +132,7 @@ export default function Footer() {
             {/* Services */}
             <div>
               <h4
-                className="text-sm uppercase tracking-widest text-white/40 mb-8 font-bold"
+                className="text-sm uppercase tracking-widest text-white/60 mb-8 font-bold"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Services
@@ -135,7 +141,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="#"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Custom Sourcing
@@ -144,7 +150,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="#"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Financing Options
@@ -153,7 +159,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="#"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Delivery Services
@@ -162,7 +168,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="#"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Maintenance
@@ -174,7 +180,7 @@ export default function Footer() {
             {/* Contact Info */}
             <div>
               <h4
-                className="text-sm uppercase tracking-widest text-white/40 mb-8 font-bold"
+                className="text-sm uppercase tracking-widest text-white/60 mb-8 font-bold"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Contact
@@ -183,7 +189,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="tel:+1234567890"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     +1 (234) 567-890
@@ -192,7 +198,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="mailto:hello@autotafa.com"
-                    className="text-white/70 hover:text-white transition-colors duration-300"
+                    className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     hello@autotafa.com
@@ -200,7 +206,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <p
-                    className="text-white/70"
+                    className="text-white/80"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     123 Luxury Ave
@@ -219,14 +225,14 @@ export default function Footer() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
               <p
-                className="text-white/50 text-sm"
+                className="text-white/70 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 &copy; {currentYear} AUTO TAFA. All rights reserved.
               </p>
               <div className="hidden sm:block w-px h-4 bg-white/20" />
               <p
-                className="text-white/50 text-sm"
+                className="text-white/70 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Designed & developed by{" "}
@@ -244,21 +250,21 @@ export default function Footer() {
             <div className="flex flex-wrap gap-8">
               <button
                 onClick={() => setActiveModal("privacy")}
-                className="text-white/60 hover:text-white transition-colors duration-300 text-sm"
+                className="text-white/70 hover:text-white transition-colors duration-300 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Privacy Policy
               </button>
               <button
                 onClick={() => setActiveModal("terms")}
-                className="text-white/60 hover:text-white transition-colors duration-300 text-sm"
+                className="text-white/70 hover:text-white transition-colors duration-300 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Terms of Service
               </button>
               <a
                 href="#"
-                className="text-white/60 hover:text-white transition-colors duration-300 text-sm"
+                className="text-white/70 hover:text-white transition-colors duration-300 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Cookies
