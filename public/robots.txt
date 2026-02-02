@@ -1,0 +1,33 @@
+# robots.txt for Auto TAFA
+# https://autotafa.com
+
+User-agent: *
+Allow: /
+
+# Block admin/dashboard pages
+Disallow: /dashboard
+Disallow: /dashboard/
+
+# Sitemap location
+Sitemap: https://autotafa.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Disallow: /dashboard
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Disallow: /dashboard
+
+# Facebook crawler
+User-agent: facebookexternalhit
+Allow: /
+
+# Twitter crawler
+User-agent: Twitterbot
+Allow: /

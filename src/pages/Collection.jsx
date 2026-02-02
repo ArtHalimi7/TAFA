@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useSEO, seoContent } from '../hooks/useSEO';
 
 // Car images
 import mercedesgt63s from '../assets/images/mercedesgt63s.jpg';
@@ -116,6 +117,9 @@ const sortOptions = [
 const ITEMS_PER_PAGE = 6;
 
 export default function Collection() {
+  // SEO optimization for collection page
+  useSEO(seoContent.collection);
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('All');

@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import bgImage from '../assets/images/bg.jpg';
 import logo from '../assets/images/logo.png';
+import { useSEO, seoContent } from '../hooks/useSEO';
 
 export default function About() {
+  // SEO optimization for about page
+  useSEO(seoContent.about);
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
   const [philosophyVisible, setPhilosophyVisible] = useState(false);

@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { useSEO, seoContent } from '../hooks/useSEO';
 
 export default function Contact() {
+  // SEO optimization for contact page
+  useSEO(seoContent.contact);
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [infoVisible, setInfoVisible] = useState(false);
   const [formVisible, setFormVisible] = useState(false);

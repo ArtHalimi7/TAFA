@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import { useSEO, seoContent } from '../hooks/useSEO';
 
 // Sample car data (will be replaced with backend data later)
 import mercedesgt63s from '../assets/images/mercedesgt63s.jpg';
@@ -126,6 +127,15 @@ export default function CarDetail() {
 
   // Get car data based on slug
   const car = carsData[slug] || carsData['mercedes-amg-gt-63-s'];
+
+  // Dynamic SEO for car detail page
+  useSEO(seoContent.carDetail({
+    year: car.year,
+    make: car.name?.split(' ')[0] || '',
+    model: car.name || '',
+    mileage: car.mileage,
+    transmission: car.transmission
+  }));
 
   useEffect(() => {
     const timer = setTimeout(() => {

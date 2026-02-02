@@ -186,6 +186,14 @@ export default function Footer() {
               >
                 Cookies
               </a>
+              <Link 
+                to="/dashboard"
+                className="text-white/20 hover:text-white/40 transition-colors duration-300 text-sm"
+                style={{ fontFamily: 'Montserrat, sans-serif' }}
+                title="Admin"
+              >
+                •
+              </Link>
             </div>
           </div>
         </div>
