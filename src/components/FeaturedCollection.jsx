@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import mercedesgt63s from '../assets/images/mercedesgt63s.jpg';
 import bmw7 from '../assets/images/bmw7.jpg';
 import audirs7 from '../assets/images/audirs7.jpg';
@@ -18,6 +19,7 @@ export default function FeaturedCollection() {
     {
       id: 1,
       name: 'Mercedes-AMG GT 63 S',
+      slug: 'mercedes-amg-gt-63-s',
       category: 'Performance',
       price: '$185,000',
       image: mercedesgt63s
@@ -25,6 +27,7 @@ export default function FeaturedCollection() {
     {
       id: 2,
       name: 'BMW M760i xDrive',
+      slug: 'bmw-m760i-xdrive',
       category: 'Luxury Sedan',
       price: '$155,000',
       image: bmw7
@@ -32,6 +35,7 @@ export default function FeaturedCollection() {
     {
       id: 3,
       name: 'Audi RS e-tron GT',
+      slug: 'audi-rs-etron-gt',
       category: 'Electric',
       price: '$142,000',
       image: audirs7
@@ -72,7 +76,8 @@ export default function FeaturedCollection() {
         {/* Vehicle Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6">
           {vehicles.map((vehicle, index) => (
-            <div
+            <Link
+              to={`/car/${vehicle.slug}`}
               key={vehicle.id}
               className={`group relative transition-all duration-1000 ${
                 isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -124,7 +129,7 @@ export default function FeaturedCollection() {
 
               {/* Glow Border Effect */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-white/20 via-white/5 to-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-            </div>
+            </Link>
           ))}
         </div>
 

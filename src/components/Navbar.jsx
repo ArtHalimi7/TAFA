@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import logo from '../assets/images/logo.png'
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const location = useLocation()
+  
+  // Check if we're on a detail page (not home)
+  const isDetailPage = location.pathname !== '/'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,19 +44,39 @@ const Navbar = () => {
       <nav 
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled 
-            ? 'py-4 bg-black/80 backdrop-blur-md' 
-            : 'py-6 bg-transparent'
+            ? 'py-3 bg-black/80 backdrop-blur-md' 
+            : 'py-4 bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between">
-            {/* Logo */}
-            <a href="#" className="flex items-center">
-              <img src={logo} alt="TAFA LEKA" className="h-10 w-auto" />
-            </a>
+            {/* Left Side - Back Button + Logo */}
+            <div className="flex items-center gap-3">
+              {/* Back Button - Only on detail pages */}
+              {isDetailPage && (
+                <Link
+                  to="/"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 hover:bg-white/10 hover:border-white/40 transition-all duration-300 ${
+                    isScrolled ? 'scale-95' : 'scale-100'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  <span className="text-xs font-medium tracking-wide" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                    Back
+                  </span>
+                </Link>
+              )}
+              
+              {/* Logo */}
+              <Link to="/" className="flex items-center">
+                <img src={logo} alt="TAFA LEKA" className="h-12 w-auto" />
+              </Link>
+            </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => (
                 <a
                   key={link.id}
@@ -94,7 +119,9 @@ const Navbar = () => {
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between p-6">
-          <img src={logo} alt="TAFA LEKA" className="h-10 w-auto" />
+          <Link to="/" onClick={() => setIsSidebarOpen(false)}>
+            <img src={logo} alt="TAFA LEKA" className="h-10 w-auto" />
+          </Link>
           <button
             onClick={() => setIsSidebarOpen(false)}
             className="w-10 h-10 flex items-center justify-center"

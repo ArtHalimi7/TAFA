@@ -39,7 +39,7 @@ const Hero = () => {
           />
         </div>
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/40" />
+        <div className="absolute inset-0 bg-linear-to-r from-black via-black/80 to-black/40" />
       </div>
 
       {/* Main content */}
@@ -49,7 +49,7 @@ const Hero = () => {
           className={`text-center lg:text-left transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
           <span className="block font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white" style={{ fontFamily: 'Cera Pro, sans-serif', fontWeight: '900', letterSpacing: '-0.02em' }}>
-            TAFA LEKA
+            AUTO TAFA
           </span>
         </h1>
 

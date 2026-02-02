@@ -5,8 +5,10 @@ export default function TheStandard() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [activeStatIndex, setActiveStatIndex] = useState(-1);
   const [animatedStats, setAnimatedStats] = useState([0, 0, 0, 0]);
+  const [mobileActiveIndex, setMobileActiveIndex] = useState(-1);
   const containerRef = useRef(null);
   const statsRefs = useRef([]);
+  const mobileStatsRefs = useRef([]);
 
     useEffect(() => {       
     const timer = setTimeout(() => {
@@ -74,6 +76,26 @@ export default function TheStandard() {
     return () => observers.forEach(obs => obs.disconnect());
   }, []);
 
+  // Mobile: Observe each stat section to trigger horizontal slide-in
+  useEffect(() => {
+    const observers = mobileStatsRefs.current.map((ref, index) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setMobileActiveIndex(index);
+            animateNumber(index, statsData[index].value, statsData[index].isDecimal);
+          }
+        },
+        { threshold: 0.5, rootMargin: '-10% 0px -10% 0px' }
+      );
+
+      if (ref) observer.observe(ref);
+      return observer;
+    });
+
+    return () => observers.forEach(obs => obs.disconnect());
+  }, []);
+
   const features = [
     { title: 'Precision', description: 'Every detail curated and vetted' },
     { title: 'Heritage', description: 'Decades of automotive excellence' },
@@ -82,14 +104,15 @@ export default function TheStandard() {
   ];
 
   return (
-    <section className="relative w-full bg-black" ref={containerRef}>
+    <section className="relative w-full bg-black overflow-x-clip" ref={containerRef}>
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Mobile: Column (text on top, stats below) | Desktop: Row */}
+        {/* Mobile: Column (text on top, horizontal stats below) | Desktop: Row with sticky left */}
         <div className="flex flex-col lg:flex-row lg:gap-16">
           
-          {/* Left Side - Sticky Philosophy (Top on mobile, sticky left on desktop) */}
-          <div className="lg:w-1/2 sticky top-0 self-start h-fit lg:h-screen flex items-center z-20 bg-black">
-            <div className="space-y-6 lg:space-y-12 py-12 lg:py-0">
+          {/* Left Side - Sticky Philosophy */}
+          <div className="w-full lg:w-1/2">
+            <div className="lg:sticky lg:top-16 lg:h-screen flex items-start lg:pt-20 z-20 bg-black">
+              <div className="space-y-6 lg:space-y-12 py-12 lg:py-0 w-full">
               <div>
                 <h2
                   className={`text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-4 lg:mb-6 transition-all duration-1000 ${
@@ -140,35 +163,108 @@ export default function TheStandard() {
                   className="h-16 lg:h-24 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity duration-300"
                 />
               </div>
+              </div>
             </div>
           </div>
 
-          {/* Right Side - Scroll-Through Stats (Numbers scroll from right to left on mobile) */}
-          <div className="lg:w-1/2 relative flex justify-end lg:justify-end">
+          {/* Right Side - Stats */}
+          {/* Mobile: Horizontal scroll showcase | Desktop: Vertical scroll */}
+          <div className="w-full lg:w-1/2 relative">
             {/* Vertical line accent - hidden on mobile */}
             <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
 
-            <div className="w-full">
+            {/* Mobile horizontal scroll-on-scroll stats */}
+            {/* Mobile: Each stat gets its own scroll section, slides in from right */}
+            <div className="lg:hidden">
+              {statsData.map((stat, index) => (
+                <div
+                  key={index}
+                  ref={el => mobileStatsRefs.current[index] = el}
+                  className="min-h-[40vh] flex items-center justify-center overflow-hidden"
+                >
+                  <div
+                    className="flex flex-col items-center text-center px-4"
+                    style={{
+                      opacity: mobileActiveIndex >= index ? 1 : 0,
+                      transform: mobileActiveIndex >= index 
+                        ? 'translateX(0)' 
+                        : 'translateX(100px)',
+                      transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
+                    }}
+                  >
+                    {/* Number + Suffix */}
+                    <div className="flex items-baseline justify-center">
+                      <span 
+                        className="text-6xl sm:text-7xl font-bold text-white"
+                        style={{ 
+                          fontFamily: 'Cera Pro, sans-serif',
+                          textShadow: mobileActiveIndex === index 
+                            ? '0 0 40px rgba(255,255,255,0.15)' 
+                            : 'none',
+                          transition: 'text-shadow 0.5s ease'
+                        }}
+                      >
+                        {stat.isDecimal ? animatedStats[index].toFixed(1) : animatedStats[index]}
+                      </span>
+                      <span 
+                        className="text-xl sm:text-2xl text-white/50 ml-1"
+                        style={{
+                          opacity: mobileActiveIndex === index ? 1 : 0.3,
+                          transition: 'opacity 0.5s ease 0.2s'
+                        }}
+                      >
+                        {stat.suffix}
+                      </span>
+                    </div>
+                    {/* Label */}
+                    <p 
+                      className="text-sm sm:text-base text-white/60 mt-3"
+                      style={{ 
+                        fontFamily: 'Montserrat, sans-serif', 
+                        letterSpacing: '0.08em',
+                        opacity: mobileActiveIndex === index ? 1 : 0.3,
+                        transform: mobileActiveIndex === index ? 'translateY(0)' : 'translateY(10px)',
+                        transition: 'all 0.6s ease 0.1s'
+                      }}
+                    >
+                      {stat.label}
+                    </p>
+                    {/* Accent line */}
+                    <div 
+                      className="mt-4 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto"
+                      style={{
+                        width: mobileActiveIndex === index ? '80px' : '0px',
+                        opacity: mobileActiveIndex === index ? 1 : 0,
+                        transition: 'all 0.6s ease 0.3s'
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop vertical scroll stats */}
+            <div className="hidden lg:block w-full">
               {statsData.map((stat, index) => (
                 <div
                   key={index}
                   ref={el => statsRefs.current[index] = el}
-                  className="h-[60vh] lg:h-screen flex items-center justify-end pr-4 lg:pr-8"
+                  className="h-screen flex items-center justify-end"
                 >
                   <div
-                    className="flex flex-col items-end lg:items-center transition-all duration-1000"
+                    className="flex flex-col items-end text-right transition-all duration-1000 pr-12"
                     style={{
                       opacity: activeStatIndex >= index ? 1 : 0,
                       transform: activeStatIndex >= index 
-                        ? 'translateX(0) translateY(0)' 
-                        : 'translateX(100px) translateY(0)',
+                        ? 'translateX(0)' 
+                        : 'translateX(80px)',
                       transition: 'all 1s cubic-bezier(0.16, 1, 0.3, 1)'
                     }}
                   >
                     {/* Main Number */}
-                    <div className="relative mb-4 flex items-baseline justify-center">
+                    <div className="relative mb-4 flex items-baseline justify-end">
                       <span 
-                        className="text-7xl sm:text-8xl lg:text-[12rem] font-bold text-white"
+                        className="text-[10rem] xl:text-[12rem] font-bold text-white"
                         style={{ 
                           fontFamily: 'Cera Pro, sans-serif',
                           textShadow: activeStatIndex === index 
@@ -183,7 +279,7 @@ export default function TheStandard() {
                         {stat.isDecimal ? animatedStats[index].toFixed(1) : animatedStats[index]}
                       </span>
                       <span 
-                        className="text-2xl lg:text-5xl text-white/50 ml-2"
+                        className="text-4xl xl:text-5xl text-white/50 ml-2"
                         style={{
                           opacity: activeStatIndex === index ? 1 : 0.3,
                           transform: activeStatIndex === index ? 'translateX(0)' : 'translateX(-20px)',
@@ -196,7 +292,7 @@ export default function TheStandard() {
 
                     {/* Label */}
                     <p 
-                      className="text-lg lg:text-2xl text-white/70 text-right lg:text-center"
+                      className="text-xl xl:text-2xl text-white/70"
                       style={{ 
                         fontFamily: 'Montserrat, sans-serif',
                         opacity: activeStatIndex === index ? 1 : 0.3,
@@ -210,9 +306,9 @@ export default function TheStandard() {
 
                     {/* Accent line */}
                     <div 
-                      className="mt-4 lg:mt-6 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent"
+                      className="mt-6 h-px bg-gradient-to-l from-white/50 via-white/30 to-transparent ml-auto"
                       style={{
-                        width: activeStatIndex === index ? '120px' : '0px',
+                        width: activeStatIndex === index ? '100px' : '0px',
                         opacity: activeStatIndex === index ? 1 : 0,
                         transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s'
                       }}
