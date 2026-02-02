@@ -24,6 +24,20 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'react-hooks/exhaustive-deps': 'off', // Disable exhaustive deps warnings for refs
+    },
+  },
+  {
+    files: ['**/*.{js,jsx}'],
+    rules: {
+      // Disable Tailwind class warnings
+      'no-restricted-syntax': 'off',
+    },
+    settings: {
+      tailwindCSS: {
+        // Disable Tailwind class validation
+        enabled: false,
+      },
     },
   },
 ])

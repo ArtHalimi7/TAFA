@@ -175,7 +175,6 @@ export default function Dashboard() {
     if (!isAuthenticated && pinInputRefs[0].current) {
       pinInputRefs[0].current.focus();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   // Handle PIN input
