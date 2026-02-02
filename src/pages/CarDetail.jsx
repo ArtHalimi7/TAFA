@@ -330,7 +330,7 @@ export default function CarDetail() {
                 </Link>
               </li>
               <li className="text-white/30">/</li>
-              <li className="text-white truncate max-w-[200px] sm:max-w-none">
+              <li className="text-white truncate max-w-50 sm:max-w-none">
                 {car.name}
               </li>
             </ol>

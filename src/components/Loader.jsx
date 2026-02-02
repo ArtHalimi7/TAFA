@@ -42,7 +42,7 @@ export default function Loader({ onComplete }) {
 
   return (
     <div 
-      className={`fixed inset-0 bg-black z-[9999] flex items-center justify-center transition-all duration-700 ${
+      className={`fixed inset-0 bg-black z-9999 flex items-center justify-center transition-all duration-700 ${
         isExiting ? 'opacity-0' : 'opacity-100'
       }`}
     >

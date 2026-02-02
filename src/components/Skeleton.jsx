@@ -8,7 +8,7 @@ export function Skeleton({ className = "", rounded = "rounded" }) {
     <div
       className={`relative overflow-hidden bg-white/5 ${rounded} ${className}`}
     >
-      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-linear-to-r from-transparent via-white/10 to-transparent" />
     </div>
   );
 }
@@ -104,14 +104,14 @@ export function SkeletonGallery() {
   return (
     <div className="space-y-4">
       {/* Main image */}
-      <Skeleton className="w-full aspect-16/9" rounded="rounded-xl" />
+      <Skeleton className="w-full aspect-video" rounded="rounded-xl" />
 
       {/* Thumbnails */}
       <div className="flex gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton
             key={i}
-            className="w-20 h-16 flex-shrink-0"
+            className="w-20 h-16 shrink-0"
             rounded="rounded-lg"
           />
         ))}

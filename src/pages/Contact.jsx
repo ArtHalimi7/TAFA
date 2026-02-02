@@ -177,7 +177,7 @@ export default function Contact() {
         {/* Background accent */}
         <div className="absolute inset-0 overflow-hidden">
           <div
-            className={`absolute top-20 right-1/4 w-96 h-96 rounded-full bg-white/[0.02] blur-3xl transition-all duration-[2s] ${
+            className={`absolute top-20 right-1/4 w-96 h-96 rounded-full bg-white/2 blur-3xl transition-all duration-[2s] ${
               isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-50"
             }`}
           />
@@ -240,14 +240,14 @@ export default function Contact() {
         className="relative py-24 lg:py-40 border-t border-white/10"
       >
         {/* Background accent */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.01] to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-white/1 to-transparent pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-white/10 p-px">
             {contactDetails.map((detail, index) => (
               <div
                 key={detail.label}
-                className={`bg-black p-10 lg:p-12 group hover:bg-white/[0.02] transition-all duration-500 ${
+                className={`bg-black p-10 lg:p-12 group hover:bg-white/2 transition-all duration-500 ${
                   infoVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
@@ -276,7 +276,7 @@ export default function Contact() {
                 </p>
 
                 {/* Bottom accent */}
-                <div className="mt-6 w-8 h-px bg-gradient-to-r from-white/20 to-transparent group-hover:w-full group-hover:from-white/40 transition-all duration-500" />
+                <div className="mt-6 w-8 h-px bg-linear-to-r from-white/20 to-transparent group-hover:w-full group-hover:from-white/40 transition-all duration-500" />
               </div>
             ))}
           </div>
@@ -512,7 +512,7 @@ export default function Contact() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="group border border-white/10 p-8 lg:p-10 hover:border-white/30 hover:bg-white/[0.02] transition-all duration-500"
+                className="group border border-white/10 p-8 lg:p-10 hover:border-white/30 hover:bg-white/2 transition-all duration-500"
               >
                 <h3
                   className="text-xl font-bold text-white mb-4"
@@ -551,7 +551,7 @@ export default function Contact() {
           </div>
 
           {/* Map Placeholder */}
-          <div className="relative h-96 lg:h-96 bg-gradient-to-b from-white/5 to-transparent border border-white/10 flex items-center justify-center group overflow-hidden">
+          <div className="relative h-96 lg:h-96 bg-linear-to-b from-white/5 to-transparent border border-white/10 flex items-center justify-center group overflow-hidden">
             {/* Background pattern */}
             <div className="absolute inset-0 opacity-10">
               <div
