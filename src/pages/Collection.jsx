@@ -1,117 +1,126 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useSEO, seoContent } from '../hooks/useSEO';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useSEO, seoContent } from "../hooks/useSEO";
+import { LazyImage } from "../components/LazyImage";
+import { SkeletonCarCard } from "../components/Skeleton";
 
 // Car images
-import mercedesgt63s from '../assets/images/mercedesgt63s.jpg';
-import bmw7 from '../assets/images/bmw7.jpg';
-import audirs7 from '../assets/images/audirs7.jpg';
+import mercedesgt63s from "../assets/images/mercedesgt63s.jpg";
+import bmw7 from "../assets/images/bmw7.jpg";
+import audirs7 from "../assets/images/audirs7.jpg";
 
 // Brand logos
-import mercedesLogo from '../assets/images/mercedes.png';
-import bmwLogo from '../assets/images/bmw.png';
-import audiLogo from '../assets/images/audi.png';
-import lamboLogo from '../assets/images/lambo.png';
-import ferrariLogo from '../assets/images/ferrari.png';
-import porscheLogo from '../assets/images/porsche.png';
+import mercedesLogo from "../assets/images/mercedes.png";
+import bmwLogo from "../assets/images/bmw.png";
+import audiLogo from "../assets/images/audi.png";
+import lamboLogo from "../assets/images/lambo.png";
+import ferrariLogo from "../assets/images/ferrari.png";
+import porscheLogo from "../assets/images/porsche.png";
 
 // Sample cars data
 const carsData = [
   {
     id: 1,
-    name: 'Mercedes-AMG GT 63 S',
-    slug: 'mercedes-amg-gt-63-s',
-    category: 'Performance',
-    brand: 'Mercedes',
+    name: "Mercedes-AMG GT 63 S",
+    slug: "mercedes-amg-gt-63-s",
+    category: "Performance",
+    brand: "Mercedes",
     price: 185000,
     year: 2024,
     mileage: 1250,
-    image: mercedesgt63s
+    image: mercedesgt63s,
   },
   {
     id: 2,
-    name: 'BMW M760i xDrive',
-    slug: 'bmw-m760i-xdrive',
-    category: 'Luxury Sedan',
-    brand: 'BMW',
+    name: "BMW M760i xDrive",
+    slug: "bmw-m760i-xdrive",
+    category: "Luxury Sedan",
+    brand: "BMW",
     price: 155000,
     year: 2024,
     mileage: 3200,
-    image: bmw7
+    image: bmw7,
   },
   {
     id: 3,
-    name: 'Audi RS e-tron GT',
-    slug: 'audi-rs-etron-gt',
-    category: 'Electric',
-    brand: 'Audi',
+    name: "Audi RS e-tron GT",
+    slug: "audi-rs-etron-gt",
+    category: "Electric",
+    brand: "Audi",
     price: 142000,
     year: 2024,
     mileage: 890,
-    image: audirs7
+    image: audirs7,
   },
   {
     id: 4,
-    name: 'Mercedes-AMG GT 63 S',
-    slug: 'mercedes-amg-gt-63-s',
-    category: 'Performance',
-    brand: 'Mercedes',
+    name: "Mercedes-AMG GT 63 S",
+    slug: "mercedes-amg-gt-63-s",
+    category: "Performance",
+    brand: "Mercedes",
     price: 195000,
     year: 2023,
     mileage: 5400,
-    image: mercedesgt63s
+    image: mercedesgt63s,
   },
   {
     id: 5,
-    name: 'BMW M760i xDrive',
-    slug: 'bmw-m760i-xdrive',
-    category: 'Luxury Sedan',
-    brand: 'BMW',
+    name: "BMW M760i xDrive",
+    slug: "bmw-m760i-xdrive",
+    category: "Luxury Sedan",
+    brand: "BMW",
     price: 145000,
     year: 2023,
     mileage: 8200,
-    image: bmw7
+    image: bmw7,
   },
   {
     id: 6,
-    name: 'Audi RS e-tron GT',
-    slug: 'audi-rs-etron-gt',
-    category: 'Electric',
-    brand: 'Audi',
+    name: "Audi RS e-tron GT",
+    slug: "audi-rs-etron-gt",
+    category: "Electric",
+    brand: "Audi",
     price: 138000,
     year: 2023,
     mileage: 2100,
-    image: audirs7
+    image: audirs7,
   },
 ];
 
 const brands = [
-  { name: 'Ferrari', logo: ferrariLogo },
-  { name: 'Mercedes', logo: mercedesLogo },
-  { name: 'Lamborghini', logo: lamboLogo },
-  { name: 'BMW', logo: bmwLogo, filter: true },
-  { name: 'Porsche', logo: porscheLogo },
-  { name: 'Audi', logo: audiLogo },
+  { name: "Ferrari", logo: ferrariLogo },
+  { name: "Mercedes", logo: mercedesLogo },
+  { name: "Lamborghini", logo: lamboLogo },
+  { name: "BMW", logo: bmwLogo, filter: true },
+  { name: "Porsche", logo: porscheLogo },
+  { name: "Audi", logo: audiLogo },
 ];
 
-const categories = ['All', 'Performance', 'Luxury Sedan', 'Electric', 'SUV', 'Coupe'];
+const categories = [
+  "All",
+  "Performance",
+  "Luxury Sedan",
+  "Electric",
+  "SUV",
+  "Coupe",
+];
 
 const priceRanges = [
-  { label: 'All Prices', min: 0, max: Infinity },
-  { label: 'Under $100K', min: 0, max: 100000 },
-  { label: '$100K - $150K', min: 100000, max: 150000 },
-  { label: '$150K - $200K', min: 150000, max: 200000 },
-  { label: '$200K+', min: 200000, max: Infinity },
+  { label: "All Prices", min: 0, max: Infinity },
+  { label: "Under $100K", min: 0, max: 100000 },
+  { label: "$100K - $150K", min: 100000, max: 150000 },
+  { label: "$150K - $200K", min: 150000, max: 200000 },
+  { label: "$200K+", min: 200000, max: Infinity },
 ];
 
-const years = ['All Years', '2024', '2023', '2022', '2021'];
+const years = ["All Years", "2024", "2023", "2022", "2021"];
 
 const sortOptions = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'price-low', label: 'Price: Low to High' },
-  { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'year-new', label: 'Year: Newest' },
-  { value: 'year-old', label: 'Year: Oldest' },
+  { value: "featured", label: "Featured" },
+  { value: "price-low", label: "Price: Low to High" },
+  { value: "price-high", label: "Price: High to Low" },
+  { value: "year-new", label: "Year: Newest" },
+  { value: "year-old", label: "Year: Oldest" },
 ];
 
 const ITEMS_PER_PAGE = 6;
@@ -121,14 +130,15 @@ export default function Collection() {
   useSEO(seoContent.collection);
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isContentLoading, setIsContentLoading] = useState(true);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
-  const [selectedYear, setSelectedYear] = useState('All Years');
-  const [sortBy, setSortBy] = useState('featured');
+  const [selectedYear, setSelectedYear] = useState("All Years");
+  const [sortBy, setSortBy] = useState("featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filteredCars, setFilteredCars] = useState(carsData);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -136,7 +146,16 @@ export default function Collection() {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
-    return () => clearTimeout(timer);
+
+    // Simulate content loading
+    const contentTimer = setTimeout(() => {
+      setIsContentLoading(false);
+    }, 600);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(contentTimer);
+    };
   }, []);
 
   // Filter cars based on selections
@@ -146,45 +165,48 @@ export default function Collection() {
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(car => 
-        car.name.toLowerCase().includes(query) ||
-        car.brand.toLowerCase().includes(query) ||
-        car.category.toLowerCase().includes(query)
+      result = result.filter(
+        (car) =>
+          car.name.toLowerCase().includes(query) ||
+          car.brand.toLowerCase().includes(query) ||
+          car.category.toLowerCase().includes(query),
       );
     }
 
     // Filter by brand
     if (selectedBrands.length > 0) {
-      result = result.filter(car => selectedBrands.includes(car.brand));
+      result = result.filter((car) => selectedBrands.includes(car.brand));
     }
 
     // Filter by category
-    if (selectedCategory !== 'All') {
-      result = result.filter(car => car.category === selectedCategory);
+    if (selectedCategory !== "All") {
+      result = result.filter((car) => car.category === selectedCategory);
     }
 
     // Filter by price range
-    result = result.filter(car => 
-      car.price >= selectedPriceRange.min && car.price <= selectedPriceRange.max
+    result = result.filter(
+      (car) =>
+        car.price >= selectedPriceRange.min &&
+        car.price <= selectedPriceRange.max,
     );
 
     // Filter by year
-    if (selectedYear !== 'All Years') {
-      result = result.filter(car => car.year === parseInt(selectedYear));
+    if (selectedYear !== "All Years") {
+      result = result.filter((car) => car.year === parseInt(selectedYear));
     }
 
     // Sort
     switch (sortBy) {
-      case 'price-low':
+      case "price-low":
         result.sort((a, b) => a.price - b.price);
         break;
-      case 'price-high':
+      case "price-high":
         result.sort((a, b) => b.price - a.price);
         break;
-      case 'year-new':
+      case "year-new":
         result.sort((a, b) => b.year - a.year);
         break;
-      case 'year-old':
+      case "year-old":
         result.sort((a, b) => a.year - b.year);
         break;
       default:
@@ -195,54 +217,61 @@ export default function Collection() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilteredCars(result);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [selectedBrands, selectedCategory, selectedPriceRange, selectedYear, sortBy, searchQuery]);
+  }, [
+    selectedBrands,
+    selectedCategory,
+    selectedPriceRange,
+    selectedYear,
+    sortBy,
+    searchQuery,
+  ]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (isSortOpen && !e.target.closest('.sort-dropdown')) {
+      if (isSortOpen && !e.target.closest(".sort-dropdown")) {
         setIsSortOpen(false);
       }
     };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [isSortOpen]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredCars.length / ITEMS_PER_PAGE);
   const paginatedCars = filteredCars.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   const toggleBrand = (brandName) => {
-    setSelectedBrands(prev => 
+    setSelectedBrands((prev) =>
       prev.includes(brandName)
-        ? prev.filter(b => b !== brandName)
-        : [...prev, brandName]
+        ? prev.filter((b) => b !== brandName)
+        : [...prev, brandName],
     );
   };
 
   const clearFilters = () => {
     setSelectedBrands([]);
-    setSelectedCategory('All');
+    setSelectedCategory("All");
     setSelectedPriceRange(priceRanges[0]);
-    setSelectedYear('All Years');
-    setSortBy('featured');
-    setSearchQuery('');
+    setSelectedYear("All Years");
+    setSortBy("featured");
+    setSearchQuery("");
   };
 
-  const activeFiltersCount = 
-    selectedBrands.length + 
-    (selectedCategory !== 'All' ? 1 : 0) + 
-    (selectedPriceRange.label !== 'All Prices' ? 1 : 0) + 
-    (selectedYear !== 'All Years' ? 1 : 0) +
+  const activeFiltersCount =
+    selectedBrands.length +
+    (selectedCategory !== "All" ? 1 : 0) +
+    (selectedPriceRange.label !== "All Prices" ? 1 : 0) +
+    (selectedYear !== "All Years" ? 1 : 0) +
     (searchQuery.trim() ? 1 : 0);
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -252,23 +281,51 @@ export default function Collection() {
     <main className="min-h-screen bg-black text-white">
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24">
+        {/* Breadcrumbs - Fixed at top below navbar */}
+        <nav
+          className={`absolute top-20 lg:top-24 left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}
+          style={{ transitionDelay: "0.1s" }}
+        >
+          <div className="max-w-7xl mx-auto">
+            <ol
+              className="flex items-center gap-2 text-sm"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              <li>
+                <Link
+                  to="/"
+                  className="text-white/50 hover:text-white transition-colors duration-300"
+                >
+                  Home
+                </Link>
+              </li>
+              <li className="text-white/30">/</li>
+              <li className="text-white">Collection</li>
+            </ol>
+          </div>
+        </nav>
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           <div className="text-center">
-            <h1 
+            <h1
               className={`text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 transition-all duration-1000 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
               }`}
-              style={{ fontFamily: 'Cera Pro, sans-serif' }}
+              style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
               The Collection<span className="text-white/30">.</span>
             </h1>
-            <p 
+            <p
               className={`text-white/60 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-100 ${
-                isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
               }`}
-              style={{ fontFamily: 'Montserrat, sans-serif' }}
+              style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Explore our curated selection of the world's most prestigious automobiles
+              Explore our curated selection of the world's most prestigious
+              automobiles
             </p>
           </div>
         </div>
@@ -278,17 +335,27 @@ export default function Collection() {
       <section className="pb-20 lg:pb-32">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           {/* Filter Bar */}
-          <div 
+          <div
             className={`mb-8 lg:mb-12 transition-all duration-1000 delay-200 relative z-50 ${
-              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
             {/* Mobile Filter Toggle */}
             <div className="lg:hidden flex items-center justify-between mb-6">
               {/* Mobile Search */}
               <div className="relative flex-1 mr-3">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 <input
                   type="text"
@@ -296,16 +363,26 @@ export default function Collection() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors duration-300"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
                 />
               </div>
-              
+
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className="flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:border-white/40 transition-colors duration-300"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                  />
                 </svg>
                 {activeFiltersCount > 0 && (
                   <span className="w-5 h-5 bg-white text-black text-xs font-bold rounded-full flex items-center justify-center">
@@ -319,8 +396,18 @@ export default function Collection() {
             <div className="hidden lg:flex items-center justify-between gap-6 pb-6 border-b border-white/10">
               {/* Search Box */}
               <div className="relative w-72">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 <input
                   type="text"
@@ -328,15 +415,25 @@ export default function Collection() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-2.5 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/50 transition-colors duration-300"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
                 />
                 {searchQuery && (
                   <button
-                    onClick={() => setSearchQuery('')}
+                    onClick={() => setSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors duration-300"
                   >
-                    <svg className="w-3 h-3 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      className="w-3 h-3 text-white/60"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 )}
@@ -350,17 +447,23 @@ export default function Collection() {
                     onClick={() => toggleBrand(brand.name)}
                     className={`group relative w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
                       selectedBrands.includes(brand.name)
-                        ? 'border-white bg-white/15 scale-110'
-                        : 'border-white/30 hover:border-white/60 hover:bg-white/5'
+                        ? "border-white bg-white/15 scale-110"
+                        : "border-white/30 hover:border-white/60 hover:bg-white/5"
                     }`}
                   >
-                    <img 
+                    <img
                       src={brand.logo}
                       alt={brand.name}
                       className={`w-7 h-7 object-contain transition-all duration-300 ${
-                        selectedBrands.includes(brand.name) ? 'opacity-100 brightness-110' : 'opacity-70 group-hover:opacity-100 group-hover:brightness-110'
+                        selectedBrands.includes(brand.name)
+                          ? "opacity-100 brightness-110"
+                          : "opacity-70 group-hover:opacity-100 group-hover:brightness-110"
                       }`}
-                      style={brand.filter ? { filter: 'brightness(0) invert(1)' } : {}}
+                      style={
+                        brand.filter
+                          ? { filter: "brightness(0) invert(1)" }
+                          : {}
+                      }
                     />
                     {/* Tooltip */}
                     <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">
@@ -372,35 +475,47 @@ export default function Collection() {
 
               {/* Right Side Controls */}
               <div className="flex items-center gap-5">
-                <span className="text-white/50 text-sm">{filteredCars.length} vehicles</span>
-                
+                <span className="text-white/50 text-sm">
+                  {filteredCars.length} vehicles
+                </span>
+
                 {/* Custom Sort Dropdown */}
                 <div className="relative sort-dropdown">
                   <button
                     onClick={() => setIsSortOpen(!isSortOpen)}
                     className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm transition-all duration-300 ${
-                      isSortOpen ? 'border-white/60 bg-white/10' : 'border-white/30 hover:border-white/50 bg-black/50'
+                      isSortOpen
+                        ? "border-white/60 bg-white/10"
+                        : "border-white/30 hover:border-white/50 bg-black/50"
                     }`}
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    <span className="text-white/90 font-medium">{sortOptions.find(o => o.value === sortBy)?.label}</span>
-                    <svg 
-                      className={`w-4 h-4 text-white/70 transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} 
-                      fill="none" 
-                      stroke="currentColor" 
+                    <span className="text-white/90 font-medium">
+                      {sortOptions.find((o) => o.value === sortBy)?.label}
+                    </span>
+                    <svg
+                      className={`w-4 h-4 text-white/70 transition-transform duration-300 ${isSortOpen ? "rotate-180" : ""}`}
+                      fill="none"
+                      stroke="currentColor"
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   </button>
-                  
+
                   {/* Dropdown Menu */}
-                  <div 
+                  <div
                     className={`absolute right-0 top-full mt-3 w-56 py-3 bg-black border border-white/20 rounded-xl shadow-2xl transition-all duration-300 z-9999 backdrop-blur-md ${
-                      isSortOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
+                      isSortOpen
+                        ? "opacity-100 translate-y-0 pointer-events-auto"
+                        : "opacity-0 -translate-y-2 pointer-events-none"
                     }`}
                   >
-                    
                     {sortOptions.map((option) => (
                       <button
                         key={option.value}
@@ -410,16 +525,24 @@ export default function Collection() {
                         }}
                         className={`w-full text-left px-4 py-3 text-sm transition-all duration-200 group relative ${
                           sortBy === option.value
-                            ? 'bg-white/15 text-white border-l-2 border-white'
-                            : 'text-white/70 hover:text-white hover:bg-white/8'
+                            ? "bg-white/15 text-white border-l-2 border-white"
+                            : "text-white/70 hover:text-white hover:bg-white/8"
                         }`}
-                        style={{ fontFamily: 'Montserrat, sans-serif' }}
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
                       >
                         <div className="flex items-center justify-between">
                           <span className="font-medium">{option.label}</span>
                           {sortBy === option.value && (
-                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            <svg
+                              className="w-4 h-4 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
                             </svg>
                           )}
                         </div>
@@ -432,7 +555,7 @@ export default function Collection() {
                   <button
                     onClick={clearFilters}
                     className="text-sm text-white/50 hover:text-white transition-colors duration-300 underline underline-offset-4"
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Clear all
                   </button>
@@ -448,10 +571,10 @@ export default function Collection() {
                   onClick={() => setSelectedCategory(category)}
                   className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     selectedCategory === category
-                      ? 'bg-white text-black'
-                      : 'border border-white/20 text-white/70 hover:border-white/40 hover:text-white'
+                      ? "bg-white text-black"
+                      : "border border-white/20 text-white/70 hover:border-white/40 hover:text-white"
                   }`}
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {category}
                 </button>
@@ -460,15 +583,18 @@ export default function Collection() {
           </div>
 
           {/* Mobile Filter Panel */}
-          <div 
+          <div
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              isFilterOpen ? 'max-h-150 opacity-100 mb-8' : 'max-h-0 opacity-0'
+              isFilterOpen ? "max-h-150 opacity-100 mb-8" : "max-h-0 opacity-0"
             }`}
           >
             <div className="p-6 border border-white/10 rounded-xl space-y-6">
               {/* Brands */}
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <h3
+                  className="text-sm font-semibold uppercase tracking-wider mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
                   Brands
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
@@ -478,21 +604,33 @@ export default function Collection() {
                       onClick={() => toggleBrand(brand.name)}
                       className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
                         selectedBrands.includes(brand.name)
-                          ? 'border-white bg-white/15 scale-105'
-                          : 'border-white/20 hover:border-white/40'
+                          ? "border-white bg-white/15 scale-105"
+                          : "border-white/20 hover:border-white/40"
                       }`}
                     >
-                      <img 
+                      <img
                         src={brand.logo}
                         alt={brand.name}
                         className={`w-10 h-10 object-contain transition-all duration-300 ${
-                          selectedBrands.includes(brand.name) ? 'opacity-100 brightness-110' : 'opacity-70'
+                          selectedBrands.includes(brand.name)
+                            ? "opacity-100 brightness-110"
+                            : "opacity-70"
                         }`}
-                        style={brand.filter ? { filter: 'brightness(0) invert(1)' } : {}}
+                        style={
+                          brand.filter
+                            ? { filter: "brightness(0) invert(1)" }
+                            : {}
+                        }
                       />
-                      <span className={`text-xs transition-colors duration-300 ${
-                        selectedBrands.includes(brand.name) ? 'text-white' : 'text-white/60'
-                      }`}>{brand.name}</span>
+                      <span
+                        className={`text-xs transition-colors duration-300 ${
+                          selectedBrands.includes(brand.name)
+                            ? "text-white"
+                            : "text-white/60"
+                        }`}
+                      >
+                        {brand.name}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -500,7 +638,10 @@ export default function Collection() {
 
               {/* Categories */}
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <h3
+                  className="text-sm font-semibold uppercase tracking-wider mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
                   Category
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -510,10 +651,10 @@ export default function Collection() {
                       onClick={() => setSelectedCategory(category)}
                       className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
                         selectedCategory === category
-                          ? 'bg-white text-black'
-                          : 'border border-white/20 text-white/70'
+                          ? "bg-white text-black"
+                          : "border border-white/20 text-white/70"
                       }`}
-                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {category}
                     </button>
@@ -523,7 +664,10 @@ export default function Collection() {
 
               {/* Price Range */}
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <h3
+                  className="text-sm font-semibold uppercase tracking-wider mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
                   Price Range
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -533,10 +677,10 @@ export default function Collection() {
                       onClick={() => setSelectedPriceRange(range)}
                       className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
                         selectedPriceRange.label === range.label
-                          ? 'bg-white text-black'
-                          : 'border border-white/20 text-white/70'
+                          ? "bg-white text-black"
+                          : "border border-white/20 text-white/70"
                       }`}
-                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {range.label}
                     </button>
@@ -546,7 +690,10 @@ export default function Collection() {
 
               {/* Year */}
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <h3
+                  className="text-sm font-semibold uppercase tracking-wider mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
                   Year
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -556,10 +703,10 @@ export default function Collection() {
                       onClick={() => setSelectedYear(year)}
                       className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
                         selectedYear === year
-                          ? 'bg-white text-black'
-                          : 'border border-white/20 text-white/70'
+                          ? "bg-white text-black"
+                          : "border border-white/20 text-white/70"
                       }`}
-                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {year}
                     </button>
@@ -569,7 +716,10 @@ export default function Collection() {
 
               {/* Sort */}
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider mb-4" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <h3
+                  className="text-sm font-semibold uppercase tracking-wider mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
                   Sort By
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -579,10 +729,10 @@ export default function Collection() {
                       onClick={() => setSortBy(option.value)}
                       className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
                         sortBy === option.value
-                          ? 'bg-white text-black'
-                          : 'border border-white/20 text-white/70'
+                          ? "bg-white text-black"
+                          : "border border-white/20 text-white/70"
                       }`}
-                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {option.label}
                     </button>
@@ -595,7 +745,7 @@ export default function Collection() {
                 <button
                   onClick={clearFilters}
                   className="w-full py-3 border border-white/20 rounded-lg text-sm text-white/70 hover:border-white/40 hover:text-white transition-all duration-300"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   Clear All Filters
                 </button>
@@ -605,75 +755,88 @@ export default function Collection() {
 
           {/* Cars Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {paginatedCars.map((car, index) => (
-              <Link
-                to={`/car/${car.slug}`}
-                key={`${car.id}-${index}-${currentPage}`}
-                className={`group relative transition-all duration-700 ${
-                  isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-                }`}
-                style={{ transitionDelay: `${100 + index * 50}ms` }}
-              >
-                {/* Card */}
-                <div className="relative aspect-4/3 rounded-xl overflow-hidden">
-                  {/* Image */}
-                  <img 
-                    src={car.image}
-                    alt={car.name}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-500" />
+            {isContentLoading
+              ? // Skeleton Loading State
+                [...Array(6)].map((_, index) => <SkeletonCarCard key={index} />)
+              : paginatedCars.map((car, index) => (
+                  <Link
+                    to={`/car/${car.slug}`}
+                    key={`${car.id}-${index}-${currentPage}`}
+                    className={`group relative transition-all duration-700 ${
+                      isLoaded
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                    }`}
+                    style={{ transitionDelay: `${100 + index * 50}ms` }}
+                  >
+                    {/* Card */}
+                    <div className="relative aspect-4/3 rounded-xl overflow-hidden">
+                      {/* Image */}
+                      <LazyImage
+                        src={car.image}
+                        alt={car.name}
+                        className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-110"
+                      />
 
-                  {/* Content */}
-                  <div className="absolute inset-0 flex flex-col justify-between p-5">
-                    {/* Top */}
-                    <div className="flex items-start justify-between">
-                      <span className="px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 tracking-wider uppercase">
-                        {car.category}
-                      </span>
-                      <span className="px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white/80">
-                        {car.year}
-                      </span>
-                    </div>
+                      {/* Overlay */}
+                      <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-500" />
 
-                    {/* Bottom */}
-                    <div>
-                      <h3 
-                        className="text-xl lg:text-2xl font-bold text-white mb-2 group-hover:translate-y-0 translate-y-1 transition-transform duration-300"
-                        style={{ fontFamily: 'Cera Pro, sans-serif' }}
-                      >
-                        {car.name}
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-2xl font-bold text-white" style={{ fontFamily: 'Cera Pro, sans-serif' }}>
-                            {formatPrice(car.price)}
+                      {/* Content */}
+                      <div className="absolute inset-0 flex flex-col justify-between p-5">
+                        {/* Top */}
+                        <div className="flex items-start justify-between">
+                          <span className="px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 tracking-wider uppercase">
+                            {car.category}
                           </span>
-                          <span className="text-white/50 text-sm ml-2">
-                            {car.mileage.toLocaleString()} mi
+                          <span className="px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white/80">
+                            {car.year}
                           </span>
                         </div>
-                        <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
-                          <svg 
-                            className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
+
+                        {/* Bottom */}
+                        <div>
+                          <h3
+                            className="text-xl lg:text-2xl font-bold text-white mb-2 group-hover:translate-y-0 translate-y-1 transition-transform duration-300"
+                            style={{ fontFamily: "Cera Pro, sans-serif" }}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
+                            {car.name}
+                          </h3>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span
+                                className="text-2xl font-bold text-white"
+                                style={{ fontFamily: "Cera Pro, sans-serif" }}
+                              >
+                                {formatPrice(car.price)}
+                              </span>
+                              <span className="text-white/50 text-sm ml-2">
+                                {car.mileage.toLocaleString()} mi
+                              </span>
+                            </div>
+                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
+                              <svg
+                                className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                                />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Hover Glow */}
-                <div className="absolute -inset-0.5 bg-linear-to-r from-white/20 via-white/5 to-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
-              </Link>
-            ))}
+                    {/* Hover Glow */}
+                    <div className="absolute -inset-0.5 bg-linear-to-r from-white/20 via-white/5 to-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
+                  </Link>
+                ))}
           </div>
 
           {/* Pagination */}
@@ -681,49 +844,73 @@ export default function Collection() {
             <div className="flex items-center justify-center gap-2 mt-12">
               {/* Previous Button */}
               <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
                   currentPage === 1
-                    ? 'border-white/10 text-white/30 cursor-not-allowed'
-                    : 'border-white/30 text-white hover:border-white hover:bg-white/10'
+                    ? "border-white/10 text-white/30 cursor-not-allowed"
+                    : "border-white/30 text-white hover:border-white hover:bg-white/10"
                 }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
 
               {/* Page Numbers */}
               <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-300 ${
-                      currentPage === page
-                        ? 'bg-white text-black'
-                        : 'text-white/70 hover:bg-white/10 hover:text-white'
-                    }`}
-                    style={{ fontFamily: 'Montserrat, sans-serif' }}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-300 ${
+                        currentPage === page
+                          ? "bg-white text-black"
+                          : "text-white/70 hover:bg-white/10 hover:text-white"
+                      }`}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
               </div>
 
               {/* Next Button */}
               <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
                 className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
                   currentPage === totalPages
-                    ? 'border-white/10 text-white/30 cursor-not-allowed'
-                    : 'border-white/30 text-white hover:border-white hover:bg-white/10'
+                    ? "border-white/10 text-white/30 cursor-not-allowed"
+                    : "border-white/30 text-white hover:border-white hover:bg-white/10"
                 }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
             </div>
@@ -731,8 +918,13 @@ export default function Collection() {
 
           {/* Results Info */}
           {filteredCars.length > 0 && (
-            <p className="text-center text-white/40 text-sm mt-6" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredCars.length)} of {filteredCars.length} vehicles
+            <p
+              className="text-center text-white/40 text-sm mt-6"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+              {Math.min(currentPage * ITEMS_PER_PAGE, filteredCars.length)} of{" "}
+              {filteredCars.length} vehicles
             </p>
           )}
 
@@ -740,20 +932,36 @@ export default function Collection() {
           {filteredCars.length === 0 && (
             <div className="text-center py-20">
               <div className="w-16 h-16 mx-auto mb-6 rounded-full border border-white/20 flex items-center justify-center">
-                <svg className="w-8 h-8 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="w-8 h-8 text-white/40"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-3" style={{ fontFamily: 'Cera Pro, sans-serif' }}>
+              <h3
+                className="text-2xl font-bold mb-3"
+                style={{ fontFamily: "Cera Pro, sans-serif" }}
+              >
                 No vehicles found
               </h3>
-              <p className="text-white/50 mb-6" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              <p
+                className="text-white/50 mb-6"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
                 Try adjusting your filters to see more results
               </p>
               <button
                 onClick={clearFilters}
                 className="px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-white/90 transition-colors duration-300"
-                style={{ fontFamily: 'Montserrat, sans-serif' }}
+                style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Clear Filters
               </button>
