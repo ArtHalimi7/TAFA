@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import bgImage from '../assets/images/bg.jpg'
 import mercedesLogo from '../assets/images/mercedes.png'
 import bmwLogo from '../assets/images/bmw.png'
@@ -65,19 +66,17 @@ const Hero = () => {
         <div 
           className={`mt-12 transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <button className="group relative px-8 py-4 bg-white text-black font-semibold tracking-widest uppercase text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.1)]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-            <span className="flex items-center gap-3">
-              Explore Collection
-              <svg 
-                className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </span>
-          </button>
+          <Link to="/collection" className="group relative px-8 py-4 bg-white text-black font-semibold tracking-widest uppercase text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.1)] inline-flex items-center gap-3" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            Explore Collection
+            <svg 
+              className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
         </div>
 
         {/* Mobile Brand Showcase */}

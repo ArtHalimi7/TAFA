@@ -117,6 +117,8 @@ export default function CarDetail() {
   const [animatedPrice, setAnimatedPrice] = useState(0);
   const [specsVisible, setSpecsVisible] = useState(false);
   const [galleryVisible, setGalleryVisible] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
   const specsRef = useRef(null);
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
@@ -231,6 +233,29 @@ export default function CarDetail() {
     setModalImageIndex((prev) => (prev - 1 + car.images.length) % car.images.length);
   };
 
+  // Handle swipe gestures
+  const handleTouchStart = (e) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    setTouchEnd(e.changedTouches[0].clientX);
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50; // Swipe left (next image)
+    const isRightSwipe = distance < -50; // Swipe right (previous image)
+
+    if (isLeftSwipe) {
+      nextImage();
+    } else if (isRightSwipe) {
+      prevImage();
+    }
+  };
+
   const specs = [
     { label: 'Horsepower', value: car.horsepower, suffix: 'HP' },
     { label: 'Torque', value: car.torque, suffix: 'lb-ft' },
@@ -250,9 +275,9 @@ export default function CarDetail() {
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative min-h-screen">
+      <section className="relative min-h-[60vh] sm:min-h-screen">
         {/* Main Image */}
-        <div className="relative h-screen overflow-hidden">
+        <div className="relative h-[60vh] sm:h-screen overflow-hidden">
           <div 
             className={`absolute inset-0 transition-all duration-[1.5s] ease-out ${
               isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-100'
@@ -261,11 +286,12 @@ export default function CarDetail() {
             <img 
               src={car.images[activeImageIndex]}
               alt={car.name}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-cover object-[center_40%] sm:object-center"
             />
             {/* Gradient overlays */}
-            <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent" />
-            <div className="absolute inset-0 bg-linear-to-r from-black/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-black/30" /> {/* General dark overlay for text readability */}
+            <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/20" />
+            <div className="absolute inset-0 bg-linear-to-r from-black/70 via-transparent to-transparent" />
           </div>
 
           {/* Image Navigation Dots */}
@@ -688,15 +714,15 @@ export default function CarDetail() {
                 </span>
               </button>
               <button 
-                className="group px-10 py-4 border border-white/30 text-white font-semibold tracking-widest uppercase text-sm transition-all duration-300 hover:border-white hover:bg-white/10 rounded-lg"
+                className="group flex items-center justify-center gap-2.5 px-6 py-3.5 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
                 style={{ fontFamily: 'Montserrat, sans-serif' }}
               >
-                <span className="flex items-center justify-center gap-3">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
-                  Contact Us
-                </span>
+                </div>
+                <span className="text-sm font-medium tracking-wide text-white">Contact Us</span>
               </button>
             </div>
           </div>
@@ -708,6 +734,8 @@ export default function CarDetail() {
         <div 
           className="fixed inset-0 z-50 bg-black/98 flex flex-col"
           onClick={() => setIsGalleryOpen(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Modal Header */}
           <div className="flex items-center justify-between p-4 sm:p-6">
@@ -743,13 +771,13 @@ export default function CarDetail() {
 
           {/* Main Image Area */}
           <div 
-            className="flex-1 flex items-center justify-center px-4 sm:px-16 lg:px-24 relative"
+            className="flex-1 flex items-center justify-center px-2 sm:px-16 lg:px-24 relative"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Previous Button */}
             <button 
               onClick={prevImage}
-              className="hidden sm:flex absolute left-2 sm:left-6 lg:left-12 z-10 w-10 h-10 sm:w-14 sm:h-14 items-center justify-center border border-white/20 rounded-full bg-black/50 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 group"
+              className="absolute left-2 sm:left-6 lg:left-12 z-10 w-10 h-10 sm:w-14 sm:h-14 items-center justify-center border border-white/20 rounded-full bg-black/50 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 group flex"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
@@ -761,7 +789,7 @@ export default function CarDetail() {
               <img 
                 src={car.images[modalImageIndex]}
                 alt={`${car.name} - View ${modalImageIndex + 1}`}
-                className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain select-none transition-opacity duration-300"
+                className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain select-none transition-opacity duration-300 pointer-events-none"
                 draggable={false}
               />
             </div>
@@ -769,17 +797,22 @@ export default function CarDetail() {
             {/* Next Button */}
             <button 
               onClick={nextImage}
-              className="hidden sm:flex absolute right-2 sm:right-6 lg:right-12 z-10 w-10 h-10 sm:w-14 sm:h-14 items-center justify-center border border-white/20 rounded-full bg-black/50 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 group"
+              className="absolute right-2 sm:right-6 lg:right-12 z-10 w-10 h-10 sm:w-14 sm:h-14 items-center justify-center border border-white/20 rounded-full bg-black/50 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 group flex"
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white/70 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
               </svg>
             </button>
+
+            {/* Mobile Swipe Hint */}
+            <div className="absolute sm:bottom-20 bottom-24 left-1/2 -translate-x-1/2 sm:hidden text-white/40 text-xs tracking-wider" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+              Swipe to navigate
+            </div>
           </div>
 
           {/* Thumbnail Strip */}
           <div 
-            className="p-4 sm:p-6"
+            className="pt-2 sm:pt-3 pb-4 sm:pb-6 px-4 sm:px-6"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
@@ -803,7 +836,7 @@ export default function CarDetail() {
             </div>
             
             {/* Keyboard hint */}
-            <div className="hidden sm:flex justify-center mt-4 gap-4 text-white/30 text-xs" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            <div className="hidden sm:flex justify-center mt-3 gap-4 text-white/30 text-xs" style={{ fontFamily: 'Montserrat, sans-serif' }}>
               <span className="flex items-center gap-1">
                 <kbd className="px-2 py-0.5 bg-white/10 rounded text-white/50">←</kbd>
                 <kbd className="px-2 py-0.5 bg-white/10 rounded text-white/50">→</kbd>
@@ -821,11 +854,15 @@ export default function CarDetail() {
       {/* Floating Action Button - Mobile */}
       <div className="fixed bottom-6 right-6 lg:hidden z-40">
         <button 
-          className="w-14 h-14 bg-white text-black rounded-full flex items-center justify-center shadow-[0_10px_40px_rgba(255,255,255,0.2)] active:scale-95 transition-transform duration-200"
+          className="group w-14 h-14 bg-black/70 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] active:scale-95 hover:bg-black/90 hover:border-white/40 transition-all duration-300"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-          </svg>
+          <div className="relative">
+            <svg className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            {/* Pulse ring animation */}
+            <div className="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-30" />
+          </div>
         </button>
       </div>
     </main>

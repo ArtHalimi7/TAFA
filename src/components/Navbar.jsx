@@ -31,11 +31,11 @@ const Navbar = () => {
   }, [isSidebarOpen])
 
   const navLinks = [
-    { id: 'home', label: 'Home' },
-    { id: 'collection', label: 'Collection' },
-    { id: 'about', label: 'About' },
-    { id: 'services', label: 'Services' },
-    { id: 'contact', label: 'Contact' },
+    { id: 'home', label: 'Home', path: '/' },
+    { id: 'collection', label: 'Collection', path: '/collection' },
+    { id: 'about', label: 'About', path: '/#about' },
+    { id: 'services', label: 'Services', path: '/#services' },
+    { id: 'contact', label: 'Contact', path: '/#contact' },
   ]
 
   return (
@@ -78,13 +78,23 @@ const Navbar = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6">
               {navLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={`#${link.id}`}
-                  className="text-sm text-neutral-400 hover:text-white transition-colors duration-300"
-                >
-                  {link.label}
-                </a>
+                link.path.startsWith('/') && !link.path.includes('#') ? (
+                  <Link
+                    key={link.id}
+                    to={link.path}
+                    className="text-sm text-neutral-400 hover:text-white transition-colors duration-300"
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.id}
+                    href={link.path}
+                    className="text-sm text-neutral-400 hover:text-white transition-colors duration-300"
+                  >
+                    {link.label}
+                  </a>
+                )
               ))}
             </div>
 
@@ -144,13 +154,23 @@ const Navbar = () => {
                   className={`transition-all duration-500 ${isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
                   style={{ transitionDelay: isSidebarOpen ? `${index * 0.05}s` : '0s' }}
                 >
-                  <a
-                    href={`#${link.id}`}
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="block text-4xl font-display font-light text-white hover:text-neutral-400 transition-colors duration-300"
-                  >
-                    {link.label}
-                  </a>
+                  {link.path.startsWith('/') && !link.path.includes('#') ? (
+                    <Link
+                      to={link.path}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="block text-4xl font-display font-light text-white hover:text-neutral-400 transition-colors duration-300"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={link.path}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="block text-4xl font-display font-light text-white hover:text-neutral-400 transition-colors duration-300"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
