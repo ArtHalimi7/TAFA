@@ -31,11 +31,9 @@ const Navbar = () => {
   }, [isSidebarOpen])
 
   const navLinks = [
-    { id: 'home', label: 'Home', path: '/' },
     { id: 'collection', label: 'Collection', path: '/collection' },
-    { id: 'about', label: 'About', path: '/#about' },
-    { id: 'services', label: 'Services', path: '/#services' },
-    { id: 'contact', label: 'Contact', path: '/#contact' },
+    { id: 'about', label: 'About', path: '/about' },
+    { id: 'contact', label: 'Contact', path: '/contact' },
   ]
 
   return (

@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 import Home from './pages/Home'
 import CarDetail from './pages/CarDetail'
 import Collection from './pages/Collection'
+import About from './pages/About'
+import Contact from './pages/Contact'
 import Navbar from './components/Navbar'
 
 // ScrollToTop component - scrolls to top on route change
@@ -24,6 +26,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/collection" element={<Collection />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/car/:slug" element={<CarDetail />} />
       </Routes>
     </Router>

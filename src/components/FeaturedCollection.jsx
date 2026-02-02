@@ -133,19 +133,26 @@ export default function FeaturedCollection() {
           ))}
         </div>
 
-        {/* CTA Button */}
         <div 
-          className={`text-center mt-16 lg:mt-24 transition-all duration-1000 delay-500 ${
-            isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <button 
-            className="px-10 py-4 border border-white text-white font-semibold hover:bg-white hover:text-black transition-all duration-300 rounded-lg"
-            style={{ fontFamily: 'Montserrat, sans-serif' }}
-          >
-            Explore Full Collection
-          </button>
-        </div>
+                    className={`mt-8 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                    style={{ transitionDelay: '0.3s' }}
+                  >
+                    <Link 
+                      to="/collection" 
+                      className="group relative inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40" 
+                      style={{ fontFamily: 'Montserrat, sans-serif' }}
+                    >
+                      Explore Collection
+                      <svg 
+                        className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    </Link>
+                  </div>
       </div>
     </section>
   );
