@@ -392,7 +392,7 @@ export default function Collection() {
                   
                   {/* Dropdown Menu */}
                   <div 
-                    className={`absolute right-0 top-full mt-3 w-56 py-3 bg-black border border-white/20 rounded-xl shadow-2xl transition-all duration-300 z-[9999] backdrop-blur-md ${
+                    className={`absolute right-0 top-full mt-3 w-56 py-3 bg-black border border-white/20 rounded-xl shadow-2xl transition-all duration-300 z-9999 backdrop-blur-md ${
                       isSortOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'
                     }`}
                   >
@@ -458,7 +458,7 @@ export default function Collection() {
           {/* Mobile Filter Panel */}
           <div 
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              isFilterOpen ? 'max-h-[600px] opacity-100 mb-8' : 'max-h-0 opacity-0'
+              isFilterOpen ? 'max-h-150 opacity-100 mb-8' : 'max-h-0 opacity-0'
             }`}
           >
             <div className="p-6 border border-white/10 rounded-xl space-y-6">
@@ -611,7 +611,7 @@ export default function Collection() {
                 style={{ transitionDelay: `${100 + index * 50}ms` }}
               >
                 {/* Card */}
-                <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
+                <div className="relative aspect-4/3 rounded-xl overflow-hidden">
                   {/* Image */}
                   <img 
                     src={car.image}
@@ -620,7 +620,7 @@ export default function Collection() {
                   />
                   
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-500" />
 
                   {/* Content */}
                   <div className="absolute inset-0 flex flex-col justify-between p-5">
@@ -667,7 +667,7 @@ export default function Collection() {
                 </div>
 
                 {/* Hover Glow */}
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-white/20 via-white/5 to-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
+                <div className="absolute -inset-0.5 bg-linear-to-r from-white/20 via-white/5 to-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
               </Link>
             ))}
           </div>
