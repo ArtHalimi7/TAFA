@@ -39,7 +39,7 @@ app.use(
       "https://autosallonitafa.com",
       "https://www.autosallonitafa.com",
       // Render backend (self)
-      "https://autotafaonrender.com",
+      "https://tafa-sc0o.onrender.com",
     ],
     credentials: true,
   }),
