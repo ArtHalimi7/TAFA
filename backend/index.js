@@ -2,7 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
-require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+
+// Load .env from parent folder (local dev) or use Render's environment variables (production)
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+}
 
 const db = require("./config/db_connect");
 const { initializeDatabase } = require("./config/db_init");
