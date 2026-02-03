@@ -415,13 +415,13 @@ const Car = {
         "SELECT COUNT(*) as count FROM cars",
       );
       const [activeResult] = await db.query(
-        'SELECT COUNT(*) as count FROM cars WHERE status = "active"',
+        "SELECT COUNT(*) as count FROM cars WHERE status = 'active'",
       );
       const [draftResult] = await db.query(
-        'SELECT COUNT(*) as count FROM cars WHERE status = "draft"',
+        "SELECT COUNT(*) as count FROM cars WHERE status = 'draft'",
       );
       const [soldResult] = await db.query(
-        'SELECT COUNT(*) as count FROM cars WHERE status = "sold"',
+        "SELECT COUNT(*) as count FROM cars WHERE status = 'sold'",
       );
       const [valueResult] = await db.query(
         "SELECT SUM(price) as total FROM cars",
