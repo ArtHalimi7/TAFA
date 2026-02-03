@@ -1,11 +1,25 @@
 const db = require("../config/db_connect");
 
+// Simple in-memory cache for featured cars (expires after 5 minutes)
+const cache = {
+  featured: null,
+  featuredExpiry: 0,
+  stats: null,
+  statsExpiry: 0,
+};
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 const Car = {
-  // Get all cars with images and features
+  // Get all cars with images and features - OPTIMIZED
   async getAll(filters = {}) {
     try {
       let query = `
-        SELECT c.*, 
+        SELECT c.id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, 
+               c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
+               c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
+               c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
+               c.showcase_image, c.views, c.created_at, c.updated_at,
                GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
                GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
         FROM cars c
@@ -82,15 +96,14 @@ const Car = {
         query += " ORDER BY c.created_at DESC";
       }
 
-      // Pagination
-      if (filters.limit) {
-        query += " LIMIT ?";
-        params.push(parseInt(filters.limit));
+      // Pagination with default limit for performance
+      const limit = Math.min(parseInt(filters.limit) || 20, 100);
+      query += " LIMIT ?";
+      params.push(limit);
 
-        if (filters.offset) {
-          query += " OFFSET ?";
-          params.push(parseInt(filters.offset));
-        }
+      if (filters.offset) {
+        query += " OFFSET ?";
+        params.push(parseInt(filters.offset));
       }
 
       const [rows] = await db.query(query, params);
@@ -263,6 +276,7 @@ const Car = {
       }
 
       await connection.commit();
+      this._invalidateCache();
       return await this.getById(carId);
     } catch (error) {
       await connection.rollback();
@@ -371,6 +385,7 @@ const Car = {
       }
 
       await connection.commit();
+      this._invalidateCache();
       return await this.getById(id);
     } catch (error) {
       await connection.rollback();
@@ -385,6 +400,9 @@ const Car = {
   async delete(id) {
     try {
       const [result] = await db.query("DELETE FROM cars WHERE id = ?", [id]);
+      if (result.affectedRows > 0) {
+        this._invalidateCache();
+      }
       return result.affectedRows > 0;
     } catch (error) {
       console.error("Error deleting car:", error);
@@ -403,49 +421,67 @@ const Car = {
     }
   },
 
-  // Get featured cars
+  // Get featured cars with caching
   async getFeatured(limit = 3) {
-    return await this.getAll({ status: "active", limit });
+    // Check cache
+    if (cache.featured && cache.featuredExpiry > Date.now()) {
+      return cache.featured.slice(0, limit);
+    }
+
+    const result = await this.getAll({ status: "active", limit: 50 });
+    // Cache the result
+    cache.featured = result;
+    cache.featuredExpiry = Date.now() + CACHE_TTL;
+    return result.slice(0, limit);
   },
 
-  // Get stats for dashboard
+  // Get stats for dashboard with caching
   async getStats() {
-    try {
-      const [totalResult] = await db.query(
-        "SELECT COUNT(*) as count FROM cars",
-      );
-      const [activeResult] = await db.query(
-        "SELECT COUNT(*) as count FROM cars WHERE status = 'active'",
-      );
-      const [draftResult] = await db.query(
-        "SELECT COUNT(*) as count FROM cars WHERE status = 'draft'",
-      );
-      const [soldResult] = await db.query(
-        "SELECT COUNT(*) as count FROM cars WHERE status = 'sold'",
-      );
-      const [valueResult] = await db.query(
-        "SELECT SUM(price) as total FROM cars",
-      );
-      const [viewsResult] = await db.query(
-        "SELECT SUM(views) as total FROM cars",
-      );
-      const [avgPriceResult] = await db.query(
-        "SELECT AVG(price) as avg FROM cars",
-      );
+    // Check cache
+    if (cache.stats && cache.statsExpiry > Date.now()) {
+      return cache.stats;
+    }
 
-      return {
-        totalCars: totalResult[0].count,
-        activeCars: activeResult[0].count,
-        draftCars: draftResult[0].count,
-        soldCars: soldResult[0].count,
-        totalValue: valueResult[0].total || 0,
-        totalViews: viewsResult[0].total || 0,
-        avgPrice: avgPriceResult[0].avg || 0,
+    try {
+      // Use a single aggregation query instead of multiple queries
+      const [statsResult] = await db.query(`
+        SELECT 
+          COUNT(*) as totalCars,
+          SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as activeCars,
+          SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draftCars,
+          SUM(CASE WHEN status = 'sold' THEN 1 ELSE 0 END) as soldCars,
+          SUM(price) as totalValue,
+          SUM(views) as totalViews,
+          AVG(price) as avgPrice
+        FROM cars
+      `);
+
+      const stats = {
+        totalCars: statsResult[0].totalCars || 0,
+        activeCars: statsResult[0].activeCars || 0,
+        draftCars: statsResult[0].draftCars || 0,
+        soldCars: statsResult[0].soldCars || 0,
+        totalValue: parseFloat(statsResult[0].totalValue) || 0,
+        totalViews: statsResult[0].totalViews || 0,
+        avgPrice: parseFloat(statsResult[0].avgPrice) || 0,
       };
+
+      // Cache the result
+      cache.stats = stats;
+      cache.statsExpiry = Date.now() + CACHE_TTL;
+      return stats;
     } catch (error) {
       console.error("Error getting stats:", error);
       throw error;
     }
+  },
+
+  // Invalidate cache when data changes
+  _invalidateCache() {
+    cache.featured = null;
+    cache.featuredExpiry = 0;
+    cache.stats = null;
+    cache.statsExpiry = 0;
   },
 
   // Toggle car status

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
+const compression = require("compression");
 
 // Load .env from parent folder (local dev) or use Render's environment variables (production)
 if (process.env.NODE_ENV !== "production") {
@@ -25,6 +26,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
+app.use(compression());
 app.use(
   cors({
     origin: [
