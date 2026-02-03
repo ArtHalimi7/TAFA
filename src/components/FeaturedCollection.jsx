@@ -45,9 +45,9 @@ export default function FeaturedCollection() {
             name: car.name,
             slug: car.slug,
             category: car.category,
-            price: new Intl.NumberFormat("en-US", {
+            price: new Intl.NumberFormat("de-DE", {
               style: "currency",
-              currency: "USD",
+              currency: "EUR",
               minimumFractionDigits: 0,
             }).format(car.price),
             image:

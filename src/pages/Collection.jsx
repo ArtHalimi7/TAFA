@@ -49,10 +49,10 @@ const categories = [
 
 const priceRanges = [
   { label: "All Prices", min: 0, max: Infinity },
-  { label: "Under $100K", min: 0, max: 100000 },
-  { label: "$100K - $150K", min: 100000, max: 150000 },
-  { label: "$150K - $200K", min: 150000, max: 200000 },
-  { label: "$200K+", min: 200000, max: Infinity },
+  { label: "Under €100K", min: 0, max: 100000 },
+  { label: "€100K - €150K", min: 100000, max: 150000 },
+  { label: "€150K - €200K", min: 150000, max: 200000 },
+  { label: "€200K+", min: 200000, max: Infinity },
 ];
 
 const years = ["All Years", "2024", "2023", "2022", "2021"];
@@ -230,9 +230,9 @@ export default function Collection() {
     (searchQuery.trim() ? 1 : 0);
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("de-DE", {
       style: "currency",
-      currency: "USD",
+      currency: "EUR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
