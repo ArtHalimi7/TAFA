@@ -4,6 +4,7 @@ import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { SkeletonGallery } from "../components/Skeleton";
 import { carsApi } from "../services/api";
+import logo from "../assets/images/logo.png";
 
 // API Base URL for images
 const API_BASE_URL =
@@ -217,12 +218,12 @@ export default function CarDetail() {
 
   const nextImage = () => {
     if (!car || !car.images) return;
-    setModalImageIndex((prev) => (prev + 1) % car.images.length);
+    setActiveImageIndex((prev) => (prev + 1) % car.images.length);
   };
 
   const prevImage = () => {
     if (!car || !car.images) return;
-    setModalImageIndex(
+    setActiveImageIndex(
       (prev) => (prev - 1 + car.images.length) % car.images.length,
     );
   };
@@ -233,13 +234,12 @@ export default function CarDetail() {
   };
 
   const handleTouchEnd = (e) => {
-    setTouchEnd(e.changedTouches[0].clientX);
-    handleSwipe();
-  };
+    const endX = e.changedTouches[0].clientX;
+    setTouchEnd(endX);
 
-  const handleSwipe = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
+    // Detect swipe direction
+    if (!touchStart) return;
+    const distance = touchStart - endX;
     const isLeftSwipe = distance > 50; // Swipe left (next image)
     const isRightSwipe = distance < -50; // Swipe right (previous image)
 
@@ -252,15 +252,15 @@ export default function CarDetail() {
 
   const specs = car
     ? [
-        { label: "Horsepower", value: car.horsepower, suffix: "HP" },
-        { label: "Torque", value: car.torque, suffix: "Nm" },
+        { label: "Kuaj-fuqi", value: car.horsepower, suffix: "HP" },
+        { label: "Tërheqje", value: car.torque, suffix: "Nm" },
         {
           label: "0-100 km/h",
           value: car.acceleration,
           suffix: "s",
           isDecimal: true,
         },
-        { label: "Top Speed", value: car.topSpeed, suffix: "km/h" },
+        { label: "Shpejtësia maksimale", value: car.topSpeed, suffix: "km/h" },
       ]
     : [];
 
@@ -279,7 +279,7 @@ export default function CarDetail() {
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/60">Loading vehicle details...</p>
+          <p className="text-white/60">Duke ngarkuar detajet e mjetit...</p>
         </div>
       </main>
     );
@@ -294,16 +294,16 @@ export default function CarDetail() {
             className="text-4xl font-bold mb-4"
             style={{ fontFamily: "Cera Pro, sans-serif" }}
           >
-            Vehicle Not Found
+            Mjeti nuk u gjend
           </h1>
           <p className="text-white/60 mb-8">
-            {error || "The vehicle you're looking for doesn't exist."}
+            {error || "Mjeti që po kërkoni nuk ekziston."}
           </p>
           <Link
             to="/collection"
             className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-white/90 transition-colors"
           >
-            ← Back to Collection
+            ← Kthehu tek Koleksioni
           </Link>
         </div>
       </main>
@@ -313,10 +313,10 @@ export default function CarDetail() {
   return (
     <main className="min-h-screen bg-black text-white">
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] sm:min-h-screen">
-        {/* Breadcrumbs - Fixed at top below navbar */}
+      <section className="relative pt-20 lg:pt-24">
+        {/* Breadcrumbs */}
         <nav
-          className={`absolute top-20 lg:top-24 left-0 right-0 z-40 px-4 sm:px-6 lg:px-8 transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}
+          className={`px-4 sm:px-6 lg:px-8 mb-4 transition-all duration-700 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"}`}
           style={{ transitionDelay: "0.1s" }}
         >
           <div className="max-w-7xl mx-auto">
@@ -329,7 +329,7 @@ export default function CarDetail() {
                   to="/"
                   className="text-white/50 hover:text-white transition-colors duration-300"
                 >
-                  Home
+                  Faqja kryesore
                 </Link>
               </li>
               <li className="text-white/30">/</li>
@@ -338,7 +338,7 @@ export default function CarDetail() {
                   to="/collection"
                   className="text-white/50 hover:text-white transition-colors duration-300"
                 >
-                  Collection
+                  Koleksioni
                 </Link>
               </li>
               <li className="text-white/30">/</li>
@@ -348,172 +348,237 @@ export default function CarDetail() {
             </ol>
           </div>
         </nav>
+
         {/* Main Image */}
-        <div className="relative h-[60vh] sm:h-screen overflow-hidden">
-          {/* All images stacked with fade transitions */}
-          {car.images &&
-            car.images.map((image, index) => (
-              <div
-                key={index}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  activeImageIndex === index ? "opacity-100" : "opacity-0"
-                }`}
-              >
-                <img
-                  src={image}
-                  alt={`${car.name} - Image ${index + 1}`}
-                  className="w-full h-full object-cover object-center"
-                  style={{ objectPosition: "center 40%" }}
-                />
-              </div>
-            ))}
-          {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-black/30" />
-          <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/20" />
-          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-transparent to-transparent" />
-
-          {/* Image Navigation Dots */}
+        <div className="px-4 sm:px-6 lg:px-8">
           <div
-            className={`absolute bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20 transition-all duration-1000 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-            style={{ transitionDelay: "0.8s" }}
+            className="relative max-w-7xl mx-auto aspect-[16/9] sm:aspect-[2/1] lg:aspect-[21/9] overflow-hidden rounded-xl cursor-grab active:cursor-grabbing"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
-            {car.images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveImageIndex(index)}
-                className={`relative w-12 h-1 rounded-full transition-all duration-500 overflow-hidden ${
-                  activeImageIndex === index
-                    ? "bg-white"
-                    : "bg-white/30 hover:bg-white/50"
-                }`}
-              >
-                {activeImageIndex === index && (
-                  <div
-                    className="absolute inset-y-0 left-0 bg-white/70 rounded-full"
-                    style={{
-                      animation: "slideProgress 5s linear forwards",
-                    }}
+            {/* All images stacked with fade transitions */}
+            {car.images &&
+              car.images.map((image, index) => (
+                <div
+                  key={index}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    activeImageIndex === index ? "opacity-100" : "opacity-0"
+                  }`}
+                >
+                  <img
+                    src={image}
+                    alt={`${car.name} - Image ${index + 1}`}
+                    className="w-full h-full object-cover select-none"
                   />
-                )}
-              </button>
-            ))}
-          </div>
+                </div>
+              ))}
 
-          {/* Autoplay progress animation */}
-          <style>{`
+            {/* Left Arrow */}
+            <button
+              onClick={prevImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center border border-white/20 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 hover:border-white/40 transition-all duration-300 group"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6 text-white/60 group-hover:text-white transition-colors duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            {/* Right Arrow */}
+            <button
+              onClick={nextImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center border border-white/20 rounded-full bg-black/30 backdrop-blur-sm hover:bg-black/50 hover:border-white/40 transition-all duration-300 group"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6 text-white/60 group-hover:text-white transition-colors duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+
+            {/* Image Navigation Dots */}
+            <div
+              className={`absolute bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20 transition-all duration-1000 ${
+                isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+              style={{ transitionDelay: "0.8s" }}
+            >
+              {car.images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveImageIndex(index)}
+                  className={`relative w-6 sm:w-12 h-0.5 sm:h-1 rounded-full transition-all duration-500 overflow-hidden ${
+                    activeImageIndex === index
+                      ? "bg-white"
+                      : "bg-white/30 hover:bg-white/50"
+                  }`}
+                >
+                  {activeImageIndex === index && (
+                    <div
+                      className="absolute inset-y-0 left-0 bg-white/70 rounded-full"
+                      style={{
+                        animation: "slideProgress 5s linear forwards",
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {/* Autoplay progress animation */}
+            <style>{`
             @keyframes slideProgress {
               from { width: 0%; }
               to { width: 100%; }
             }
           `}</style>
+          </div>
+        </div>
 
-          {/* Hero Content */}
-          <div className="absolute inset-0 flex items-center justify-center sm:justify-start p-6 sm:p-12 lg:p-24">
-            <div className="w-full sm:max-w-7xl mx-auto text-center sm:text-left">
-              {/* Category Badge */}
-              <div
-                className={`inline-block mb-4 transition-all duration-1000 ${
-                  isLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-                style={{ transitionDelay: "0.2s" }}
-              >
-                <span
-                  className="px-4 py-1.5 border border-white/30 rounded-full text-xs font-medium tracking-[0.2em] uppercase text-white/80"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
+        {/* Hero Content - Below Image */}
+        <div className="py-10 sm:py-12 lg:py-16 px-6 sm:px-12 lg:px-24">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 items-start">
+              {/* Left Content */}
+              <div className="lg:col-span-2 text-center sm:text-left">
+                {/* Category Badge */}
+                <div
+                  className={`inline-block mb-4 transition-all duration-1000 ${
+                    isLoaded
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{ transitionDelay: "0.2s" }}
                 >
-                  {car.category}
-                </span>
+                  <span
+                    className="px-4 py-1.5 border border-white/30 rounded-full text-xs font-medium tracking-[0.2em] uppercase text-white/80"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    {car.category}
+                  </span>
+                </div>
+
+                {/* Car Name */}
+                <h1
+                  className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 transition-all duration-1000 ${
+                    isLoaded
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-8"
+                  }`}
+                  style={{
+                    fontFamily: "Cera Pro, sans-serif",
+                    letterSpacing: "-0.02em",
+                    transitionDelay: "0.3s",
+                  }}
+                >
+                  {car.name}
+                </h1>
+
+                {/* Tagline */}
+                <p
+                  className={`text-lg sm:text-xl lg:text-2xl text-white/60 mb-8 transition-all duration-1000 ${
+                    isLoaded
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{
+                    fontFamily: "Montserrat, sans-serif",
+                    fontWeight: 300,
+                    transitionDelay: "0.4s",
+                  }}
+                >
+                  {car.tagline}
+                </p>
+
+                {/* Quick Stats Row */}
+                <div
+                  className={`flex flex-wrap gap-6 sm:gap-10 lg:gap-16 justify-center sm:justify-start transition-all duration-1000 ${
+                    isLoaded
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-4"
+                  }`}
+                  style={{ transitionDelay: "0.5s" }}
+                >
+                  <div className="flex flex-col">
+                    <span
+                      className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+                      style={{ fontFamily: "Cera Pro, sans-serif" }}
+                    >
+                      {car.year}
+                    </span>
+                    <span
+                      className="text-xs text-white/50 uppercase tracking-widest mt-1"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      Viti
+                    </span>
+                  </div>
+                  <div className="w-px h-12 bg-white/20 hidden sm:block" />
+                  <div className="flex flex-col">
+                    <span
+                      className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+                      style={{ fontFamily: "Cera Pro, sans-serif" }}
+                    >
+                      {car.mileage.toLocaleString()}
+                    </span>
+                    <span
+                      className="text-xs text-white/50 uppercase tracking-widest mt-1"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      Kilometra
+                    </span>
+                  </div>
+                  <div className="w-px h-12 bg-white/20 hidden sm:block" />
+                  <div className="flex flex-col">
+                    <span
+                      className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+                      style={{ fontFamily: "Cera Pro, sans-serif" }}
+                    >
+                      {formatPrice(animatedPrice)}
+                    </span>
+                    <span
+                      className="text-xs text-white/50 uppercase tracking-widest mt-1"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      Çmimi
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              {/* Car Name */}
-              <h1
-                className={`text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-bold mb-3 transition-all duration-1000 ${
+              {/* Right Logo */}
+              <div
+                className={`hidden lg:flex items-center justify-center mt-12 transition-all duration-1000 ${
                   isLoaded
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
                 }`}
-                style={{
-                  fontFamily: "Cera Pro, sans-serif",
-                  letterSpacing: "-0.02em",
-                  transitionDelay: "0.3s",
-                }}
+                style={{ transitionDelay: "0.6s" }}
               >
-                {car.name}
-              </h1>
-
-              {/* Tagline */}
-              <p
-                className={`text-lg sm:text-xl lg:text-2xl text-white/60 mb-8 transition-all duration-1000 ${
-                  isLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-                style={{
-                  fontFamily: "Montserrat, sans-serif",
-                  fontWeight: 300,
-                  transitionDelay: "0.4s",
-                }}
-              >
-                {car.tagline}
-              </p>
-
-              {/* Quick Stats Row */}
-              <div
-                className={`flex flex-wrap gap-6 sm:gap-10 lg:gap-16 justify-center sm:justify-start transition-all duration-1000 ${
-                  isLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4"
-                }`}
-                style={{ transitionDelay: "0.5s" }}
-              >
-                <div className="flex flex-col">
-                  <span
-                    className="text-3xl sm:text-4xl lg:text-5xl font-bold"
-                    style={{ fontFamily: "Cera Pro, sans-serif" }}
-                  >
-                    {car.year}
-                  </span>
-                  <span
-                    className="text-xs text-white/50 uppercase tracking-widest mt-1"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Year
-                  </span>
-                </div>
-                <div className="w-px h-12 bg-white/20 hidden sm:block" />
-                <div className="flex flex-col">
-                  <span
-                    className="text-3xl sm:text-4xl lg:text-5xl font-bold"
-                    style={{ fontFamily: "Cera Pro, sans-serif" }}
-                  >
-                    {car.mileage.toLocaleString()}
-                  </span>
-                  <span
-                    className="text-xs text-white/50 uppercase tracking-widest mt-1"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Kilometers
-                  </span>
-                </div>
-                <div className="w-px h-12 bg-white/20 hidden sm:block" />
-                <div className="flex flex-col">
-                  <span
-                    className="text-3xl sm:text-4xl lg:text-5xl font-bold"
-                    style={{ fontFamily: "Cera Pro, sans-serif" }}
-                  >
-                    {formatPrice(animatedPrice)}
-                  </span>
-                  <span
-                    className="text-xs text-white/50 uppercase tracking-widest mt-1"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Price
-                  </span>
-                </div>
+                <img
+                  src={logo}
+                  alt="TAFA Logo"
+                  className="w-full h-auto max-w-[200px] object-contain"
+                />
               </div>
             </div>
           </div>
@@ -536,7 +601,7 @@ export default function CarDetail() {
               }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Performance<span className="text-white/30">.</span>
+              Performanca<span className="text-white/30">.</span>
             </h2>
             <p
               className={`text-white/60 max-w-xl transition-all duration-1000 delay-100 ${
@@ -546,8 +611,8 @@ export default function CarDetail() {
               }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Raw power meets refined engineering. Numbers that define
-              excellence.
+              Fuqia e pastër takohet me inxhinierinë e rafinuar. Numrat që
+              përcaktojnë përsosmërinë.
             </p>
           </div>
 
@@ -605,18 +670,12 @@ export default function CarDetail() {
               }`}
               style={{ transitionDelay: "600ms" }}
             >
-              <h3
-                className="text-xl lg:text-2xl font-semibold"
-                style={{ fontFamily: "Cera Pro, sans-serif" }}
-              >
-                Powertrain
-              </h3>
               <div className="space-y-4">
                 {[
-                  { label: "Engine", value: car.engine },
-                  { label: "Transmission", value: car.transmission },
-                  { label: "Drivetrain", value: car.drivetrain },
-                  { label: "Fuel Type", value: car.fuelType },
+                  { label: "Motor", value: car.engine },
+                  { label: "Transmision", value: car.transmission },
+                  { label: "Tërheqja", value: car.drivetrain },
+                  { label: "Lloji i karburantit", value: car.fuelType },
                 ].map((item) => (
                   <div
                     key={item.label}
@@ -647,17 +706,11 @@ export default function CarDetail() {
               }`}
               style={{ transitionDelay: "700ms" }}
             >
-              <h3
-                className="text-xl lg:text-2xl font-semibold"
-                style={{ fontFamily: "Cera Pro, sans-serif" }}
-              >
-                Appearance
-              </h3>
               <div className="space-y-4">
                 {[
-                  { label: "Exterior", value: car.exteriorColor },
-                  { label: "Interior", value: car.interiorColor },
-                  { label: "Fuel Consumption", value: car.mpg },
+                  { label: "Ngjyra e jashtme", value: car.exteriorColor },
+                  { label: "Ngjyra e interierit", value: car.interiorColor },
+                  { label: "Konsum i karburantit", value: car.mpg },
                   { label: "VIN", value: car.vin },
                 ].map((item) => (
                   <div
@@ -700,7 +753,7 @@ export default function CarDetail() {
               }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Features<span className="text-white/30">.</span>
+              Veçoritë<span className="text-white/30">.</span>
             </h2>
             <div
               className={`w-16 h-1 bg-white mx-auto mb-6 transition-all duration-1000 delay-100 ${
@@ -718,7 +771,7 @@ export default function CarDetail() {
               }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Equipped with the finest technology and craftsmanship
+              I pajisur me teknologjinë dhe mjeshtërinë më të mirë
             </p>
           </div>
 
@@ -799,7 +852,7 @@ export default function CarDetail() {
                   }`}
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
-                  Gallery<span className="text-white/30">.</span>
+                  Galeria<span className="text-white/30">.</span>
                 </h2>
                 <p
                   className={`text-white/60 transition-all duration-1000 delay-100 ${
@@ -809,7 +862,7 @@ export default function CarDetail() {
                   }`}
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Explore every angle of this masterpiece
+                  Eksploro çdo kënd të këtij kryevepri
                 </p>
               </div>
               <div
@@ -837,7 +890,7 @@ export default function CarDetail() {
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                <span>Click to enlarge</span>
+                <span>Klikoni për të zmadhuar</span>
               </div>
             </div>
           </div>
@@ -907,7 +960,7 @@ export default function CarDetail() {
                 className="px-8 py-3 border border-white/30 text-white/80 font-medium tracking-wider uppercase text-sm hover:border-white hover:text-white hover:bg-white/5 transition-all duration-300 rounded-lg"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                View All {car.images.length} Photos
+                Shiko të gjitha {car.images.length} fotografitë
               </button>
             </div>
           )}
@@ -924,7 +977,7 @@ export default function CarDetail() {
                 className="text-sm text-white/50 uppercase tracking-widest mb-2"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Listed Price
+                Çmimi i listuar
               </p>
               <div className="flex items-baseline gap-2 justify-center lg:justify-start">
                 <span
@@ -938,7 +991,7 @@ export default function CarDetail() {
                 className="mt-4 text-white/50 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Financing available • Trade-ins welcome
+                Financim i disponueshëm • Pranohen këmbime
               </p>
             </div>
 
@@ -954,7 +1007,7 @@ export default function CarDetail() {
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <span className="flex items-center justify-center gap-3">
-                  Schedule Viewing
+                  Rezervo Termin
                   <svg
                     className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
                     fill="none"
@@ -970,7 +1023,8 @@ export default function CarDetail() {
                   </svg>
                 </span>
               </button>
-              <button
+              <a
+                href="tel:+38344666662"
                 className="group flex items-center justify-center gap-2.5 px-6 py-3.5 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
@@ -990,9 +1044,9 @@ export default function CarDetail() {
                   </svg>
                 </div>
                 <span className="text-sm font-medium tracking-wide text-white">
-                  Contact Us
+                  Na kontaktoni
                 </span>
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -1110,7 +1164,7 @@ export default function CarDetail() {
               className="absolute sm:bottom-20 bottom-24 left-1/2 -translate-x-1/2 sm:hidden text-white/40 text-xs tracking-wider"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Swipe to navigate
+              Rrëshqit për të naviguar
             </div>
           </div>
 
@@ -1151,13 +1205,13 @@ export default function CarDetail() {
                 <kbd className="px-2 py-0.5 bg-white/10 rounded text-white/50">
                   →
                 </kbd>
-                <span className="ml-1">Navigate</span>
+                <span className="ml-1">Lëviz</span>
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="px-2 py-0.5 bg-white/10 rounded text-white/50">
                   ESC
                 </kbd>
-                <span className="ml-1">Close</span>
+                <span className="ml-1">Mbyll</span>
               </span>
             </div>
           </div>

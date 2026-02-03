@@ -25,37 +25,22 @@ const Hero = () => {
       className="relative h-[70vh] lg:min-h-screen w-full overflow-hidden bg-black"
       aria-label="Hero section"
     >
-      {/* Background Image - revealed on the right side */}
-      <div
-        className={`absolute inset-0 transition-all duration-[1.5s] ease-out ${isLoaded ? "opacity-100" : "opacity-0"}`}
-      >
-        {/* Image container with mask gradient - full on mobile, masked on desktop */}
-        <div
-          className="absolute inset-0 lg:mask-gradient"
-          style={{
-            maskImage:
-              "linear-gradient(to right, transparent 0%, transparent 20%, black 50%, black 100%)",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, transparent 20%, black 50%, black 100%)",
-          }}
-        >
-          {/* Hero background image - not lazy loaded for LCP optimization */}
-          <img
-            src={bgImage}
-            alt=""
-            className="w-full h-full object-cover"
-            fetchpriority="high"
-            decoding="async"
-          />
-        </div>
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-black/5 lg:bg-linear-to-r lg:from-black/80 lg:via-black/60 lg:to-black/20" />
-      </div>
+      {/* Background Image */}
+      <img
+        src={bgImage}
+        alt=""
+        className={`absolute inset-0 w-full h-full object-cover transition-all duration-[1.5s] ease-out ${isLoaded ? "opacity-100" : "opacity-0"}`}
+        fetchpriority="high"
+        decoding="async"
+      />
+
+      {/* Subtle overlay for text readability */}
+      <div className="absolute inset-0 bg-black/60" />
 
       {/* Main content - Side by side layout on desktop */}
       <div className="relative z-10 flex h-[70vh] lg:min-h-screen w-full">
         {/* Left Content */}
-        <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left px-6 sm:px-12 lg:pl-32 xl:pl-40 w-full lg:w-1/2">
+        <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left px-6 sm:px-12 lg:pl-32 xl:pl-40 w-full lg:w-1/2 pt-12 sm:pt-16 lg:pt-0">
           {/* Overline */}
           <div
             className={`mb-4 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
@@ -125,7 +110,7 @@ const Hero = () => {
           </div>
 
           {/* Mobile Brand Showcase */}
-          <div className="lg:hidden mt-24 w-full">
+          <div className="lg:hidden mt-24 sm:mt-32 w-full">
             <div
               className={`flex flex-wrap justify-center gap-6 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
               style={{ transitionDelay: "0.4s" }}
@@ -160,7 +145,7 @@ const Hero = () => {
         </div>
 
         {/* Right Side - Brand Logos (Desktop) */}
-        <div className="hidden lg:flex items-center justify-center w-1/2 pl-24 xl:pl-20">
+        <div className="hidden lg:flex items-center justify-center w-1/2 pl-24 xl:pl-20 pt-16">
           <div
             className={`grid grid-cols-3 gap-8 xl:gap-12 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
             style={{ transitionDelay: "0.5s" }}

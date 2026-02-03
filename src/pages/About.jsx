@@ -108,7 +108,7 @@ export default function About() {
                   to="/"
                   className="text-white/50 hover:text-white transition-colors duration-300"
                 >
-                  Shtëpia
+                  Faqja kryesore
                 </Link>
               </li>
               <li className="text-white/30">/</li>
@@ -162,7 +162,7 @@ export default function About() {
               }}
             >
               <span className="block text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-bold">
-                Ne nuk bindemi tregut.
+                Ne nuk i bindemi tregut.
               </span>
               <span
                 className="block text-xl sm:text-2xl lg:text-4xl font-light text-white/50 mt-2 sm:mt-3 lg:mt-4"

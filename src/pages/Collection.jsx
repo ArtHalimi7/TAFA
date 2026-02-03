@@ -39,30 +39,30 @@ const brands = [
 ];
 
 const categories = [
-  "All",
-  "Performance",
-  "Luxury Sedan",
-  "Electric",
+  "Të gjitha",
+  "Performancë",
+  "Sedan",
+  "Elektrik",
   "SUV",
-  "Coupe",
+  "Kupe",
 ];
 
 const priceRanges = [
-  { label: "All Prices", min: 0, max: Infinity },
-  { label: "Under €100K", min: 0, max: 100000 },
+  { label: "Të gjitha çmimet", min: 0, max: Infinity },
+  { label: "Nën €100K", min: 0, max: 100000 },
   { label: "€100K - €150K", min: 100000, max: 150000 },
   { label: "€150K - €200K", min: 150000, max: 200000 },
-  { label: "€200K+", min: 200000, max: Infinity },
+  { label: "Mbi €200K", min: 200000, max: Infinity },
 ];
 
-const years = ["All Years", "2024", "2023", "2022", "2021"];
+const years = ["Të gjitha vitet", "2024", "2023", "2022", "2021"];
 
 const sortOptions = [
-  { value: "featured", label: "Featured" },
-  { value: "price-low", label: "Price: Low to High" },
-  { value: "price-high", label: "Price: High to Low" },
-  { value: "year-new", label: "Year: Newest" },
-  { value: "year-old", label: "Year: Oldest" },
+  { value: "featured", label: "Sipas relevancës" },
+  { value: "price-low", label: "Çmimi: ulët në të lartë" },
+  { value: "price-high", label: "Çmimi: i lartë në të ulët" },
+  { value: "year-new", label: "Viti: Më i ri" },
+  { value: "year-old", label: "Viti: Më i vjetër" },
 ];
 
 const ITEMS_PER_PAGE = 6;
@@ -107,7 +107,7 @@ export default function Collection() {
         }
       } catch (error) {
         console.error("Error fetching cars:", error);
-        setFetchError("Failed to load vehicles");
+        setFetchError("Ngarkimi i automjeteve dështoi");
       } finally {
         setIsContentLoading(false);
       }
@@ -257,11 +257,11 @@ export default function Collection() {
                   to="/"
                   className="text-white/50 hover:text-white transition-colors duration-300"
                 >
-                  Home
+                  Faqja kryesore
                 </Link>
               </li>
               <li className="text-white/30">/</li>
-              <li className="text-white">Collection</li>
+              <li className="text-white">Koleksioni</li>
             </ol>
           </div>
         </nav>
@@ -275,7 +275,7 @@ export default function Collection() {
               }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              The Collection<span className="text-white/30">.</span>
+              Koleksioni<span className="text-white/30">.</span>
             </h1>
             <p
               className={`text-white/60 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-100 ${
@@ -285,8 +285,8 @@ export default function Collection() {
               }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Explore our curated selection of the world's most prestigious
-              automobiles
+              Eksploroni përzgjedhjen tonë të automjeteve më të prestigjioze në
+              botë
             </p>
           </div>
         </div>
@@ -320,7 +320,7 @@ export default function Collection() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search cars..."
+                  placeholder="Kërko makina..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors duration-300"
@@ -372,7 +372,7 @@ export default function Collection() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search by name, brand..."
+                  placeholder="Kërko me emër, markë..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-4 py-2.5 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/50 transition-colors duration-300"
@@ -437,7 +437,7 @@ export default function Collection() {
               {/* Right Side Controls */}
               <div className="flex items-center gap-5">
                 <span className="text-white/50 text-sm">
-                  {filteredCars.length} vehicles
+                  {filteredCars.length} automjete
                 </span>
 
                 {/* Custom Sort Dropdown */}
@@ -518,7 +518,7 @@ export default function Collection() {
                     className="text-sm text-white/50 hover:text-white transition-colors duration-300 underline underline-offset-4"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Clear all
+                    Pastro të gjitha
                   </button>
                 )}
               </div>
@@ -556,7 +556,7 @@ export default function Collection() {
                   className="text-sm font-semibold uppercase tracking-wider mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Brands
+                  Markat
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
                   {brands.map((brand) => (
@@ -603,7 +603,7 @@ export default function Collection() {
                   className="text-sm font-semibold uppercase tracking-wider mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Category
+                  Kategoria
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {categories.map((category) => (
@@ -629,7 +629,7 @@ export default function Collection() {
                   className="text-sm font-semibold uppercase tracking-wider mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Price Range
+                  Gama e Çmimeve
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {priceRanges.map((range) => (
@@ -655,7 +655,7 @@ export default function Collection() {
                   className="text-sm font-semibold uppercase tracking-wider mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Year
+                  Viti
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {years.map((year) => (
@@ -681,7 +681,7 @@ export default function Collection() {
                   className="text-sm font-semibold uppercase tracking-wider mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Sort By
+                  Rendit sipas
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {sortOptions.map((option) => (
@@ -708,7 +708,7 @@ export default function Collection() {
                   className="w-full py-3 border border-white/20 rounded-lg text-sm text-white/70 hover:border-white/40 hover:text-white transition-all duration-300"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Clear All Filters
+                  Pastro të gjitha filtrat
                 </button>
               )}
             </div>
@@ -894,9 +894,9 @@ export default function Collection() {
               className="text-center text-white/40 text-sm mt-6"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
-              {Math.min(currentPage * ITEMS_PER_PAGE, filteredCars.length)} of{" "}
-              {filteredCars.length} vehicles
+              Tregohen {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+              {Math.min(currentPage * ITEMS_PER_PAGE, filteredCars.length)} nga{" "}
+              {filteredCars.length} automjete
             </p>
           )}
 
@@ -922,20 +922,20 @@ export default function Collection() {
                 className="text-2xl font-bold mb-3"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                No vehicles found
+                Nuk u gjetën automjete
               </h3>
               <p
                 className="text-white/50 mb-6"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Try adjusting your filters to see more results
+                Provoni të rregulloni filtrat për të parë më shumë rezultate
               </p>
               <button
                 onClick={clearFilters}
                 className="px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-white/90 transition-colors duration-300"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Clear Filters
+                Pastro filtrat
               </button>
             </div>
           )}

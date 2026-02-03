@@ -14,14 +14,21 @@ export default function TheStandard() {
 
   const statsData = [
     { value: 500, suffix: "+", label: "Automjete të Përzgjedhura me Dorë" },
-    { value: 20, suffix: " Vite", label: "Ekselencë në Industrinë Automobilistike" },
+    {
+      value: 20,
+      suffix: " Vite",
+      label: "Ekselencë në Industrinë Automobilistike",
+    },
     { value: 12, suffix: " Marka", label: "Marka Premium të Kuruara" },
   ];
 
   const features = [
     { title: "Precizion", description: "Çdo detaj i kuruar dhe verifikuar" },
     { title: "Trashëgimi", description: "Dekada ekselence automobilistike" },
-    { title: "Ekskluzivitet", description: "Vetëm më të mirat kalojnë filtrin" },
+    {
+      title: "Ekskluzivitet",
+      description: "Vetëm më të mirat kalojnë filtrin",
+    },
     { title: "Shërbim", description: "Mbështetje koncierge 24/7 e dedikuar" },
   ];
 
@@ -60,13 +67,12 @@ export default function TheStandard() {
                     }`}
                   >
                     <p className="text-base lg:text-lg text-white/80 leading-relaxed">
-                      Ne nuk shesim thjesht makina. Ne krijojmë përvoja për ata
-                      që refuzojnë të komprometojnë.
+                      Ne nuk ndjekim trende. Ne punojmë me standarde të qarta.
                     </p>
                     <p className="text-sm lg:text-base text-white/60 leading-relaxed">
-                      Çdo automjet në koleksionin tonë i nënshtrohet një
-                      procesi rigoroz të seleksionimit dhe inspektimit për të
-                      siguruar që vetëm më të mirat të bëhen pjesë e ofertës sonë
+                      Çdo automjet në koleksionin tonë i nënshtrohet një procesi
+                      rigoroz të seleksionimit dhe inspektimit për të siguruar
+                      që vetëm më të mirat të bëhen pjesë e ofertës sonë
                       ekskluzive.
                     </p>
                   </div>
@@ -147,7 +153,7 @@ export default function TheStandard() {
                     </div>
                     {/* Label */}
                     <p
-                      className="text-sm sm:text-base text-white/60 mt-3"
+                      className="text-sm sm:text-base text-white/60 mt-3 text-center w-full"
                       style={{
                         fontFamily: "Montserrat, sans-serif",
                         letterSpacing: "0.08em",
@@ -167,11 +173,11 @@ export default function TheStandard() {
               {statsData.map((stat, index) => (
                 <div
                   key={index}
-                  className="h-screen flex items-center justify-end"
+                  className="h-screen flex items-center justify-end pr-12"
                 >
-                  <div className="flex flex-col items-end text-right pr-12">
+                  <div className="flex flex-col items-center text-center">
                     {/* Main Number */}
-                    <div className="relative mb-4 flex items-baseline justify-end">
+                    <div className="relative mb-4 flex items-baseline justify-center">
                       <span
                         className="text-[10rem] xl:text-[12rem] font-bold text-white"
                         style={{
@@ -187,7 +193,7 @@ export default function TheStandard() {
 
                     {/* Label */}
                     <p
-                      className="text-xl xl:text-2xl text-white/70"
+                      className="text-xl xl:text-2xl text-white/70 text-center max-w-sm"
                       style={{
                         fontFamily: "Montserrat, sans-serif",
                       }}
@@ -196,7 +202,7 @@ export default function TheStandard() {
                     </p>
 
                     {/* Accent line */}
-                    <div className="mt-6 h-px bg-linear-to-l from-white/50 via-white/30 to-transparent ml-auto w-24" />
+                    <div className="mt-6 h-px bg-linear-to-r from-transparent via-white/40 to-transparent mx-auto w-24" />
                   </div>
                 </div>
               ))}

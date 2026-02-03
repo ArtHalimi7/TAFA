@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import emailjs from "@emailjs/browser";
+import logo from "../assets/images/logo.png";
 
 // Initialize EmailJS
 emailjs.init("-NWp731-hJ2KBhmcB");
@@ -125,8 +126,8 @@ export default function Contact() {
 
   const contactDetails = [
     {
-      label: "Location",
-      value: "Gjilan, Kosovo",
+      label: "Vendndodhja",
+      value: "Gjilan, Kosovë",
       icon: (
         <svg
           className="w-5 h-5"
@@ -150,7 +151,7 @@ export default function Contact() {
       ),
     },
     {
-      label: "Phone",
+      label: "Telefon",
       value: "+383 44 XXX XXX",
       icon: (
         <svg
@@ -188,8 +189,8 @@ export default function Contact() {
       ),
     },
     {
-      label: "Hours",
-      value: "Mon - Sat: 9:00 - 19:00",
+      label: "Orari",
+      value: "Hën - Sht: 9:00 - 19:00",
       icon: (
         <svg
           className="w-5 h-5"
@@ -227,11 +228,11 @@ export default function Contact() {
                   to="/"
                   className="text-white/50 hover:text-white transition-colors duration-300"
                 >
-                  Home
+                  Faqja kryesore
                 </Link>
               </li>
               <li className="text-white/30">/</li>
-              <li className="text-white">Contact</li>
+              <li className="text-white">Kontakti</li>
             </ol>
           </div>
         </nav>
@@ -245,53 +246,76 @@ export default function Contact() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 w-full">
-          {/* Overline */}
-          <div
-            className={`mb-6 transition-all duration-1000 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
-            <span
-              className="text-xs tracking-[0.3em] uppercase text-white/50"
-              style={{ fontFamily: "Montserrat, sans-serif" }}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+            {/* Left Content */}
+            <div className="lg:col-span-2">
+              {/* Overline */}
+              <div
+                className={`mb-6 transition-all duration-1000 ${
+                  isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                }`}
+              >
+                <span
+                  className="text-xs tracking-[0.3em] uppercase text-white/50"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  Na kontaktoni
+                </span>
+              </div>
+
+              {/* Main Heading */}
+              <h1
+                className={`transition-all duration-1000 ${
+                  isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                }`}
+                style={{
+                  fontFamily: "Cera Pro, sans-serif",
+                  letterSpacing: "-0.03em",
+                  transitionDelay: "0.2s",
+                }}
+              >
+                <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold">
+                  Le të flasim
+                </span>
+                <span className="block text-2xl sm:text-3xl lg:text-4xl font-light text-white/40 mt-3">
+                  Jemi këtu për t'ju ndihmuar.
+                </span>
+              </h1>
+
+              {/* Subtitle */}
+              <p
+                className={`mt-8 max-w-2xl text-base sm:text-lg text-white/60 font-light leading-relaxed transition-all duration-1000 ${
+                  isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                }`}
+                style={{
+                  fontFamily: "Montserrat, sans-serif",
+                  transitionDelay: "0.3s",
+                }}
+              >
+                Nëse jeni të interesuar për koleksionin tonë, keni nevojë për
+                ndihmë, ose dëshironi të diskutoni projektet tuaja, ekipi ynë
+                është gati të lidhet me ju.
+              </p>
+            </div>
+
+            {/* Right Logo */}
+            <div
+              className={`hidden lg:flex items-start justify-center -mt-36 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+              style={{ transitionDelay: "0.4s" }}
             >
-              Get in Touch
-            </span>
+              <img
+                src={logo}
+                alt="TAFA Logo"
+                className="w-full h-auto w-[480px] object-contain"
+              />
+            </div>
           </div>
-
-          {/* Main Heading */}
-          <h1
-            className={`transition-all duration-1000 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
-            style={{
-              fontFamily: "Cera Pro, sans-serif",
-              letterSpacing: "-0.03em",
-              transitionDelay: "0.2s",
-            }}
-          >
-            <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold">
-              Let's Talk
-            </span>
-            <span className="block text-2xl sm:text-3xl lg:text-4xl font-light text-white/40 mt-3">
-              We're here to help.
-            </span>
-          </h1>
-
-          {/* Subtitle */}
-          <p
-            className={`mt-8 max-w-2xl text-base sm:text-lg text-white/60 font-light leading-relaxed transition-all duration-1000 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-            style={{
-              fontFamily: "Montserrat, sans-serif",
-              transitionDelay: "0.3s",
-            }}
-          >
-            Whether you're interested in our collection, need assistance, or
-            simply want to discuss your automotive dreams, our team is ready to
-            connect.
-          </p>
         </div>
       </section>
 
@@ -363,16 +387,16 @@ export default function Contact() {
                 className="text-xs tracking-[0.3em] uppercase text-white/40 mb-8 block"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Send us a Message
+                Dërgoni një mesazh
               </span>
 
               <h2
                 className="text-4xl sm:text-5xl lg:text-5xl font-bold mb-8"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                We Value
+                Ne vlerësojmë
                 <br />
-                <span className="text-white/30">Your Inquiry</span>
+                <span className="text-white/30">pyetjen tuaj</span>
               </h2>
 
               <div
@@ -380,14 +404,14 @@ export default function Contact() {
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <p className="text-lg leading-relaxed">
-                  Our team typically responds within 24 hours. Whether it's a
-                  question about inventory, scheduling a showroom visit, or
-                  discussing bespoke services, we're committed to providing
-                  exceptional service.
+                  Ekipi ynë përgjigjet zakonisht brenda 24 orëve. Qoftë një
+                  pyetje për inventarin, një takim në showroom, apo shërbime të
+                  personalizuara — jemi të përkushtuar të ofrojmë shërbim të
+                  shkëlqyer.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  For urgent inquiries, please call us directly during business
-                  hours.
+                  Për pyetje urgjente, ju lutemi na telefononi gjatë orarit të
+                  punës.
                 </p>
               </div>
 
@@ -398,7 +422,7 @@ export default function Contact() {
                   className="text-sm text-white/40 tracking-wider"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Fast Response Guaranteed
+                  Përgjigje e shpejtë e garantuar
                 </span>
               </div>
             </div>
@@ -419,7 +443,7 @@ export default function Contact() {
                     className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Full Name
+                    Emri dhe Mbiemri
                   </label>
                   <input
                     type="text"
@@ -429,7 +453,7 @@ export default function Contact() {
                     required
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
-                    placeholder="Your name"
+                    placeholder="Emri juaj"
                   />
                 </div>
 
@@ -439,7 +463,7 @@ export default function Contact() {
                     className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Email Address
+                    Email
                   </label>
                   <input
                     type="email"
@@ -449,7 +473,7 @@ export default function Contact() {
                     required
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
-                    placeholder="your@email.com"
+                    placeholder="email@juaj.com"
                   />
                 </div>
 
@@ -459,7 +483,7 @@ export default function Contact() {
                     className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Phone Number
+                    Numër telefoni
                   </label>
                   <input
                     type="tel"
@@ -478,7 +502,7 @@ export default function Contact() {
                     className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Message
+                    Mesazh
                   </label>
                   <textarea
                     name="message"
@@ -488,7 +512,7 @@ export default function Contact() {
                     rows="6"
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm resize-none"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
-                    placeholder="Tell us more about your inquiry..."
+                    placeholder="Na tregoni më shumë rreth pyetjes suaj..."
                   />
                 </div>
 
@@ -499,11 +523,11 @@ export default function Contact() {
                       className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      Interested Vehicle
+                      Automjeti i interesuar
                     </label>
                     <div className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white/70 rounded flex items-center justify-between">
                       <span>{formData.carName}</span>
-                      <span className="text-xs text-white/50">Pre-filled</span>
+                      <span className="text-xs text-white/50">E plotësuar</span>
                     </div>
                   </div>
                 )}
@@ -531,7 +555,7 @@ export default function Contact() {
                             d="M12 2a10 10 0 1010 10H15"
                           />
                         </svg>
-                        Sending...
+                        Po dërgohet...
                       </>
                     ) : submitted ? (
                       <>
@@ -542,11 +566,11 @@ export default function Contact() {
                         >
                           <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                         </svg>
-                        Sent!
+                        Dërguar!
                       </>
                     ) : (
                       <>
-                        Send Message
+                        Dërgo mesazh
                         <svg
                           className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
                           fill="none"
@@ -575,7 +599,8 @@ export default function Contact() {
                 {/* Success Message */}
                 {submitted && (
                   <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400 text-sm text-center rounded">
-                    Thank you for reaching out! We'll be in touch soon.
+                    Faleminderit që na kontaktuat! Do t'ju kontaktojmë së
+                    shpejti.
                   </div>
                 )}
               </form>
@@ -590,19 +615,19 @@ export default function Contact() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
             {[
               {
-                title: "Showroom Visits",
+                title: "Vizita në showroom",
                 description:
-                  "Experience our collection in person. Book an appointment for a personalized tour.",
+                  "Përjetoni koleksionin tonë personalisht. Rezervoni një takim për një vizitë të personalizuar.",
               },
               {
-                title: "Test Drives",
+                title: "Provë drejtimi",
                 description:
-                  "Feel the difference. Schedule a test drive with one of our vehicles today.",
+                  "Ndjeni ndryshimin. Rezervoni një provë drejtimi me një nga automjetet tona sot.",
               },
               {
-                title: "Consultations",
+                title: "Konsultime",
                 description:
-                  "Need expert advice? Our team is ready to help you find the perfect vehicle.",
+                  "Keni nevojë për këshilla ekspertësh? Ekipi ynë është gati t'ju ndihmojë të gjeni automjetin ideal.",
               },
             ].map((item) => (
               <div
@@ -635,13 +660,13 @@ export default function Contact() {
               className="text-xs tracking-[0.3em] uppercase text-white/40"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Location
+              Vendndodhja
             </span>
             <h2
               className="text-4xl sm:text-5xl font-bold mt-4"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Visit Us in Gjilan<span className="text-white/30">.</span>
+              Na vizitoni në Gjilan<span className="text-white/30">.</span>
             </h2>
           </div>
 
@@ -667,7 +692,7 @@ export default function Contact() {
               className="text-white/70 text-sm"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <span className="font-semibold text-white">Address:</span> Auto
+              <span className="font-semibold text-white">Adresa:</span> Auto
               Tafa, Livoç i Poshtëm 60000
             </p>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import logo from "../assets/images/logo.png";
 
 export default function WhyCurated() {
   const [isVisible, setIsVisible] = useState(false);
@@ -148,70 +149,90 @@ export default function WhyCurated() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-32 lg:py-48 bg-stone-50 text-black overflow-hidden"
+      className="relative py-32 lg:py-48 bg-[#1a1a1a] text-white overflow-hidden"
     >
       {/* Subtle background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div
-          className={`absolute -top-1/4 -right-1/4 w-200 h-200 rounded-full bg-black/2 blur-3xl transition-all duration-[2s] ${
+          className={`absolute -top-1/4 -right-1/4 w-200 h-200 rounded-full bg-white/8 blur-3xl transition-all duration-[2s] ${
             isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50"
           }`}
         />
         <div
-          className={`absolute -bottom-1/4 -left-1/4 w-150 h-150 rounded-full bg-black/1 blur-3xl transition-all duration-[2s] delay-300 ${
+          className={`absolute -bottom-1/4 -left-1/4 w-150 h-150 rounded-full bg-white/6 blur-3xl transition-all duration-[2s] delay-300 ${
             isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50"
           }`}
         />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-        {/* Header */}
-        <div className="max-w-3xl mb-20 lg:mb-32">
-          <div
-            className={`transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-          >
-            <span
-              className="text-xs tracking-[0.3em] uppercase text-black/40 mb-6 block"
-              style={{ fontFamily: "Montserrat, sans-serif" }}
+        {/* Header with Logo */}
+        <div className="grid lg:grid-cols-3 gap-12 items-start mb-20 lg:mb-32">
+          {/* Left Content - 2 columns on large */}
+          <div className="lg:col-span-2 max-w-3xl">
+            <div
+              className={`transition-all duration-1000 ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
             >
-              Diferenca
-            </span>
+              <span
+                className="text-xs tracking-[0.3em] uppercase text-white/50 mb-6 block"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Diferenca
+              </span>
+            </div>
+
+            <h2
+              className={`text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 transition-all duration-1000 ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
+              style={{
+                fontFamily: "Cera Pro, sans-serif",
+                transitionDelay: "100ms",
+              }}
+            >
+              Pse jemi
+              <br />
+              <span className="text-white/50">Ndryshe</span>
+            </h2>
+
+            <p
+              className={`text-lg lg:text-xl text-white/75 leading-relaxed max-w-2xl transition-all duration-1000 ${
+                isVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
+              style={{
+                fontFamily: "Montserrat, sans-serif",
+                transitionDelay: "200ms",
+              }}
+            >
+              Në një botë autosallonesh, ne dallohemi. Angazhimi ynë ndaj
+              përsosmërisë do të thotë që çdo detaj ka rëndësi.
+            </p>
           </div>
 
-          <h2
-            className={`text-4xl sm:text-5xl lg:text-6xl font-bold mb-8 transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+          {/* Right Logo - Positioned top right with dark overlay, mobile responsive */}
+          <div
+            className={`absolute w-40 h-40 sm:w-56 sm:h-56 lg:w-96 lg:h-96 -top-2 sm:-top-20 lg:-top-20 right-1 sm:-right-24 lg:-right-32 transition-all duration-1000 ${
+              isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50"
             }`}
-            style={{
-              fontFamily: "Cera Pro, sans-serif",
-              transitionDelay: "100ms",
-            }}
+            style={{ transitionDelay: "300ms" }}
           >
-            Pse jemi
-            <br />
-            <span className="text-black/40">Ndryshe</span>
-          </h2>
-
-          <p
-            className={`text-lg lg:text-xl text-black/70 leading-relaxed max-w-2xl transition-all duration-1000 ${
-              isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-            style={{
-              fontFamily: "Montserrat, sans-serif",
-              transitionDelay: "200ms",
-            }}
-          >
-            Në një botë autosallonesh, ne dallohemi. 
-            Angazhimi ynë ndaj përsosmërisë do të thotë që çdo detaj ka rëndësi, nga kujdesi ndaj klientelës.
-          </p>
+            <div className="relative w-full h-full">
+              {/* Logo */}
+              <img
+                src={logo}
+                alt="TAFA Logo"
+                className="relative w-full h-full object-contain drop-shadow-2xl"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Features Grid */}
@@ -227,26 +248,26 @@ export default function WhyCurated() {
               style={{ transitionDelay: `${index * 80}ms` }}
             >
               {/* Card */}
-              <div className="h-full flex flex-col p-8 lg:p-10 border border-black/20 hover:border-black/40 hover:bg-black/5 transition-all duration-500 rounded-lg">
+              <div className="h-full flex flex-col p-8 lg:p-10 border border-white/15 hover:border-white/35 hover:bg-white/8 transition-all duration-500 rounded-lg">
                 {/* Top accent */}
-                <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 {/* Number */}
                 <span
-                  className="text-5xl font-bold text-black/40 group-hover:text-black/60 transition-colors duration-300 mb-6"
+                  className="text-5xl font-bold text-white/45 group-hover:text-white/65 transition-colors duration-300 mb-6"
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
                   {feature.number}
                 </span>
 
                 {/* Icon */}
-                <div className="w-12 h-12 rounded-full border border-black/30 flex items-center justify-center mb-6 text-black/60 group-hover:text-black/80 group-hover:border-black/60 transition-all duration-300">
+                <div className="w-12 h-12 rounded-full border border-white/25 flex items-center justify-center mb-6 text-white/65 group-hover:text-white/85 group-hover:border-white/55 transition-all duration-300">
                   {feature.icon}
                 </div>
 
                 {/* Title */}
                 <h3
-                  className="text-xl lg:text-2xl font-bold mb-4 text-black"
+                  className="text-xl lg:text-2xl font-bold mb-4 text-white"
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
                   {feature.title}
@@ -254,14 +275,14 @@ export default function WhyCurated() {
 
                 {/* Description */}
                 <p
-                  className="text-black/75 leading-relaxed grow group-hover:text-black/90 transition-colors duration-300"
+                  className="text-white/80 leading-relaxed grow group-hover:text-white/95 transition-colors duration-300"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {feature.description}
                 </p>
 
                 {/* Bottom accent */}
-                <div className="mt-6 w-0 h-px bg-black/50 group-hover:w-full transition-all duration-500" />
+                <div className="mt-6 w-0 h-px bg-white/45 group-hover:w-full transition-all duration-500" />
               </div>
             </div>
           ))}
@@ -269,13 +290,13 @@ export default function WhyCurated() {
 
         {/* Bottom Statement */}
         <div
-          className={`mt-20 lg:mt-32 pt-20 lg:pt-32 border-t border-black/20 max-w-3xl transition-all duration-1000 ${
+          className={`mt-20 lg:mt-32 pt-20 lg:pt-32 border-t border-white/15 max-w-3xl transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
           style={{ transitionDelay: "600ms" }}
         >
           <p
-            className="text-2xl lg:text-3xl font-light leading-relaxed text-black"
+            className="text-2xl lg:text-3xl font-light leading-relaxed text-white"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
             Kjo nuk është thjesht për të blerë një makinë.
@@ -286,9 +307,9 @@ export default function WhyCurated() {
 
           {/* Signature line */}
           <div className="flex items-center gap-6 mt-10">
-            <div className="w-12 h-px bg-black/50" />
+            <div className="w-12 h-px bg-white/45" />
             <span
-              className="text-sm text-black/60 tracking-wider"
+              className="text-sm text-white/65 tracking-wider"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Përsosmëria është standardi ynë
