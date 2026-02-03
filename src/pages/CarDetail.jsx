@@ -28,7 +28,6 @@ export default function CarDetail() {
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [showcaseImage, setShowcaseImage] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [animatedPrice, setAnimatedPrice] = useState(0);
@@ -63,7 +62,6 @@ export default function CarDetail() {
           });
           // Set initial active image to showcase image
           setActiveImageIndex(showcaseIdx);
-          setShowcaseImage(showcaseIdx);
         } else {
           setError("Vehicle not found");
         }
@@ -188,22 +186,27 @@ export default function CarDetail() {
     };
   }, [isGalleryOpen]);
 
-  // Autoplay for hero image slider
+  // Autoplay for hero image slider - starts from showcase image
   useEffect(() => {
     if (
       !isLoaded ||
       isGalleryOpen ||
       !car ||
       !car.images ||
-      car.images.length === 0
+      car.images.length <= 1
     )
       return;
 
-    const autoplayInterval = setInterval(() => {
-      setActiveImageIndex((prev) => (prev + 1) % car.images.length);
-    }, 5000); // Change image every 5 seconds
+    // Small delay to ensure showcase image is displayed first
+    const startDelay = setTimeout(() => {
+      const autoplayInterval = setInterval(() => {
+        setActiveImageIndex((prev) => (prev + 1) % car.images.length);
+      }, 5000); // Change image every 5 seconds
 
-    return () => clearInterval(autoplayInterval);
+      return () => clearInterval(autoplayInterval);
+    }, 1000); // Wait 1 second before starting autoplay
+
+    return () => clearTimeout(startDelay);
   }, [isLoaded, isGalleryOpen, car]);
 
   const openGallery = (index) => {
