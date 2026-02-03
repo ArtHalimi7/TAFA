@@ -177,7 +177,10 @@ async function startServer() {
         connection.release();
         console.log(`[${new Date().toISOString()}] Keep-alive ping successful`);
       } catch (err) {
-        console.error(`[${new Date().toISOString()}] Keep-alive ping failed:`, err.message);
+        console.error(
+          `[${new Date().toISOString()}] Keep-alive ping failed:`,
+          err.message,
+        );
       }
     }, 60000); // Every 60 seconds (1 minute)
 
