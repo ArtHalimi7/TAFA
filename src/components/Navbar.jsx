@@ -75,7 +75,7 @@ const Navbar = () => {
                     className="text-xs font-medium tracking-wide"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Back
+                    Mbrapa
                   </span>
                 </Link>
               )}

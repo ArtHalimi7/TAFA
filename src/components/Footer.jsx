@@ -1,10 +1,29 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Footer() {
   const [activeModal, setActiveModal] = useState(null);
+  const [showCookieBanner, setShowCookieBanner] = useState(false);
 
   const currentYear = new Date().getFullYear();
+
+  // Check localStorage on mount to see if user has already made a choice
+  useEffect(() => {
+    const cookieConsent = localStorage.getItem("cookieConsent");
+    if (!cookieConsent) {
+      // Show banner only on first visit
+      setTimeout(() => setShowCookieBanner(true), 100);
+    }
+  }, []);
+
+  const handleCookieConsent = (accepted) => {
+    localStorage.setItem("cookieConsent", accepted ? "accepted" : "declined");
+    setShowCookieBanner(false);
+  };
+
+  const showCookiePreferences = () => {
+    setShowCookieBanner(true);
+  };
 
   return (
     <>
@@ -29,7 +48,7 @@ export default function Footer() {
               </p>
               <div className="flex gap-4">
                 <a
-                  href="#"
+                  href="https://www.facebook.com/mustaf.leka.9"
                   aria-label="Follow us on Facebook"
                   className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
                 >
@@ -43,21 +62,7 @@ export default function Footer() {
                   </svg>
                 </a>
                 <a
-                  href="#"
-                  aria-label="Follow us on Twitter"
-                  className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
-                >
-                  <svg
-                    className="w-5 h-5 text-white/80 hover:text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2s9 5 20 5a9.5 9.5 0 00-9-5.5c4.75 2.25 7-7 7-7" />
-                  </svg>
-                </a>
-                <a
-                  href="#"
+                  href="https://www.instagram.com/tafaleka/"
                   aria-label="Follow us on Instagram"
                   className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:border-white/50 hover:bg-white/5 transition-all duration-300"
                 >
@@ -254,13 +259,13 @@ export default function Footer() {
               >
                 Terms of Service
               </button>
-              <a
-                href="#"
+              <button
+                onClick={showCookiePreferences}
                 className="text-white/70 hover:text-white transition-colors duration-300 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Cookies
-              </a>
+              </button>
               <Link
                 to="/dashboard"
                 className="text-white/20 hover:text-white/40 transition-colors duration-300 text-sm"
@@ -273,6 +278,47 @@ export default function Footer() {
           </div>
         </div>
       </footer>
+
+      {/* Cookie Consent Banner */}
+      {showCookieBanner && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-black border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="flex-1">
+              <h3
+                className="text-sm font-bold text-white mb-2"
+                style={{ fontFamily: "Cera Pro, sans-serif" }}
+              >
+                Përdorimi i Cookies
+              </h3>
+              <p
+                className="text-sm text-white/60 leading-relaxed"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Ne përdorim cookies për të përmirësuar përvojën tuaj të
+                shfletimit dhe për të analizuar trafikun në faqe. Duke klikuar
+                "Prano", ju pranoni përdorimin tonë të cookies. Ju mund të
+                menaxhoni preferencat tuaja në çdo kohë.
+              </p>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <button
+                onClick={() => handleCookieConsent(false)}
+                className="px-6 py-2 text-sm font-medium text-white/80 hover:text-white border border-white/20 hover:border-white/40 transition-all duration-300 rounded"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Refuzo
+              </button>
+              <button
+                onClick={() => handleCookieConsent(true)}
+                className="px-6 py-2 text-sm font-medium text-black bg-white hover:bg-white/90 transition-all duration-300 rounded"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Prano
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Privacy Policy Modal */}
       {activeModal === "privacy" && (

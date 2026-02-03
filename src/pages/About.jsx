@@ -63,7 +63,7 @@ export default function About() {
     if (statsVisible) {
       const duration = 2000;
       const startTime = Date.now();
-      const targets = { years: 15, cars: 500, clients: 1200, brands: 12 };
+      const targets = { years: 20, cars: 500, clients: 1200, brands: 12 };
 
       const animate = () => {
         const progress = Math.min((Date.now() - startTime) / duration, 1);
@@ -83,10 +83,10 @@ export default function About() {
   }, [statsVisible]);
 
   const stats = [
-    { value: animatedStats.years, suffix: "+", label: "Years" },
-    { value: animatedStats.cars, suffix: "+", label: "Vehicles" },
-    { value: animatedStats.clients, suffix: "+", label: "Clients" },
-    { value: animatedStats.brands, suffix: "", label: "Brands" },
+    { value: animatedStats.years, suffix: "+", label: "Vite" },
+    { value: animatedStats.cars, suffix: "+", label: "Automjete" },
+    { value: animatedStats.clients, suffix: "+", label: "Klientë" },
+    { value: animatedStats.brands, suffix: "", label: "Marka" },
   ];
 
   return (
@@ -108,11 +108,11 @@ export default function About() {
                   to="/"
                   className="text-white/50 hover:text-white transition-colors duration-300"
                 >
-                  Home
+                  Shtëpia
                 </Link>
               </li>
               <li className="text-white/30">/</li>
-              <li className="text-white">About</li>
+              <li className="text-white">Rreth Nesh</li>
             </ol>
           </div>
         </nav>
@@ -144,7 +144,7 @@ export default function About() {
                 className="text-xs tracking-[0.3em] uppercase text-white/60"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Est. 2009 — Gjilan, Kosovo
+                Themeluar në 2006 — Gjilan, Kosovë
               </span>
             </div>
 
@@ -162,13 +162,13 @@ export default function About() {
               }}
             >
               <span className="block text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-bold">
-                We Don't Sell Cars.
+                Ne nuk bindemi tregut.
               </span>
               <span
                 className="block text-xl sm:text-2xl lg:text-4xl font-light text-white/50 mt-2 sm:mt-3 lg:mt-4"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                We curate legacies.
+                Ne e udhëheqim atë.
               </span>
             </h1>
           </div>
@@ -178,7 +178,7 @@ export default function About() {
         <div className="absolute bottom-6 sm:bottom-12 right-6 sm:right-12 lg:right-24 z-20">
           <img
             src={logo}
-            alt="AUTO TAFA Logo"
+            alt="Logoja e AUTO TAFA"
             className="h-16 sm:h-20 lg:h-24 w-auto opacity-90 hover:opacity-100 transition-opacity duration-300"
           />
         </div>
@@ -199,7 +199,7 @@ export default function About() {
             }`}
             style={{ fontFamily: "Cera Pro, sans-serif" }}
           >
-            PHILOSOPHY
+            FILOZOFIJA
           </span>
         </div>
 
@@ -219,15 +219,15 @@ export default function About() {
                   className="text-xs tracking-[0.3em] uppercase text-white/40 mb-8 block"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Our Belief
+                  Besimi Ynë
                 </span>
                 <h2
                   className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.1]"
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
-                  The pursuit of
+                  Standard pa
                   <br />
-                  <span className="text-white/30">extraordinary</span>
+                  <span className="text-white/30">kompromis</span>
                 </h2>
               </div>
             </div>
@@ -250,9 +250,8 @@ export default function About() {
                       fontWeight: 300,
                     }}
                   >
-                    Every vehicle in our collection has been chosen not for its
-                    badge, but for its character. We believe that true luxury
-                    isn't about what you own—it's about what it makes you feel.
+                    Çdo automjet përzgjidhet mbi bazën e cilësisë, historikut dhe gjendjes.
+                    Asgjë më pak se maksimumi.
                   </p>
 
                   {/* Minimal accent */}
@@ -262,7 +261,7 @@ export default function About() {
                       className="text-sm text-white/40 tracking-wider"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      Since 2009
+                      Që nga 2006
                     </span>
                   </div>
                 </div>
@@ -330,7 +329,7 @@ export default function About() {
                 className="text-xs tracking-[0.3em] uppercase text-white/40 mb-8 block"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                The Story
+                Historia Jonë
               </span>
             </div>
 
@@ -346,9 +345,9 @@ export default function About() {
                 transitionDelay: "100ms",
               }}
             >
-              Born in Gjilan.
+              Lindur në Gjilan.
               <br />
-              <span className="text-white/30">Built on trust.</span>
+              <span className="text-white/30">Ndërtuar mbi besim.</span>
             </h2>
 
             {/* Story Content - Two Column Text */}
@@ -365,15 +364,16 @@ export default function About() {
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <p className="text-lg leading-relaxed">
-                  In 2009, in the heart of Kosovo, AUTO TAFA opened its doors
-                  with a vision that went beyond selling automobiles. We set out
-                  to create a sanctuary for those who understand that a car is
-                  more than transportation—it's an expression of identity.
+                  Në vitin 2006, në zemrën e Kosovës, AUTO TAFA  hapi dyert
+                  me një vizion që shkonte përtej shitjes së automjeteve. Ne
+                  vendosëm të krijonim një strehë për ata që kuptojnë se një
+                  makinë është më shumë se transporti—ajo është një shprehje e
+                  identitetit.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  From day one, we've operated on a simple principle: treat
-                  every client like family, and every vehicle like a work of
-                  art.
+                  Që nga dita e parë, ne funksionuam sipas një parimi të
+                  thjeshtë: trajto çdo klient si familje, dhe çdo automjet si
+                  një vepër arti.
                 </p>
               </div>
               <div
@@ -381,14 +381,14 @@ export default function About() {
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <p className="text-lg leading-relaxed">
-                  Today, we stand as Gjilan's premier destination for discerning
-                  collectors and enthusiasts. Our reputation isn't measured in
-                  sales figures—it's measured in relationships that span
-                  generations.
+                  Sot, ne qëndrojmë si destinacioni kryesor i Gjilanit për
+                  koleksionistë dhe entuziastë të përzgjedhur. Reputacioni ynë
+                  nuk matet me shifrat e shitjeve—ajo matet me marrëdhënie që
+                  zgjaten për brezat.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  We don't just sell cars. We help you find the one that speaks
-                  to your soul.
+                  Ne nuk thjesht shesim makina. Ne ju ndihmojmë të gjeni atë që
+                  flet me shpirtin tuaj.
                 </p>
               </div>
             </div>
@@ -406,7 +406,7 @@ export default function About() {
                 className="text-white/30 text-sm tracking-wider"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                — The TAFA Family
+                — AUTO TAFA
               </span>
             </div>
           </div>
@@ -422,13 +422,13 @@ export default function About() {
               className="text-xs tracking-[0.3em] uppercase text-white/40 mb-4 block"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              What Guides Us
+              Çfarë na Udhëzon
             </span>
             <h2
               className="text-4xl sm:text-5xl lg:text-6xl font-bold"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Three pillars<span className="text-white/30">.</span>
+              Tre shtyllat<span className="text-white/30">.</span>
             </h2>
           </div>
 
@@ -437,18 +437,18 @@ export default function About() {
             {[
               {
                 num: "01",
-                title: "Excellence",
-                text: "Perfection in every detail. From the vehicles we source to the experience we deliver—we accept nothing less.",
+                title: "Përsosmëria",
+                text: "Përfeksion në çdo detaj. Nga automjetet që gjendjemi në përvojën që ne ofrojmë—ne nuk pranojmë më pak.",
               },
               {
                 num: "02",
-                title: "Integrity",
-                text: "Complete transparency. No hidden agendas, no surprises. Your trust is our most valuable currency.",
+                title: "Integriteti",
+                text: "Transparencë e plotë. Pa agjenda të fshehta, pa surpriza. Besimi juaj është valuta jonë më e vlefshme.",
               },
               {
                 num: "03",
-                title: "Legacy",
-                text: "Relationships over transactions. We build connections that last generations, not just until the sale.",
+                title: "Trashëgimi",
+                text: "Marrëdhënie mbi transaksionet. Ne ndërtojmë lidhje që zgjaten për brezat, jo vetëm deri në shitje.",
               },
             ].map((value) => (
               <div
@@ -508,7 +508,7 @@ export default function About() {
                 className="text-xs tracking-[0.3em] uppercase text-white/40"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Gjilan, Kosovo
+                Gjilan, Kosovë
               </span>
             </div>
 
@@ -516,14 +516,14 @@ export default function About() {
               className="text-4xl sm:text-5xl lg:text-7xl font-bold mb-8"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Visit us<span className="text-white/30">.</span>
+              Na Vizitoni<span className="text-white/30">.</span>
             </h2>
 
             <p
               className="text-xl text-white/50 mb-12"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Experience the difference in person.
+              Përjetoni ndryshimin vetë.
             </p>
 
             {/* Contact Info - Horizontal */}
@@ -531,9 +531,9 @@ export default function About() {
               className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mb-16 text-white/60"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <span className="text-lg">Mon — Sat: 9:00 – 19:00</span>
+              <span className="text-lg">Hën — Sht: 9:00 – 19:00</span>
               <span className="hidden sm:block text-white/20">|</span>
-              <span className="text-lg">+383 44 XXX XXX</span>
+              <span className="text-lg">+383 44 666 662</span>
             </div>
 
             {/* CTA Button */}
@@ -541,7 +541,7 @@ export default function About() {
               className="group inline-flex items-center gap-4 px-12 py-5 bg-white text-black font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-neutral-100"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Schedule a Visit
+              Planifiko një Vizitë
               <svg
                 className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1"
                 fill="none"
