@@ -45,6 +45,48 @@ const initializeDatabase = async () => {
     `);
     console.log("✅ Cars table ready");
 
+    // Add status column if it doesn't exist (migration for existing tables)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN status ENUM('active', 'draft', 'sold') DEFAULT 'draft'
+      `);
+      console.log("✅ Added status column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== 'ER_DUP_FIELDNAME') {
+        console.log("ℹ️ Status column already exists");
+      }
+    }
+
+    // Add showcase_image column if it doesn't exist
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN showcase_image INT DEFAULT 0
+      `);
+      console.log("✅ Added showcase_image column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== 'ER_DUP_FIELDNAME') {
+        console.log("ℹ️ Showcase_image column already exists");
+      }
+    }
+
+    // Add views column if it doesn't exist
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN views INT DEFAULT 0
+      `);
+      console.log("✅ Added views column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== 'ER_DUP_FIELDNAME') {
+        console.log("ℹ️ Views column already exists");
+      }
+    }
+
     // Create car_images table if it doesn't exist
     await connection.query(`
       CREATE TABLE IF NOT EXISTS car_images (
