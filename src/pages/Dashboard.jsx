@@ -158,10 +158,10 @@ export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem("tafa_admin_auth") === "true";
   });
-  const [pinInput, setPinInput] = useState(["", "", "", ""]);
+  const [pinInput, setPinInput] = useState("");
   const [pinError, setPinError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const pinInputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const pinInputRef = useRef(null);
 
   const [cars, setCars] = useState([]);
   const [stats, setStats] = useState(null);
@@ -259,80 +259,34 @@ export default function Dashboard() {
     }
   };
 
-  // Focus first PIN input on load
+  // Focus PIN input on load
   useEffect(() => {
-    if (!isAuthenticated && pinInputRefs[0].current) {
-      pinInputRefs[0].current.focus();
+    if (!isAuthenticated && pinInputRef.current) {
+      pinInputRef.current.focus();
     }
   }, [isAuthenticated]);
 
   // Handle PIN input
-  const handlePinChange = (index, value) => {
-    // Only allow numbers
-    if (value && !/^\d$/.test(value)) return;
-
-    const newPin = [...pinInput];
-    newPin[index] = value;
-    setPinInput(newPin);
+  const handlePinChange = (e) => {
+    const value = e.target.value;
+    setPinInput(value);
     setPinError(false);
-
-    // Move to next input
-    if (value && index < 3) {
-      pinInputRefs[index + 1].current?.focus();
-    }
-
-    // Check PIN when all digits are entered
-    if (index === 3 && value) {
-      const enteredPin = newPin.join("");
-      if (enteredPin === ADMIN_PIN) {
-        setIsDashboardLoading(true);
-        sessionStorage.setItem("tafa_admin_auth", "true");
-        setTimeout(() => {
-          setIsAuthenticated(true);
-          setIsDashboardLoading(false);
-        }, 1200);
-      } else {
-        setPinError(true);
-        setPinInput(["", "", "", ""]);
-        setTimeout(() => pinInputRefs[0].current?.focus(), 100);
-      }
-    }
   };
 
-  // Handle backspace
-  const handlePinKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !pinInput[index] && index > 0) {
-      pinInputRefs[index - 1].current?.focus();
-    }
-  };
-
-  // Handle paste
-  const handlePinPaste = (e) => {
+  // Handle PIN submission
+  const handlePinSubmit = (e) => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").slice(0, 4);
-    if (!/^\d+$/.test(pastedData)) return;
-
-    const newPin = [...pinInput];
-    for (let i = 0; i < pastedData.length; i++) {
-      newPin[i] = pastedData[i];
-    }
-    setPinInput(newPin);
-
-    if (pastedData.length === 4) {
-      if (pastedData === ADMIN_PIN) {
-        setIsDashboardLoading(true);
-        sessionStorage.setItem("tafa_admin_auth", "true");
-        setTimeout(() => {
-          setIsAuthenticated(true);
-          setIsDashboardLoading(false);
-        }, 1200);
-      } else {
-        setPinError(true);
-        setPinInput(["", "", "", ""]);
-        setTimeout(() => pinInputRefs[0].current?.focus(), 100);
-      }
+    if (pinInput === ADMIN_PIN) {
+      setIsDashboardLoading(true);
+      sessionStorage.setItem("tafa_admin_auth", "true");
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        setIsDashboardLoading(false);
+      }, 1200);
     } else {
-      pinInputRefs[pastedData.length]?.current?.focus();
+      setPinError(true);
+      setPinInput("");
+      setTimeout(() => pinInputRef.current?.focus(), 100);
     }
   };
 
@@ -821,34 +775,33 @@ export default function Dashboard() {
                 className="text-sm text-white/50"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Enter your 4-digit access code
+                Enter your access code
               </p>
             </div>
 
             {/* PIN Input */}
-            <div className="flex justify-center gap-3 sm:gap-4 mb-6">
-              {pinInput.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={pinInputRefs[index]}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handlePinChange(index, e.target.value)}
-                  onKeyDown={(e) => handlePinKeyDown(index, e)}
-                  onPaste={index === 0 ? handlePinPaste : undefined}
-                  className={`w-14 h-16 sm:w-16 sm:h-18 text-center text-2xl font-bold bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${
-                    pinError
-                      ? "border-red-500/50 text-red-400 animate-shake"
-                      : digit
-                        ? "border-white/30 text-white"
-                        : "border-white/10 text-white focus:border-white/40"
-                  }`}
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                />
-              ))}
-            </div>
+            <form onSubmit={handlePinSubmit} className="mb-6">
+              <input
+                ref={pinInputRef}
+                type="password"
+                value={pinInput}
+                onChange={handlePinChange}
+                placeholder="Enter your PIN"
+                className={`w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${
+                  pinError
+                    ? "border-red-500/50 text-red-400 animate-shake"
+                    : "border-white/10 text-white placeholder-white/30 focus:border-white/40"
+                }`}
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              />
+              <button
+                type="submit"
+                className="w-full mt-4 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-all duration-300 text-white"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Unlock
+              </button>
+            </form>
 
             {/* Error Message */}
             {pinError && (
