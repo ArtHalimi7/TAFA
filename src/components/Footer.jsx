@@ -24,8 +24,7 @@ export default function Footer() {
                 className="text-white/60 mb-8 leading-relaxed"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Curating the world's finest automobiles for discerning
-                collectors and enthusiasts.
+                Eksploroni botën e makinave luksoze me ne, destinacioni juaj për shërbim të pakrahasueshëm.
               </p>
               <div className="flex gap-4">
                 <a
@@ -96,7 +95,7 @@ export default function Footer() {
                 className="text-sm uppercase tracking-widest text-white/60 mb-8 font-bold"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Explore
+                Eksploro
               </h4>
               <ul className="space-y-4">
                 <li>
@@ -105,7 +104,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Our Collection
+                    Koleksioni ynë
                   </Link>
                 </li>
                 <li>
@@ -114,7 +113,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    About Us
+                    Rreth Nesh
                   </Link>
                 </li>
                 <li>
@@ -123,7 +122,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Contact
+                    Kontakt
                   </Link>
                 </li>
               </ul>
@@ -135,7 +134,7 @@ export default function Footer() {
                 className="text-sm uppercase tracking-widest text-white/60 mb-8 font-bold"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Services
+                Sherbimet
               </h4>
               <ul className="space-y-4">
                 <li>
@@ -183,7 +182,7 @@ export default function Footer() {
                 className="text-sm uppercase tracking-widest text-white/60 mb-8 font-bold"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Contact
+                Kontakt
               </h4>
               <ul className="space-y-4">
                 <li>
@@ -192,7 +191,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    +1 (234) 567-890
+                    +38344666662
                   </a>
                 </li>
                 <li>
@@ -201,7 +200,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    hello@autotafa.com
+                      info@autotafa.com
                   </a>
                 </li>
                 <li>
@@ -209,9 +208,9 @@ export default function Footer() {
                     className="text-white/80"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    123 Luxury Ave
+                     CFM4+W38, Livoç i Poshtëm 60000
                     <br />
-                    New York, NY 10001
+                    Gjilan, Kosovë
                   </p>
                 </li>
               </ul>
@@ -228,7 +227,7 @@ export default function Footer() {
                 className="text-white/70 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                &copy; {currentYear} AUTO TAFA. All rights reserved.
+                &copy; {currentYear} AUTO TAFA. Të gjitha të drejtat e rezervuara.
               </p>
               <div className="hidden sm:block w-px h-4 bg-white/20" />
               <p

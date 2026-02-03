@@ -64,7 +64,7 @@ const Hero = () => {
               className="text-xs tracking-[0.3em] uppercase text-white/70"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Premium Automotive
+              Koleksion Ekskluziv
             </span>
           </div>
 
@@ -94,7 +94,7 @@ const Hero = () => {
               transitionDelay: "0.2s",
             }}
           >
-            Luxury automobiles for the discerning collector.
+            Eksploroni koleksionin tonë dhe gjeni makinën tuaj të ëndrrave sot.
           </p>
 
           {/* CTA Button - Tighter spacing */}
@@ -107,7 +107,7 @@ const Hero = () => {
               className="group relative inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Explore Collection
+              Shikoni veturat
               <svg
                 className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
                 fill="none"

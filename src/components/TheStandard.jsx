@@ -13,16 +13,16 @@ export default function TheStandard() {
   }, []);
 
   const statsData = [
-    { value: 850, suffix: "+", label: "Vehicles Hand-Selected" },
-    { value: 45, suffix: " Years", label: "Industry Excellence" },
-    { value: 12, suffix: " Brands", label: "Curated Premium Marques" },
+    { value: 500, suffix: "+", label: "Automjete të Përzgjedhura me Dorë" },
+    { value: 20, suffix: " Vite", label: "Ekselencë në Industrinë Automobilistike" },
+    { value: 12, suffix: " Marka", label: "Marka Premium të Kuruara" },
   ];
 
   const features = [
-    { title: "Precision", description: "Every detail curated and vetted" },
-    { title: "Heritage", description: "Decades of automotive excellence" },
-    { title: "Exclusivity", description: "Only the finest makes the cut" },
-    { title: "Service", description: "24/7 dedicated concierge support" },
+    { title: "Precizion", description: "Çdo detaj i kuruar dhe verifikuar" },
+    { title: "Trashëgimi", description: "Dekada ekselence automobilistike" },
+    { title: "Ekskluzivitet", description: "Vetëm më të mirat kalojnë filtrin" },
+    { title: "Shërbim", description: "Mbështetje koncierge 24/7 e dedikuar" },
   ];
 
   return (
@@ -49,7 +49,7 @@ export default function TheStandard() {
                       lineHeight: "1.1",
                     }}
                   >
-                    The Standard<span className="text-white/30">.</span>
+                    Standardi ynë<span className="text-white/30">.</span>
                   </h2>
 
                   <div
@@ -60,13 +60,14 @@ export default function TheStandard() {
                     }`}
                   >
                     <p className="text-base lg:text-lg text-white/80 leading-relaxed">
-                      We don't just sell cars. We curate experiences for those
-                      who refuse to compromise.
+                      Ne nuk shesim thjesht makina. Ne krijojmë përvoja për ata
+                      që refuzojnë të komprometojnë.
                     </p>
                     <p className="text-sm lg:text-base text-white/60 leading-relaxed">
-                      Every vehicle in our collection has passed through layers
-                      of scrutiny. Every interaction with our team is
-                      architected for perfection.
+                      Çdo automjet në koleksionin tonë i nënshtrohet një
+                      procesi rigoroz të seleksionimit dhe inspektimit për të
+                      siguruar që vetëm më të mirat të bëhen pjesë e ofertës sonë
+                      ekskluzive.
                     </p>
                   </div>
                 </div>

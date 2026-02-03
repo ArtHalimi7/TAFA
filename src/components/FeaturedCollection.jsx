@@ -82,7 +82,7 @@ export default function FeaturedCollection() {
             }`}
             style={{ fontFamily: "Cera Pro, sans-serif" }}
           >
-            Featured Collection
+            Koleksioni i Veçuar
           </h2>
           <div
             className={`w-16 h-1 bg-white mx-auto mb-6 transition-all duration-1000 delay-100 ${
@@ -95,8 +95,7 @@ export default function FeaturedCollection() {
               isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Curated selection of the world's most prestigious automotive
-            masterpieces
+            Seleksioni i përzgjedhur i automjeteve tona më të mira, të disponueshme për ju.
           </p>
         </div>
 
@@ -203,7 +202,7 @@ export default function FeaturedCollection() {
             className="group relative inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
-            Explore Collection
+            Eksploroni Koleksionin
             <svg
               className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
               fill="none"

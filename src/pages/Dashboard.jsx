@@ -23,105 +23,92 @@ const getImageUrl = (path) => {
   return `${API_BASE_URL}${path}`;
 };
 
-// Sample initial cars data (would come from backend)
-const initialCarsData = [
-  {
-    id: 1,
-    name: "Mercedes-AMG GT 63 S",
-    slug: "mercedes-amg-gt-63-s",
-    tagline: "Where Performance Meets Prestige",
-    category: "Performance",
-    brand: "Mercedes",
-    price: 185000,
-    year: 2024,
-    mileage: 1250,
-    exteriorColor: "Obsidian Black Metallic",
-    interiorColor: "Nappa Leather Red/Black",
-    engine: "4.0L V8 Biturbo",
-    horsepower: 630,
-    torque: 850,
-    acceleration: 3.2,
-    topSpeed: 315,
-    transmission: "AMG SPEEDSHIFT MCT 9-speed",
-    drivetrain: "AMG Performance 4MATIC+",
-    fuelType: "Premium Gasoline",
-    mpg: "14.7/10.7",
-    vin: "WDD2173421A000000",
-    images: ["/placeholder1.jpg", "/placeholder2.jpg", "/placeholder3.jpg"],
-    showcaseImage: 0,
-    features: [
-      "AMG Carbon Fiber Trim",
-      "Burmester High-End 3D Surround",
-      "AMG Performance Exhaust",
-    ],
-    description:
-      "This Mercedes-AMG GT 63 S represents the pinnacle of automotive engineering.",
-    status: "active",
-    createdAt: "2024-01-15",
-    views: 1250,
-  },
-  {
-    id: 2,
-    name: "BMW M760i xDrive",
-    slug: "bmw-m760i-xdrive",
-    tagline: "The Ultimate Driving Machine",
-    category: "Luxury Sedan",
-    brand: "BMW",
-    price: 155000,
-    year: 2024,
-    mileage: 3200,
-    exteriorColor: "Alpine White",
-    interiorColor: "Cognac Merino Leather",
-    engine: "6.6L V12 TwinPower Turbo",
-    horsepower: 601,
-    torque: 850,
-    acceleration: 3.7,
-    topSpeed: 250,
-    transmission: "8-Speed Automatic",
-    drivetrain: "xDrive All-Wheel Drive",
-    fuelType: "Premium Gasoline",
-    mpg: "18.1/11.2",
-    vin: "WBA7F2C55JB000000",
-    images: ["/placeholder1.jpg", "/placeholder2.jpg"],
-    showcaseImage: 0,
-    features: ["Executive Lounge Seating", "Bowers & Wilkins Diamond Surround"],
-    description: "The BMW M760i xDrive is the flagship of the 7 Series lineup.",
-    status: "active",
-    createdAt: "2024-01-10",
-    views: 890,
-  },
-  {
-    id: 3,
-    name: "Audi RS e-tron GT",
-    slug: "audi-rs-etron-gt",
-    tagline: "Electric Performance Redefined",
-    category: "Electric",
-    brand: "Audi",
-    price: 142000,
-    year: 2024,
-    mileage: 890,
-    exteriorColor: "Tactical Green",
-    interiorColor: "Black Valcona Leather",
-    engine: "Dual Electric Motors",
-    horsepower: 637,
-    torque: 830,
-    acceleration: 3.3,
-    topSpeed: 250,
-    transmission: "2-Speed Automatic",
-    drivetrain: "quattro All-Wheel Drive",
-    fuelType: "Electric",
-    mpg: "22 kWh/100km",
-    vin: "WUAESFF15N0000000",
-    images: ["/placeholder1.jpg"],
-    showcaseImage: 0,
-    features: ["Carbon Fiber Roof", "Bang & Olufsen 3D Sound"],
-    description:
-      "The Audi RS e-tron GT represents the future of high-performance motoring.",
-    status: "draft",
-    createdAt: "2024-01-05",
-    views: 456,
-  },
-];
+// Albanian translations for user-visible strings
+const t = {
+  seoTitle: "Paneli i Administrimit | Auto TAFA",
+  seoDescription: "Paneli i administrimit për menaxhimin e Auto TAFA.",
+  adminPortal: "Paneli i Administrimit",
+  enterPin: "Shkruani PIN",
+  enterAccessCode: "Vendosni kodin tuaj të qasjes",
+  unlock: "Hap",
+  incorrectPin: "PIN i pasaktë. Ju lutem provoni përsëri.",
+  contactSupport: "Kontaktoni mbështetjen nëse keni harruar PIN-in",
+  backToWebsite: "Kthehu te faqja",
+  overview: "Përmbledhje",
+  inventory: "Inventari",
+  addVehicle: "Shtoni nje automjet",
+  failedLoadCars: "Ngarkimi i automjeteve dështoi",
+  failedSaveCar: "Ruajtja e automjetit dështoi",
+  failedDeleteCar: "Fshirja e automjetit dështoi",
+  failedUpdateStatus: "Përditësimi i statusit dështoi",
+  dashboardTitle: "Paneli",
+  inventoryTitle: "Inventar",
+  // Additional UI strings
+  save: "Ruaj",
+  cancel: "Anulo",
+  delete: "Fshi",
+  edit: "Ndrysho",
+  view: "Shiko",
+  logout: "Dil",
+  searchPlaceholder: "Kërko automjetet...",
+  noVehiclesFound: "Nuk u gjetën automjete",
+  tryAdjustSearch: "Provo të rregullosh kërkimin.",
+  addNewVehicle: "Shto Automjet të Ri",
+  editVehicle: "Ndrysho Automjetin",
+  year: "Viti",
+  mileage: "Kilometrazhi",
+  statusLabel: "Statusi",
+  draft: "I papublikuar",
+  active: "Aktiv",
+  exteriorColor: "Ngjyra e jashtme",
+  interiorColor: "Ngjyra e brendshme",
+  engine: "Motor",
+  horsepower: "Kuaj Fuqi",
+  torque: "Forca (Nm)",
+  acceleration: "Përshpejtimi (s)",
+  topSpeed: "Shpejtësia Maksimale",
+  transmission: "Transmisioni",
+  drivetrain: "Sistemi i tërheqjes",
+  fuelType: "Lloji i karburantit",
+  mpg: "MPG",
+  vin: "VIN",
+  imagesLabel: "Imazhe",
+  chooseFiles: "Zgjidh skedaret",
+  uploadImages: "Ngarko Imazhet",
+  failedUploadSomeImages: "Ngarkimi i disa imazheve dështoi",
+  statusUpdated: "Statusi u përditësua!",
+  setAsDraft: "Vendos si Draft",
+  setAsActive: "Vendos si Aktiv",
+  activeListings: "Listime Aktive",
+  totalViews: "Shikime Totale",
+  manageInventory: "Menaxho Inventarin tënd",
+  viewAndEditYourListings: "Shiko dhe modifiko listimet tuaja",
+  viewPublicSite: "Shiko faqen publike",
+  viewAll: "Shiko të gjitha →",
+  deleteThisVehicle: "Të fshihet ky automjet?",
+  confirmDelete: "Fshi",
+  cancelBtn: "Anulo",
+  saveChanges: "Ruaj Ndryshimet",
+  upload: "Ngarko",
+  actions: "Veprime",
+  createdAt: "Krijuar më",
+  viewsLabel: "Shikime",
+  totalCars: "Automjete Totale",
+  totalValue: "Vlera Totale",
+  avgPrice: "Çmimi Mesatar",
+  publish: "Publiko",
+  cannotUndo: "Kjo veprim nuk mund të tërhiqet.",
+  features: "Karakteristikat",
+  descriptionLabel: "Përshkrimi",
+  vehicleName: "Emri i automjetit",
+  brandLabel: "Marka",
+  categoryLabel: "Kategoria",
+  priceLabel: "Çmimi",
+  imagesUploadHint:
+    "Ngarko imazhet e automjetit. Kliko ikonën me yll për të vendosur imazhin kryesor",
+  clickToUploadImages: "Kliko për të ngarkuar imazhe",
+  basicInfo: "Informacion Bazë",
+};
 
 const categories = [
   "Performance",
@@ -135,19 +122,24 @@ const brands = [
   "Mercedes",
   "BMW",
   "Audi",
+  "Volkswagen",
+  "Jaguar",
+  "Maserati",
+  "Tesla",
+  "Citroen",
   "Porsche",
   "Ferrari",
   "Lamborghini",
   "Bentley",
   "Rolls-Royce",
 ];
-const fuelTypes = ["Premium Gasoline", "Electric", "Hybrid", "Diesel"];
+const fuelTypes = ["Benzin", "Elektrik", "Hybrid", "Diesel"];
 
 export default function Dashboard() {
   // Prevent dashboard from being indexed by search engines
   useSEO({
-    title: "Admin Dashboard | Auto TAFA",
-    description: "Admin dashboard for Auto TAFA management.",
+    title: t.seoTitle,
+    description: t.seoDescription,
     noIndex: true,
   });
 
@@ -197,7 +189,7 @@ export default function Dashboard() {
     topSpeed: "",
     transmission: "",
     drivetrain: "",
-    fuelType: "Premium Gasoline",
+    fuelType: "Benzin",
     mpg: "",
     vin: "",
     images: [],
@@ -242,7 +234,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Error fetching cars:", error);
-      showNotification("Failed to load cars", "error");
+      showNotification(t.failedLoadCars, "error");
     } finally {
       setIsLoadingCars(false);
     }
@@ -378,7 +370,7 @@ export default function Dashboard() {
       topSpeed: "",
       transmission: "",
       drivetrain: "",
-      fuelType: "Premium Gasoline",
+      fuelType: "Benzin",
       mpg: "",
       vin: "",
       images: [],
@@ -514,7 +506,7 @@ export default function Dashboard() {
           }
         } catch (uploadError) {
           console.error("Error uploading images:", uploadError);
-          showNotification("Failed to upload some images", "error");
+          showNotification(t.failedUploadSomeImages, "error");
         }
         setUploadingImages(false);
       }
@@ -559,14 +551,14 @@ export default function Dashboard() {
       if (modalMode === "add") {
         response = await carsApi.createCar(carData);
         if (response.success) {
-          showNotification("Car added successfully!");
+          showNotification("Automjeti u shtua me sukses!");
           await fetchCars();
           await fetchStats();
         }
       } else {
         response = await carsApi.updateCar(selectedCar.id, carData);
         if (response.success) {
-          showNotification("Car updated successfully!");
+          showNotification("Automjeti u perditesua!");
           await fetchCars();
           await fetchStats();
         }
@@ -577,7 +569,7 @@ export default function Dashboard() {
       setPendingImageFiles([]);
     } catch (error) {
       console.error("Error saving car:", error);
-      showNotification(error.message || "Failed to save car", "error");
+      showNotification(error.message || t.failedSaveCar, "error");
     } finally {
       setIsSaving(false);
     }
@@ -590,12 +582,12 @@ export default function Dashboard() {
       if (response.success) {
         setCars((prev) => prev.filter((car) => car.id !== id));
         setDeleteConfirmId(null);
-        showNotification("Car deleted successfully!", "error");
+        showNotification("Automjeti u fshi me sukses!", "error");
         await fetchStats();
       }
     } catch (error) {
-      console.error("Error deleting car:", error);
-      showNotification("Failed to delete car", "error");
+      console.error("Nuk u fshi automjeti:", error);
+      showNotification(t.failedDeleteCar, "error");
     }
   };
 
@@ -609,12 +601,12 @@ export default function Dashboard() {
             car.id === id ? { ...car, status: response.data.status } : car,
           ),
         );
-        showNotification("Status updated!");
+        showNotification(t.statusUpdated);
         await fetchStats();
       }
     } catch (error) {
-      console.error("Error toggling status:", error);
-      showNotification("Failed to update status", "error");
+      console.error("Gabim gjatë ndryshimit të statusit:", error);
+      showNotification(t.failedUpdateStatus, "error");
     }
   };
 
@@ -622,7 +614,7 @@ export default function Dashboard() {
   const navItems = [
     {
       id: "overview",
-      label: "Overview",
+      label: t.overview,
       icon: (
         <svg
           className="w-5 h-5"
@@ -641,7 +633,7 @@ export default function Dashboard() {
     },
     {
       id: "inventory",
-      label: "Inventory",
+      label: t.inventory,
       icon: (
         <svg
           className="w-5 h-5"
@@ -660,7 +652,7 @@ export default function Dashboard() {
     },
     {
       id: "add",
-      label: "Add Vehicle",
+      label: t.addVehicle,
       icon: (
         <svg
           className="w-5 h-5"
@@ -743,7 +735,7 @@ export default function Dashboard() {
               className="text-sm text-white/40 uppercase tracking-[0.3em]"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Admin Portal
+              {t.adminPortal}
             </p>
           </div>
 
@@ -769,13 +761,13 @@ export default function Dashboard() {
                 className="text-2xl font-bold mb-2"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                Enter PIN
+                {t.enterPin}
               </h2>
               <p
                 className="text-sm text-white/50"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Enter your access code
+                {t.enterAccessCode}
               </p>
             </div>
 
@@ -786,7 +778,7 @@ export default function Dashboard() {
                 type="password"
                 value={pinInput}
                 onChange={handlePinChange}
-                placeholder="Enter your PIN"
+                placeholder={t.enterPin}
                 className={`w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${
                   pinError
                     ? "border-red-500/50 text-red-400 animate-shake"
@@ -799,7 +791,7 @@ export default function Dashboard() {
                 className="w-full mt-4 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-all duration-300 text-white"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Unlock
+                {t.unlock}
               </button>
             </form>
 
@@ -809,7 +801,7 @@ export default function Dashboard() {
                 className="text-center text-sm text-red-400 mb-6"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Incorrect PIN. Please try again.
+                {t.incorrectPin}
               </p>
             )}
 
@@ -818,7 +810,7 @@ export default function Dashboard() {
               className="text-center text-xs text-white/30"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Contact support if you've forgotten your PIN
+              {t.contactSupport}
             </p>
           </div>
 
@@ -842,7 +834,7 @@ export default function Dashboard() {
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Back to website
+              {t.backToWebsite}
             </Link>
           </div>
         </div>
@@ -991,7 +983,7 @@ export default function Dashboard() {
                   className="text-sm font-medium"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Back to Site
+                  Kthehu ne faqe
                 </span>
               )}
             </Link>
@@ -1017,7 +1009,7 @@ export default function Dashboard() {
                   className="text-sm font-medium"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Logout
+                  {t.logout}
                 </span>
               )}
             </button>
@@ -1056,14 +1048,14 @@ export default function Dashboard() {
                 className="text-2xl font-bold"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                {activeTab === "overview" ? "Dashboard" : "Inventory"}
+                {activeTab === "overview" ? t.dashboardTitle : t.inventoryTitle}
               </h1>
               <p
                 className="text-sm text-white/50"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 {activeTab === "overview"
-                  ? "Welcome back. Here's your dealership overview."
+                  ? "Mire se vini. Menaxho inventarin tënd."
                   : "Manage your vehicle inventory"}
               </p>
             </div>
@@ -1087,7 +1079,7 @@ export default function Dashboard() {
                 </svg>
                 <input
                   type="text"
-                  placeholder="Search vehicles..."
+                  placeholder={t.searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-64 pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300"
@@ -1114,7 +1106,7 @@ export default function Dashboard() {
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span className="hidden sm:inline">Add Vehicle</span>
+                <span className="hidden sm:inline">{t.addVehicle}</span>
               </button>
             </div>
           </div>
@@ -1137,7 +1129,7 @@ export default function Dashboard() {
               </svg>
               <input
                 type="text"
-                placeholder="Search vehicles..."
+                placeholder={t.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-11 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-all duration-300"
@@ -1158,7 +1150,7 @@ export default function Dashboard() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                 {[
                   {
-                    label: "Total Vehicles",
+                    label: "Vetura Totale",
                     value: displayStats.totalCars,
                     icon: (
                       <svg
@@ -1178,7 +1170,7 @@ export default function Dashboard() {
                     color: "from-blue-500/20 to-blue-500/5",
                   },
                   {
-                    label: "Active Listings",
+                    label: t.activeListings,
                     value: displayStats.activeCars,
                     icon: (
                       <svg
@@ -1198,7 +1190,7 @@ export default function Dashboard() {
                     color: "from-green-500/20 to-green-500/5",
                   },
                   {
-                    label: "Portfolio Value",
+                    label: "Vlera e Portofolit",
                     value: formatPrice(displayStats.totalValue),
                     icon: (
                       <svg
@@ -1218,7 +1210,7 @@ export default function Dashboard() {
                     color: "from-purple-500/20 to-purple-500/5",
                   },
                   {
-                    label: "Total Views",
+                    label: t.totalViews,
                     value: displayStats.totalViews.toLocaleString(),
                     icon: (
                       <svg
@@ -1299,13 +1291,13 @@ export default function Dashboard() {
                         className="font-semibold mb-1"
                         style={{ fontFamily: "Cera Pro, sans-serif" }}
                       >
-                        Add New Vehicle
+                        Shto Automjet te Ri
                       </h3>
                       <p
                         className="text-sm text-white/50"
                         style={{ fontFamily: "Montserrat, sans-serif" }}
                       >
-                        List a new car in your inventory
+                        Listoje nje automjet te ri ne shitje
                       </p>
                     </div>
                   </div>
@@ -1342,7 +1334,7 @@ export default function Dashboard() {
                         className="text-sm text-white/50"
                         style={{ fontFamily: "Montserrat, sans-serif" }}
                       >
-                        View and edit your listings
+                        {t.viewAndEditYourListings}
                       </p>
                     </div>
                   </div>
@@ -1379,13 +1371,13 @@ export default function Dashboard() {
                         className="font-semibold mb-1"
                         style={{ fontFamily: "Cera Pro, sans-serif" }}
                       >
-                        View Public Site
+                        {t.viewPublicSite}
                       </h3>
                       <p
                         className="text-sm text-white/50"
                         style={{ fontFamily: "Montserrat, sans-serif" }}
                       >
-                        See your collection live
+                        Shikoni koleksionin tuaj
                       </p>
                     </div>
                   </div>
@@ -1399,14 +1391,14 @@ export default function Dashboard() {
                     className="text-xl font-bold"
                     style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    Recent Vehicles
+                    Veturat e Fundit
                   </h2>
                   <button
                     onClick={() => setActiveTab("inventory")}
                     className="text-sm text-white/50 hover:text-white transition-colors"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    View all →
+                    {t.viewAll}
                   </button>
                 </div>
 
@@ -1451,7 +1443,7 @@ export default function Dashboard() {
                                 : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
                             }`}
                           >
-                            {car.status === "active" ? "Active" : "Draft"}
+                            {car.status === "active" ? t.active : t.draft}
                           </span>
                         </div>
                       </div>
@@ -1486,7 +1478,7 @@ export default function Dashboard() {
                             <button
                               onClick={() => openEditModal(car)}
                               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                              title="Edit"
+                              title={t.edit}
                             >
                               <svg
                                 className="w-4 h-4 text-white/60"
@@ -1588,7 +1580,7 @@ export default function Dashboard() {
                                     : "bg-amber-500/20 text-amber-400"
                                 }`}
                               >
-                                {car.status === "active" ? "Active" : "Draft"}
+                                {car.status === "active" ? t.active : t.draft}
                               </span>
                             </div>
                             <p
@@ -1618,8 +1610,8 @@ export default function Dashboard() {
                               }`}
                               title={
                                 car.status === "active"
-                                  ? "Set as Draft"
-                                  : "Publish"
+                                  ? t.setAsDraft
+                                  : t.publish
                               }
                             >
                               <svg
@@ -1647,7 +1639,7 @@ export default function Dashboard() {
                             <button
                               onClick={() => openEditModal(car)}
                               className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all duration-300"
-                              title="Edit"
+                              title={t.edit}
                             >
                               <svg
                                 className="w-5 h-5 text-white/60"
@@ -1668,7 +1660,7 @@ export default function Dashboard() {
                             <Link
                               to={`/car/${car.slug}`}
                               className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all duration-300"
-                              title="View"
+                              title={t.view}
                             >
                               <svg
                                 className="w-5 h-5 text-white/60"
@@ -1689,7 +1681,7 @@ export default function Dashboard() {
                             <button
                               onClick={() => setDeleteConfirmId(car.id)}
                               className="p-2.5 bg-white/5 hover:bg-red-500/10 rounded-xl transition-all duration-300 text-white/60 hover:text-red-400"
-                              title="Delete"
+                              title={t.delete}
                             >
                               <svg
                                 className="w-5 h-5"
@@ -1717,26 +1709,26 @@ export default function Dashboard() {
                               className="text-lg font-semibold mb-2"
                               style={{ fontFamily: "Cera Pro, sans-serif" }}
                             >
-                              Delete this vehicle?
+                              {t.deleteThisVehicle}
                             </p>
                             <p
                               className="text-sm text-white/50 mb-6"
                               style={{ fontFamily: "Montserrat, sans-serif" }}
                             >
-                              This action cannot be undone.
+                              {t.cannotUndo}
                             </p>
                             <div className="flex items-center justify-center gap-3">
                               <button
                                 onClick={() => setDeleteConfirmId(null)}
                                 className="px-5 py-2 border border-white/20 rounded-lg text-sm hover:bg-white/10 transition-colors"
                               >
-                                Cancel
+                                {t.cancelBtn}
                               </button>
                               <button
                                 onClick={() => handleDeleteCar(car.id)}
                                 className="px-5 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition-colors"
                               >
-                                Delete
+                                {t.confirmDelete}
                               </button>
                             </div>
                           </div>
@@ -1766,15 +1758,15 @@ export default function Dashboard() {
                     className="text-xl font-semibold mb-2"
                     style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    No vehicles found
+                    {t.noVehiclesFound}
                   </h3>
                   <p
                     className="text-white/50 mb-6"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     {searchQuery
-                      ? "Try adjusting your search."
-                      : "Add your first vehicle to get started."}
+                      ? t.tryAdjustSearch
+                      : "Shto automjetin tënd të parë për të filluar."}
                   </p>
                   {!searchQuery && (
                     <button
@@ -1794,7 +1786,7 @@ export default function Dashboard() {
                           d="M12 4v16m8-8H4"
                         />
                       </svg>
-                      Add Vehicle
+                      {t.addVehicle}
                     </button>
                   )}
                 </div>
@@ -1821,7 +1813,7 @@ export default function Dashboard() {
                 className="text-xl font-bold"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                {modalMode === "add" ? "Add New Vehicle" : "Edit Vehicle"}
+                {modalMode === "add" ? t.addNewVehicle : t.editVehicle}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -1851,12 +1843,12 @@ export default function Dashboard() {
                   className="text-sm uppercase tracking-[0.2em] text-white/40 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Basic Information
+                  {t.basicInfo}
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Vehicle Name *
+                      {t.vehicleName + " *"}
                     </label>
                     <input
                       type="text"
@@ -1869,23 +1861,9 @@ export default function Dashboard() {
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Tagline
-                    </label>
-                    <input
-                      type="text"
-                      name="tagline"
-                      value={formData.tagline}
-                      onChange={handleInputChange}
-                      placeholder="e.g. Where Performance Meets Prestige"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    />
-                  </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Brand *
+                      {t.brandLabel + " *"}
                     </label>
                     <select
                       name="brand"
@@ -1904,7 +1882,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Category *
+                      {t.categoryLabel + " *"}
                     </label>
                     <select
                       name="category"
@@ -1923,7 +1901,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Price (USD) *
+                      {t.priceLabel + " *"}
                     </label>
                     <input
                       type="number"
@@ -1938,7 +1916,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Year *
+                      {t.year + " *"}
                     </label>
                     <input
                       type="number"
@@ -1954,7 +1932,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Mileage
+                      {t.mileage}
                     </label>
                     <input
                       type="number"
@@ -1968,7 +1946,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Status
+                      {t.statusLabel}
                     </label>
                     <select
                       name="status"
@@ -1978,10 +1956,10 @@ export default function Dashboard() {
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       <option value="draft" className="bg-black">
-                        Draft
+                        {t.draft}
                       </option>
                       <option value="active" className="bg-black">
-                        Active
+                        {t.active}
                       </option>
                     </select>
                   </div>
@@ -1999,7 +1977,7 @@ export default function Dashboard() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Exterior Color
+                      {t.exteriorColor}
                     </label>
                     <input
                       type="text"
@@ -2013,7 +1991,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Interior Color
+                      {t.interiorColor}
                     </label>
                     <input
                       type="text"
@@ -2034,12 +2012,12 @@ export default function Dashboard() {
                   className="text-sm uppercase tracking-[0.2em] text-white/40 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Performance & Specs
+                  Performanca & Të dhënat
                 </h3>
                 <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Engine
+                      {t.engine}
                     </label>
                     <input
                       type="text"
@@ -2053,7 +2031,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Horsepower
+                      {t.horsepower}
                     </label>
                     <input
                       type="number"
@@ -2067,7 +2045,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Torque (Nm)
+                      {t.torque}
                     </label>
                     <input
                       type="number"
@@ -2096,7 +2074,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Top Speed (km/h)
+                      {t.topSpeed}
                     </label>
                     <input
                       type="number"
@@ -2110,7 +2088,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Transmission
+                      {t.transmission}
                     </label>
                     <input
                       type="text"
@@ -2124,7 +2102,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Drivetrain
+                      {t.drivetrain}
                     </label>
                     <input
                       type="text"
@@ -2191,14 +2169,13 @@ export default function Dashboard() {
                   className="text-sm uppercase tracking-[0.2em] text-white/40 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Images
+                  {t.imagesLabel}
                 </h3>
                 <p
                   className="text-sm text-white/50 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Upload vehicle images. Click the star icon to set the showcase
-                  image (banner).
+                  {t.imagesUploadHint}
                 </p>
 
                 {/* Image Grid */}
@@ -2364,7 +2341,7 @@ export default function Dashboard() {
                     className="text-sm text-white/50"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Click to upload images
+                    {t.clickToUploadImages}
                   </span>
                 </button>
               </div>
@@ -2375,7 +2352,7 @@ export default function Dashboard() {
                   className="text-sm uppercase tracking-[0.2em] text-white/40 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Features
+                  {t.features}
                 </h3>
                 <div className="space-y-3">
                   {formData.features.map((feature, index) => (
@@ -2444,7 +2421,7 @@ export default function Dashboard() {
                   className="text-sm uppercase tracking-[0.2em] text-white/40 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Description
+                  {t.descriptionLabel}
                 </h3>
                 <textarea
                   name="description"
@@ -2465,14 +2442,14 @@ export default function Dashboard() {
                   className="flex-1 py-3 border border-white/20 rounded-xl text-white hover:bg-white/10 transition-all"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Cancel
+                  {t.cancelBtn}
                 </button>
                 <button
                   type="submit"
                   className="flex-1 py-3 bg-white text-black rounded-xl font-semibold hover:bg-white/90 transition-all"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  {modalMode === "add" ? "Add Vehicle" : "Save Changes"}
+                  {modalMode === "add" ? t.addVehicle : t.saveChanges}
                 </button>
               </div>
             </form>

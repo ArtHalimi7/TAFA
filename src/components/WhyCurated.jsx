@@ -34,9 +34,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Rigorous Inspection",
+      title: "Inspektim rigoroz",
       description:
-        "Every vehicle undergoes our comprehensive 200-point inspection protocol. We verify authenticity, mechanical excellence, and pristine condition.",
+        "Çdo automjet i nënshtrohet protokollit tonë gjithëpërfshirës të inspektimit prej 200 pikash. Ne verifikojmë autenticitetin, përsosmërinë mekanike dhe gjendjen e tij të përsosur.",
     },
     {
       number: "02",
@@ -55,9 +55,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Performance Verified",
+      title: "Performancë e Verifikuar",
       description:
-        "Every car is dynamically tested to ensure peak performance. From acceleration to handling, we guarantee perfection.",
+        "Çdo makinë testohet në mënyrë dinamike për të siguruar performancën maksimale. Nga përshpejtimi te manovrimi, ne garantojmë përsosmërinë.",
     },
     {
       number: "03",
@@ -76,9 +76,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Genuine Provenance",
+      title: "Proveniencë Autentike",
       description:
-        "Complete history documentation. Service records, ownership transfers, and authenticity certificates included with every purchase.",
+        "Dokumentacion i plotë historik. Regjistrimet e shërbimeve, transferimet e pronësisë dhe certifikatat e autenticitetit përfshihen me çdo blerje.",
     },
     {
       number: "04",
@@ -97,9 +97,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Fair Valuation",
+      title: "Vlerësim i Drejtë",
       description:
-        "Transparent pricing based on market data, condition, and rarity. No hidden markups or surprise fees.",
+        "Çmim transparent bazuar në të dhënat e tregut, gjendjen dhe rrallësinë. Pa markup të fshehura ose tarifa surprizë.",
     },
     {
       number: "05",
@@ -118,9 +118,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Lifetime Support",
+      title: "Mbështetje për Jetë",
       description:
-        "Ownership never ends with us. Concierge service, maintenance guidance, and expert advice available 24/7.",
+        "Pronësia nuk përfundon kurrë me ne. Shërbim koncierge, udhëzime për mirëmbajtje dhe këshilla ekspertësh në dispozicion 24/7.",
     },
     {
       number: "06",
@@ -139,9 +139,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Bespoke Services",
+      title: "Shërbime të Personalizuara",
       description:
-        "Custom solutions including financing, insurance coordination, and specialized delivery options.",
+        "Zgjidhje të personalizuara duke përfshirë financimin, koordinimin e sigurimeve dhe opsione të specializuara dorëzimi.",
     },
   ];
 
@@ -178,7 +178,7 @@ export default function WhyCurated() {
               className="text-xs tracking-[0.3em] uppercase text-black/40 mb-6 block"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              The Difference
+              Diferenca
             </span>
           </div>
 
@@ -193,9 +193,9 @@ export default function WhyCurated() {
               transitionDelay: "100ms",
             }}
           >
-            Why We're
+            Pse jemi
             <br />
-            <span className="text-black/40">Different</span>
+            <span className="text-black/40">Ndryshe</span>
           </h2>
 
           <p
@@ -209,8 +209,8 @@ export default function WhyCurated() {
               transitionDelay: "200ms",
             }}
           >
-            In a world of dealerships, we stand apart. Our commitment to
-            excellence means every detail matters, from curation to clientele.
+            Në një botë autosallonesh, ne dallohemi. 
+            Angazhimi ynë ndaj përsosmërisë do të thotë që çdo detaj ka rëndësi, nga kujdesi ndaj klientelës.
           </p>
         </div>
 
@@ -278,9 +278,9 @@ export default function WhyCurated() {
             className="text-2xl lg:text-3xl font-light leading-relaxed text-black"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
-            This isn't just about buying a car.
+            Kjo nuk është thjesht për të blerë një makinë.
             <span className="block font-bold mt-4">
-              It's about joining a legacy of excellence.
+              Bëhet fjalë për t'u bashkuar me një trashëgimi të përsosmërisë.
             </span>
           </p>
 
@@ -291,7 +291,7 @@ export default function WhyCurated() {
               className="text-sm text-black/60 tracking-wider"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Excellence is our standard
+              Përsosmëria është standardi ynë
             </span>
           </div>
         </div>
