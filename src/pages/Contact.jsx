@@ -572,8 +572,8 @@ export default function Contact() {
               className="text-white/70 text-sm"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <span className="font-semibold text-white">Address:</span> Auto Tafa,
-              Livoç i Poshtëm 60000
+              <span className="font-semibold text-white">Address:</span> Auto
+              Tafa, Livoç i Poshtëm 60000
             </p>
           </div>
         </div>
