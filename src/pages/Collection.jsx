@@ -783,7 +783,7 @@ export default function Collection() {
                               className="text-white/40 text-sm ml-2"
                               style={{ fontFamily: "Montserrat, sans-serif" }}
                             >
-                              {car.mileage.toLocaleString()} mi
+                              {car.mileage.toLocaleString()} km
                             </span>
                           </div>
                           <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">

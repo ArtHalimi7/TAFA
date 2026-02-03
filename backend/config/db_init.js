@@ -54,7 +54,7 @@ const initializeDatabase = async () => {
       console.log("✅ Added status column to cars table");
     } catch (err) {
       // Column already exists, ignore error
-      if (err.code !== 'ER_DUP_FIELDNAME') {
+      if (err.code !== "ER_DUP_FIELDNAME") {
         console.log("ℹ️ Status column already exists");
       }
     }
@@ -68,7 +68,7 @@ const initializeDatabase = async () => {
       console.log("✅ Added showcase_image column to cars table");
     } catch (err) {
       // Column already exists, ignore error
-      if (err.code !== 'ER_DUP_FIELDNAME') {
+      if (err.code !== "ER_DUP_FIELDNAME") {
         console.log("ℹ️ Showcase_image column already exists");
       }
     }
@@ -82,7 +82,7 @@ const initializeDatabase = async () => {
       console.log("✅ Added views column to cars table");
     } catch (err) {
       // Column already exists, ignore error
-      if (err.code !== 'ER_DUP_FIELDNAME') {
+      if (err.code !== "ER_DUP_FIELDNAME") {
         console.log("ℹ️ Views column already exists");
       }
     }

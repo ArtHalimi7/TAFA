@@ -39,13 +39,13 @@ const initialCarsData = [
     interiorColor: "Nappa Leather Red/Black",
     engine: "4.0L V8 Biturbo",
     horsepower: 630,
-    torque: 664,
-    acceleration: 3.1,
-    topSpeed: 196,
+    torque: 850,
+    acceleration: 3.2,
+    topSpeed: 315,
     transmission: "AMG SPEEDSHIFT MCT 9-speed",
     drivetrain: "AMG Performance 4MATIC+",
     fuelType: "Premium Gasoline",
-    mpg: "16/22",
+    mpg: "14.7/10.7",
     vin: "WDD2173421A000000",
     images: ["/placeholder1.jpg", "/placeholder2.jpg", "/placeholder3.jpg"],
     showcaseImage: 0,
@@ -74,13 +74,13 @@ const initialCarsData = [
     interiorColor: "Cognac Merino Leather",
     engine: "6.6L V12 TwinPower Turbo",
     horsepower: 601,
-    torque: 627,
-    acceleration: 3.6,
-    topSpeed: 155,
+    torque: 850,
+    acceleration: 3.7,
+    topSpeed: 250,
     transmission: "8-Speed Automatic",
     drivetrain: "xDrive All-Wheel Drive",
     fuelType: "Premium Gasoline",
-    mpg: "13/21",
+    mpg: "18.1/11.2",
     vin: "WBA7F2C55JB000000",
     images: ["/placeholder1.jpg", "/placeholder2.jpg"],
     showcaseImage: 0,
@@ -104,13 +104,13 @@ const initialCarsData = [
     interiorColor: "Black Valcona Leather",
     engine: "Dual Electric Motors",
     horsepower: 637,
-    torque: 612,
-    acceleration: 3.1,
-    topSpeed: 155,
+    torque: 830,
+    acceleration: 3.3,
+    topSpeed: 250,
     transmission: "2-Speed Automatic",
     drivetrain: "quattro All-Wheel Drive",
     fuelType: "Electric",
-    mpg: "79 MPGe",
+    mpg: "22 kWh/100km",
     vin: "WUAESFF15N0000000",
     images: ["/placeholder1.jpg"],
     showcaseImage: 0,
@@ -1596,7 +1596,7 @@ export default function Dashboard() {
                               style={{ fontFamily: "Montserrat, sans-serif" }}
                             >
                               {car.year} • {car.brand} • {car.category} •{" "}
-                              {car.mileage.toLocaleString()} mi
+                              {car.mileage.toLocaleString()} km
                             </p>
                             <p
                               className="text-xl font-bold"
@@ -2067,21 +2067,21 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Torque (lb-ft)
+                      Torque (Nm)
                     </label>
                     <input
                       type="number"
                       name="torque"
                       value={formData.torque}
                       onChange={handleInputChange}
-                      placeholder="664"
+                      placeholder="850"
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     />
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      0-60 mph (sec)
+                      0-100 km/h (sec)
                     </label>
                     <input
                       type="number"
@@ -2089,21 +2089,21 @@ export default function Dashboard() {
                       value={formData.acceleration}
                       onChange={handleInputChange}
                       step="0.1"
-                      placeholder="3.1"
+                      placeholder="3.5"
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     />
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Top Speed (mph)
+                      Top Speed (km/h)
                     </label>
                     <input
                       type="number"
                       name="topSpeed"
                       value={formData.topSpeed}
                       onChange={handleInputChange}
-                      placeholder="196"
+                      placeholder="315"
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     />
@@ -2156,14 +2156,14 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      MPG
+                      L/100km
                     </label>
                     <input
                       type="text"
                       name="mpg"
                       value={formData.mpg}
                       onChange={handleInputChange}
-                      placeholder="16/22"
+                      placeholder="8.5"
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     />

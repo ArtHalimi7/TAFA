@@ -252,21 +252,21 @@ export default function CarDetail() {
   const specs = car
     ? [
         { label: "Horsepower", value: car.horsepower, suffix: "HP" },
-        { label: "Torque", value: car.torque, suffix: "lb-ft" },
+        { label: "Torque", value: car.torque, suffix: "Nm" },
         {
-          label: "0-60 mph",
+          label: "0-100 km/h",
           value: car.acceleration,
           suffix: "s",
           isDecimal: true,
         },
-        { label: "Top Speed", value: car.topSpeed, suffix: "mph" },
+        { label: "Top Speed", value: car.topSpeed, suffix: "km/h" },
       ]
     : [];
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("de-DE", {
       style: "currency",
-      currency: "USD",
+      currency: "EUR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -495,7 +495,7 @@ export default function CarDetail() {
                     className="text-xs text-white/50 uppercase tracking-widest mt-1"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Miles
+                    Kilometers
                   </span>
                 </div>
                 <div className="w-px h-12 bg-white/20 hidden sm:block" />
@@ -656,7 +656,7 @@ export default function CarDetail() {
                 {[
                   { label: "Exterior", value: car.exteriorColor },
                   { label: "Interior", value: car.interiorColor },
-                  { label: "Fuel Economy", value: car.mpg },
+                  { label: "Fuel Consumption", value: car.mpg },
                   { label: "VIN", value: car.vin },
                 ].map((item) => (
                   <div
