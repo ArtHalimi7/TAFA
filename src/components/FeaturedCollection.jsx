@@ -2,56 +2,71 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { LazyImageContain } from "./LazyImage";
 import { SkeletonFeaturedCard } from "./Skeleton";
-import g63Image from "../assets/images/CARS/G63/1.jpg";
-import a6Image from "../assets/images/CARS/A6/1.jpg";
-import m4Image from "../assets/images/CARS/BMW/1.jpg";
+import { carsApi } from "../services/api";
+
+// API Base URL for images
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3001";
+
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return "";
+  if (
+    path.startsWith("http") ||
+    path.startsWith("blob:") ||
+    path.startsWith("data:")
+  )
+    return path;
+  return `${API_BASE_URL}${path}`;
+};
 
 export default function FeaturedCollection() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [vehicles, setVehicles] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 100);
 
-    // Simulate content loading
-    const contentTimer = setTimeout(() => {
-      setShowContent(true);
-    }, 800);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(contentTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
 
-  const vehicles = [
-    {
-      id: 1,
-      name: "Mercedes-Benz G-Class G63",
-      slug: "mercedes-g63",
-      category: "SUV",
-      price: "$179,000",
-      image: g63Image,
-    },
-    {
-      id: 2,
-      name: "2015 BMW M4 Competition",
-      slug: "bmw-m4-competition",
-      category: "Performance",
-      price: "$45,000",
-      image: m4Image,
-    },
-    {
-      id: 3,
-      name: "2025 Audi A6 40TDI",
-      slug: "audi-a6-40tdi",
-      category: "Luxury Sedan",
-      price: "$58,000",
-      image: a6Image,
-    },
-  ];
+  // Fetch featured vehicles from backend
+  useEffect(() => {
+    const fetchFeaturedCars = async () => {
+      try {
+        const response = await carsApi.getFeaturedCars();
+        if (response.success) {
+          const formattedVehicles = response.data.map((car) => ({
+            id: car.id,
+            name: car.name,
+            slug: car.slug,
+            category: car.category,
+            price: new Intl.NumberFormat("en-US", {
+              style: "currency",
+              currency: "USD",
+              minimumFractionDigits: 0,
+            }).format(car.price),
+            image:
+              car.images && car.images.length > 0
+                ? getImageUrl(car.images[0])
+                : "/placeholder-car.jpg",
+          }));
+          setVehicles(formattedVehicles);
+        }
+      } catch (err) {
+        console.error("Error fetching featured cars:", err);
+        setError("Failed to load featured vehicles");
+      } finally {
+        setShowContent(true);
+      }
+    };
+
+    fetchFeaturedCars();
+  }, []);
 
   return (
     <section className="relative w-full py-20 lg:py-32 bg-black overflow-hidden">
@@ -84,6 +99,28 @@ export default function FeaturedCollection() {
             masterpieces
           </p>
         </div>
+
+        {/* Error State */}
+        {error && showContent && (
+          <div className="text-center py-12">
+            <p className="text-white/60">{error}</p>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!error && showContent && vehicles.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-white/60 text-lg">
+              No featured vehicles available at the moment.
+            </p>
+            <Link
+              to="/collection"
+              className="inline-block mt-4 text-white underline hover:no-underline"
+            >
+              View all vehicles
+            </Link>
+          </div>
+        )}
 
         {/* Vehicle Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6">

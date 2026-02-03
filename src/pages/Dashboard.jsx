@@ -2,9 +2,26 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 import { useSEO } from "../hooks/useSEO";
+import { carsApi, uploadApi } from "../services/api";
 
-// Admin PIN Code - Change this to your desired PIN
-const ADMIN_PIN = "1234";
+// Admin PIN Code - Retrieved from environment variable for security
+const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || "1234"; // Fallback for development
+
+// API Base URL for images
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3001";
+
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return "";
+  if (
+    path.startsWith("http") ||
+    path.startsWith("blob:") ||
+    path.startsWith("data:")
+  )
+    return path;
+  return `${API_BASE_URL}${path}`;
+};
 
 // Sample initial cars data (would come from backend)
 const initialCarsData = [
@@ -146,7 +163,12 @@ export default function Dashboard() {
   const [isLoaded, setIsLoaded] = useState(false);
   const pinInputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
 
-  const [cars, setCars] = useState(initialCarsData);
+  const [cars, setCars] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [isLoadingCars, setIsLoadingCars] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [pendingImageFiles, setPendingImageFiles] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCar, setSelectedCar] = useState(null);
@@ -191,6 +213,51 @@ export default function Dashboard() {
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // Fetch cars from backend when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchCars();
+      fetchStats();
+    }
+  }, [isAuthenticated]);
+
+  const fetchCars = async () => {
+    try {
+      setIsLoadingCars(true);
+      const response = await carsApi.getAllCars();
+      if (response.success) {
+        // Transform backend data to match frontend format
+        const transformedCars = response.data.map((car) => ({
+          ...car,
+          exteriorColor: car.exterior_color,
+          interiorColor: car.interior_color,
+          topSpeed: car.top_speed,
+          fuelType: car.fuel_type,
+          showcaseImage: car.showcase_image,
+          createdAt: car.created_at,
+          views: car.views || 0,
+        }));
+        setCars(transformedCars);
+      }
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+      showNotification("Failed to load cars", "error");
+    } finally {
+      setIsLoadingCars(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const response = await carsApi.getStats();
+      if (response.success) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
 
   // Focus first PIN input on load
   useEffect(() => {
@@ -324,21 +391,22 @@ export default function Dashboard() {
       car.category.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  // Stats calculations
-  const stats = {
+  // Stats calculations (use API stats if available, otherwise calculate locally)
+  const displayStats = stats || {
     totalCars: cars.length,
     activeCars: cars.filter((c) => c.status === "active").length,
     draftCars: cars.filter((c) => c.status === "draft").length,
-    totalValue: cars.reduce((sum, c) => sum + c.price, 0),
-    totalViews: cars.reduce((sum, c) => sum + c.views, 0),
+    totalValue: cars.reduce((sum, c) => sum + (c.price || 0), 0),
+    totalViews: cars.reduce((sum, c) => sum + (c.views || 0), 0),
     avgPrice:
       cars.length > 0
-        ? cars.reduce((sum, c) => sum + c.price, 0) / cars.length
+        ? cars.reduce((sum, c) => sum + (c.price || 0), 0) / cars.length
         : 0,
   };
 
   // Open modal for adding new car
   const openAddModal = () => {
+    setPendingImageFiles([]);
     setFormData({
       name: "",
       tagline: "",
@@ -372,9 +440,11 @@ export default function Dashboard() {
   // Open modal for editing car
   const openEditModal = (car) => {
     setSelectedCar(car);
+    setPendingImageFiles([]);
     setFormData({
       ...car,
-      features: car.features.length > 0 ? car.features : [""],
+      features: car.features && car.features.length > 0 ? car.features : [""],
+      images: car.images || [],
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -407,8 +477,14 @@ export default function Dashboard() {
   };
 
   // Handle image upload
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Store file references for upload during save
+    setPendingImageFiles((prev) => [...prev, ...files]);
+
+    // Create preview URLs
     const newImages = files.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
@@ -467,63 +543,125 @@ export default function Dashboard() {
   };
 
   // Save car (add or update)
-  const handleSaveCar = (e) => {
+  const handleSaveCar = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
 
-    const cleanedFeatures = formData.features.filter((f) => f.trim() !== "");
+    try {
+      // Upload pending images first
+      let uploadedImageUrls = [];
+      if (pendingImageFiles.length > 0) {
+        setUploadingImages(true);
+        try {
+          const uploadResponse =
+            await uploadApi.uploadImages(pendingImageFiles);
+          if (uploadResponse.success) {
+            uploadedImageUrls = uploadResponse.data.map((img) => img.url);
+          }
+        } catch (uploadError) {
+          console.error("Error uploading images:", uploadError);
+          showNotification("Failed to upload some images", "error");
+        }
+        setUploadingImages(false);
+      }
 
-    const carData = {
-      ...formData,
-      price: Number(formData.price),
-      year: Number(formData.year),
-      mileage: Number(formData.mileage),
-      horsepower: Number(formData.horsepower),
-      torque: Number(formData.torque),
-      acceleration: Number(formData.acceleration),
-      topSpeed: Number(formData.topSpeed),
-      features: cleanedFeatures,
-      slug: generateSlug(formData.name),
-    };
-
-    if (modalMode === "add") {
-      const newCar = {
-        ...carData,
-        id: Date.now(),
-        createdAt: new Date().toISOString().split("T")[0],
-        views: 0,
-      };
-      setCars((prev) => [newCar, ...prev]);
-      showNotification("Car added successfully!");
-    } else {
-      setCars((prev) =>
-        prev.map((car) =>
-          car.id === selectedCar.id ? { ...car, ...carData } : car,
-        ),
+      // Combine existing URLs with new uploads
+      const existingUrls = formData.images.filter(
+        (img) => !img.startsWith("blob:") && !img.startsWith("data:"),
       );
-      showNotification("Car updated successfully!");
-    }
+      const allImages = [...existingUrls, ...uploadedImageUrls];
 
-    setIsModalOpen(false);
-    setSelectedCar(null);
+      const cleanedFeatures = formData.features.filter((f) => f.trim() !== "");
+
+      const carData = {
+        name: formData.name,
+        tagline: formData.tagline,
+        category: formData.category,
+        brand: formData.brand,
+        price: Number(formData.price),
+        year: Number(formData.year),
+        mileage: Number(formData.mileage),
+        exteriorColor: formData.exteriorColor,
+        interiorColor: formData.interiorColor,
+        engine: formData.engine,
+        horsepower: Number(formData.horsepower) || null,
+        torque: Number(formData.torque) || null,
+        acceleration: Number(formData.acceleration) || null,
+        topSpeed: Number(formData.topSpeed) || null,
+        transmission: formData.transmission,
+        drivetrain: formData.drivetrain,
+        fuelType: formData.fuelType,
+        mpg: formData.mpg,
+        vin: formData.vin,
+        description: formData.description,
+        status: formData.status,
+        showcaseImage: formData.showcaseImage,
+        features: cleanedFeatures,
+        images: allImages,
+        slug: generateSlug(formData.name),
+      };
+
+      let response;
+      if (modalMode === "add") {
+        response = await carsApi.createCar(carData);
+        if (response.success) {
+          showNotification("Car added successfully!");
+          await fetchCars();
+          await fetchStats();
+        }
+      } else {
+        response = await carsApi.updateCar(selectedCar.id, carData);
+        if (response.success) {
+          showNotification("Car updated successfully!");
+          await fetchCars();
+          await fetchStats();
+        }
+      }
+
+      setIsModalOpen(false);
+      setSelectedCar(null);
+      setPendingImageFiles([]);
+    } catch (error) {
+      console.error("Error saving car:", error);
+      showNotification(error.message || "Failed to save car", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   // Delete car
-  const handleDeleteCar = (id) => {
-    setCars((prev) => prev.filter((car) => car.id !== id));
-    setDeleteConfirmId(null);
-    showNotification("Car deleted successfully!", "error");
+  const handleDeleteCar = async (id) => {
+    try {
+      const response = await carsApi.deleteCar(id);
+      if (response.success) {
+        setCars((prev) => prev.filter((car) => car.id !== id));
+        setDeleteConfirmId(null);
+        showNotification("Car deleted successfully!", "error");
+        await fetchStats();
+      }
+    } catch (error) {
+      console.error("Error deleting car:", error);
+      showNotification("Failed to delete car", "error");
+    }
   };
 
   // Toggle car status
-  const toggleCarStatus = (id) => {
-    setCars((prev) =>
-      prev.map((car) =>
-        car.id === id
-          ? { ...car, status: car.status === "active" ? "draft" : "active" }
-          : car,
-      ),
-    );
-    showNotification("Status updated!");
+  const toggleCarStatus = async (id) => {
+    try {
+      const response = await carsApi.toggleStatus(id);
+      if (response.success) {
+        setCars((prev) =>
+          prev.map((car) =>
+            car.id === id ? { ...car, status: response.data.status } : car,
+          ),
+        );
+        showNotification("Status updated!");
+        await fetchStats();
+      }
+    } catch (error) {
+      console.error("Error toggling status:", error);
+      showNotification("Failed to update status", "error");
+    }
   };
 
   // Sidebar navigation items
@@ -1068,7 +1206,7 @@ export default function Dashboard() {
                 {[
                   {
                     label: "Total Vehicles",
-                    value: stats.totalCars,
+                    value: displayStats.totalCars,
                     icon: (
                       <svg
                         className="w-6 h-6"
@@ -1088,7 +1226,7 @@ export default function Dashboard() {
                   },
                   {
                     label: "Active Listings",
-                    value: stats.activeCars,
+                    value: displayStats.activeCars,
                     icon: (
                       <svg
                         className="w-6 h-6"
@@ -1108,7 +1246,7 @@ export default function Dashboard() {
                   },
                   {
                     label: "Portfolio Value",
-                    value: formatPrice(stats.totalValue),
+                    value: formatPrice(displayStats.totalValue),
                     icon: (
                       <svg
                         className="w-6 h-6"
@@ -1128,7 +1266,7 @@ export default function Dashboard() {
                   },
                   {
                     label: "Total Views",
-                    value: stats.totalViews.toLocaleString(),
+                    value: displayStats.totalViews.toLocaleString(),
                     icon: (
                       <svg
                         className="w-6 h-6"

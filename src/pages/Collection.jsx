@@ -3,11 +3,7 @@ import { Link } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { SkeletonCarCard } from "../components/Skeleton";
-
-// Car images
-import g63Image from "../assets/images/CARS/G63/1.jpg";
-import m4Image from "../assets/images/CARS/BMW/1.jpg";
-import a6Image from "../assets/images/CARS/A6/1.jpg";
+import { carsApi } from "../services/api";
 
 // Brand logos
 import mercedesLogo from "../assets/images/mercedes.png";
@@ -17,75 +13,21 @@ import lamboLogo from "../assets/images/lambo.png";
 import ferrariLogo from "../assets/images/ferrari.png";
 import porscheLogo from "../assets/images/porsche.png";
 
-// Sample cars data
-const carsData = [
-  {
-    id: 1,
-    name: "Mercedes-Benz G-Class G63",
-    slug: "mercedes-g63",
-    category: "SUV",
-    brand: "Mercedes",
-    price: 179000,
-    year: 2024,
-    mileage: 1250,
-    image: g63Image,
-  },
-  {
-    id: 2,
-    name: "2015 BMW M4 Competition",
-    slug: "bmw-m4-competition",
-    category: "Performance",
-    brand: "BMW",
-    price: 45000,
-    year: 2015,
-    mileage: 52000,
-    image: m4Image,
-  },
-  {
-    id: 3,
-    name: "2025 Audi A6 40TDI",
-    slug: "audi-a6-40tdi",
-    category: "Luxury Sedan",
-    brand: "Audi",
-    price: 58000,
-    year: 2025,
-    mileage: 0,
-    image: a6Image,
-  },
-  {
-    id: 4,
-    name: "Mercedes-Benz G-Class G63",
-    slug: "mercedes-g63",
-    category: "SUV",
-    brand: "Mercedes",
-    price: 169000,
-    year: 2023,
-    mileage: 8400,
-    image: g63Image,
-  },
-  {
-    id: 5,
-    name: "2015 BMW M4 Competition",
-    slug: "bmw-m4-competition",
-    category: "Performance",
-    brand: "BMW",
-    price: 42000,
-    year: 2015,
-    mileage: 68000,
-    image: m4Image,
-  },
-  {
-    id: 6,
-    name: "2025 Audi A6 40TDI",
-    slug: "audi-a6-40tdi",
-    category: "Luxury Sedan",
-    brand: "Audi",
-    price: 55000,
-    year: 2025,
-    mileage: 500,
-    image: a6Image,
-  },
-];
+// API Base URL for images
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3001";
+
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return "";
+  if (
+    path.startsWith("http") ||
+    path.startsWith("blob:") ||
+    path.startsWith("data:")
+  )
+    return path;
+  return `${API_BASE_URL}${path}`;
+};
 
 const brands = [
   { name: "Ferrari", logo: ferrariLogo },
@@ -131,36 +73,54 @@ export default function Collection() {
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(true);
+  const [allCars, setAllCars] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
   const [selectedYear, setSelectedYear] = useState("All Years");
   const [sortBy, setSortBy] = useState("featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filteredCars, setFilteredCars] = useState(carsData);
+  const [filteredCars, setFilteredCars] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [fetchError, setFetchError] = useState(null);
 
+  // Fetch cars from backend
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-
-    // Simulate content loading
-    const contentTimer = setTimeout(() => {
-      setIsContentLoading(false);
-    }, 600);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(contentTimer);
+    const fetchCars = async () => {
+      try {
+        setIsContentLoading(true);
+        const response = await carsApi.getActiveCars();
+        if (response.success) {
+          // Transform backend data
+          const transformedCars = response.data.map((car) => ({
+            ...car,
+            // Get first image or placeholder
+            image:
+              car.images && car.images.length > 0
+                ? getImageUrl(car.images[0])
+                : "/placeholder-car.jpg",
+          }));
+          setAllCars(transformedCars);
+          setFilteredCars(transformedCars);
+        }
+      } catch (error) {
+        console.error("Error fetching cars:", error);
+        setFetchError("Failed to load vehicles");
+      } finally {
+        setIsContentLoading(false);
+      }
     };
+
+    fetchCars();
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Filter cars based on selections
   useEffect(() => {
-    let result = [...carsData];
+    let result = [...allCars];
 
     // Filter by search query
     if (searchQuery.trim()) {
@@ -218,6 +178,7 @@ export default function Collection() {
     setFilteredCars(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [
+    allCars,
     selectedBrands,
     selectedCategory,
     selectedPriceRange,

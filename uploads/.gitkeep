@@ -1,0 +1,4 @@
+# Uploads directory - stores uploaded car images
+# This folder is ignored by git to prevent large binary files in the repo
+
+# Images will be stored here with format: car-{timestamp}-{random}.{ext}

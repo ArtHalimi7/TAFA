@@ -3,183 +3,85 @@ import { useParams, Link } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { SkeletonGallery } from "../components/Skeleton";
+import { carsApi } from "../services/api";
 
-// Sample car data (will be replaced with backend data later)
-import g63_1 from "../assets/images/CARS/G63/1.jpg";
-import g63_2 from "../assets/images/CARS/G63/2.jpg";
-import g63_3 from "../assets/images/CARS/G63/3.jpg";
-import g63_4 from "../assets/images/CARS/G63/4.jpg";
-import g63_5 from "../assets/images/CARS/G63/5.jpg";
-import g63_6 from "../assets/images/CARS/G63/6.jpg";
-import g63_7 from "../assets/images/CARS/G63/7.jpg";
-import g63_8 from "../assets/images/CARS/G63/8.jpg";
-import g63_9 from "../assets/images/CARS/G63/9.jpg";
-import g63_10 from "../assets/images/CARS/G63/10.jpg";
+// API Base URL for images
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL?.replace("/api", "") || "http://localhost:3001";
 
-import m4_1 from "../assets/images/CARS/BMW/1.jpg";
-import m4_2 from "../assets/images/CARS/BMW/2.jpg";
-import m4_3 from "../assets/images/CARS/BMW/3.jpg";
-import m4_4 from "../assets/images/CARS/BMW/4.jpg";
-import m4_5 from "../assets/images/CARS/BMW/5.jpg";
-import m4_6 from "../assets/images/CARS/BMW/6.jpg";
-import m4_7 from "../assets/images/CARS/BMW/7.jpg";
-import m4_8 from "../assets/images/CARS/BMW/8.jpg";
-import m4_9 from "../assets/images/CARS/BMW/9.jpg";
-
-import a6_1 from "../assets/images/CARS/A6/1.jpg";
-import a6_2 from "../assets/images/CARS/A6/2.jpg";
-import a6_3 from "../assets/images/CARS/A6/3.jpg";
-import a6_4 from "../assets/images/CARS/A6/4.jpg";
-import a6_5 from "../assets/images/CARS/A6/5.jpg";
-import a6_6 from "../assets/images/CARS/A6/6.jpg";
-import a6_7 from "../assets/images/CARS/A6/7.jpg";
-import a6_8 from "../assets/images/CARS/A6/8.jpg";
-import a6_9 from "../assets/images/CARS/A6/9.jpg";
-import a6_10 from "../assets/images/CARS/A6/10.jpg";
-
-const carsData = {
-  "mercedes-g63": {
-    id: 1,
-    name: "Mercedes-Benz G-Class G63",
-    tagline: "Stronger Than Time",
-    category: "SUV",
-    price: 179000,
-    year: 2024,
-    mileage: 1250,
-    exteriorColor: "Obsidian Black Metallic",
-    interiorColor: "Nappa Leather Black/Red",
-    engine: "4.0L V8 Biturbo",
-    horsepower: 577,
-    torque: 627,
-    acceleration: 4.5,
-    topSpeed: 137,
-    transmission: "AMG SPEEDSHIFT TCT 9-speed",
-    drivetrain: "AMG Performance 4MATIC",
-    fuelType: "Premium Gasoline",
-    mpg: "13/16",
-    vin: "WDCYC5KF5LX000000",
-    images: [
-      g63_1,
-      g63_2,
-      g63_3,
-      g63_4,
-      g63_5,
-      g63_6,
-      g63_7,
-      g63_8,
-      g63_9,
-      g63_10,
-    ],
-    features: [
-      "AMG Performance Exhaust",
-      "Burmester Surround Sound System",
-      "AMG Carbon Fiber Trim",
-      "360-Degree Camera",
-      "Adaptive Damping System",
-      "Head-Up Display",
-      "Heated & Ventilated Seats",
-      "AMG Night Package",
-    ],
-    description:
-      "The Mercedes-Benz G-Class G63 is the ultimate luxury SUV, combining legendary off-road capability with AMG performance. Its iconic boxy design and handcrafted V8 engine deliver an unmatched driving experience both on and off the road.",
-  },
-  "bmw-m4-competition": {
-    id: 2,
-    name: "2015 BMW M4 Competition",
-    tagline: "The Ultimate Driving Machine",
-    category: "Performance",
-    price: 45000,
-    year: 2015,
-    mileage: 52000,
-    exteriorColor: "Austin Yellow Metallic",
-    interiorColor: "Black Merino Leather",
-    engine: "3.0L Twin-Turbo Inline-6",
-    horsepower: 444,
-    torque: 406,
-    acceleration: 3.9,
-    topSpeed: 174,
-    transmission: "7-Speed M DCT",
-    drivetrain: "Rear-Wheel Drive",
-    fuelType: "Premium Gasoline",
-    mpg: "17/26",
-    vin: "WBS3R9C59FK000000",
-    images: [m4_1, m4_2, m4_3, m4_4, m4_5, m4_6, m4_7, m4_8, m4_9],
-    features: [
-      "M Competition Package",
-      "Adaptive M Suspension",
-      "Carbon Fiber Roof",
-      "Harman Kardon Surround Sound",
-      "M Sport Exhaust",
-      "Active M Differential",
-      "Head-Up Display",
-      "M Carbon Ceramic Brakes",
-    ],
-    description:
-      "The 2015 BMW M4 Competition is a track-focused sports coupe that delivers exhilarating performance. With its twin-turbo inline-6 engine and precision handling, this M4 offers an authentic driving experience for enthusiasts.",
-  },
-  "audi-a6-40tdi": {
-    id: 3,
-    name: "2025 Audi A6 40TDI",
-    tagline: "Progress Through Technology",
-    category: "Luxury Sedan",
-    price: 58000,
-    year: 2025,
-    mileage: 0,
-    exteriorColor: "Glacier White Metallic",
-    interiorColor: "Black Valcona Leather",
-    engine: "2.0L TDI Diesel",
-    horsepower: 204,
-    torque: 295,
-    acceleration: 7.1,
-    topSpeed: 155,
-    transmission: "7-Speed S tronic",
-    drivetrain: "Front-Wheel Drive",
-    fuelType: "Diesel",
-    mpg: "38/48",
-    vin: "WAUZZZ4G0NN000000",
-    images: [a6_1, a6_2, a6_3, a6_4, a6_5, a6_6, a6_7, a6_8, a6_9, a6_10],
-    features: [
-      "MMI Navigation Plus",
-      "Bang & Olufsen 3D Sound",
-      "Matrix LED Headlights",
-      "Audi Virtual Cockpit Plus",
-      "Adaptive Cruise Control",
-      "Panoramic Sunroof",
-      "S line Exterior Package",
-      "Sport Contour Seats",
-    ],
-    description:
-      "The 2025 Audi A6 40TDI combines elegant design with efficient diesel performance. Featuring Audi's latest technology and refined interior, this executive sedan delivers exceptional comfort and fuel economy for the modern professional.",
-  },
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return "";
+  if (
+    path.startsWith("http") ||
+    path.startsWith("blob:") ||
+    path.startsWith("data:")
+  )
+    return path;
+  return `${API_BASE_URL}${path}`;
 };
 
 export default function CarDetail() {
   const { slug } = useParams();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [car, setCar] = useState(null);
+  const [error, setError] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [animatedPrice, setAnimatedPrice] = useState(0);
-  const [specsVisible, setSpecsVisible] = useState(false);
-  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [specsVisible, setSpecsVisible] = useState(true);
+  const [galleryVisible, setGalleryVisible] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const specsRef = useRef(null);
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
-  const [featuresVisible, setFeaturesVisible] = useState(false);
+  const [featuresVisible, setFeaturesVisible] = useState(true);
 
-  // Get car data based on slug
-  const car = carsData[slug] || carsData["mercedes-amg-gt-63-s"];
+  // Fetch car data from backend
+  useEffect(() => {
+    const fetchCar = async () => {
+      try {
+        setIsLoading(true);
+        const response = await carsApi.getCarBySlug(slug);
+        if (response.success) {
+          // Transform backend data
+          const carData = response.data;
+          setCar({
+            ...carData,
+            exteriorColor: carData.exterior_color,
+            interiorColor: carData.interior_color,
+            topSpeed: carData.top_speed,
+            fuelType: carData.fuel_type,
+            // Transform images to full URLs
+            images: (carData.images || []).map((img) => getImageUrl(img)),
+          });
+        } else {
+          setError("Vehicle not found");
+        }
+      } catch (err) {
+        console.error("Error fetching car:", err);
+        setError("Failed to load vehicle details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (slug) {
+      fetchCar();
+    }
+  }, [slug]);
 
   // Dynamic SEO for car detail page
   useSEO(
     seoContent.carDetail({
-      year: car.year,
-      make: car.name?.split(" ")[0] || "",
-      model: car.name || "",
-      mileage: car.mileage,
-      transmission: car.transmission,
+      year: car?.year || "",
+      make: car?.name?.split(" ")[0] || "",
+      model: car?.name || "",
+      mileage: car?.mileage || 0,
+      transmission: car?.transmission || "",
     }),
   );
 
@@ -192,7 +94,7 @@ export default function CarDetail() {
 
   // Animate price counting
   useEffect(() => {
-    if (isLoaded && car) {
+    if (isLoaded && car && car.price) {
       const duration = 1500;
       const startTime = Date.now();
       const target = car.price;
@@ -248,6 +150,8 @@ export default function CarDetail() {
 
   // Keyboard navigation for gallery modal
   useEffect(() => {
+    if (!car || !car.images) return;
+
     const handleKeyDown = (e) => {
       if (!isGalleryOpen) return;
 
@@ -264,7 +168,7 @@ export default function CarDetail() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isGalleryOpen, car.images.length]);
+  }, [isGalleryOpen, car]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -280,14 +184,21 @@ export default function CarDetail() {
 
   // Autoplay for hero image slider
   useEffect(() => {
-    if (!isLoaded || isGalleryOpen) return;
+    if (
+      !isLoaded ||
+      isGalleryOpen ||
+      !car ||
+      !car.images ||
+      car.images.length === 0
+    )
+      return;
 
     const autoplayInterval = setInterval(() => {
       setActiveImageIndex((prev) => (prev + 1) % car.images.length);
     }, 5000); // Change image every 5 seconds
 
     return () => clearInterval(autoplayInterval);
-  }, [isLoaded, isGalleryOpen, car.images.length]);
+  }, [isLoaded, isGalleryOpen, car]);
 
   const openGallery = (index) => {
     setModalImageIndex(index);
@@ -295,10 +206,12 @@ export default function CarDetail() {
   };
 
   const nextImage = () => {
+    if (!car || !car.images) return;
     setModalImageIndex((prev) => (prev + 1) % car.images.length);
   };
 
   const prevImage = () => {
+    if (!car || !car.images) return;
     setModalImageIndex(
       (prev) => (prev - 1 + car.images.length) % car.images.length,
     );
@@ -327,17 +240,19 @@ export default function CarDetail() {
     }
   };
 
-  const specs = [
-    { label: "Horsepower", value: car.horsepower, suffix: "HP" },
-    { label: "Torque", value: car.torque, suffix: "lb-ft" },
-    {
-      label: "0-60 mph",
-      value: car.acceleration,
-      suffix: "s",
-      isDecimal: true,
-    },
-    { label: "Top Speed", value: car.topSpeed, suffix: "mph" },
-  ];
+  const specs = car
+    ? [
+        { label: "Horsepower", value: car.horsepower, suffix: "HP" },
+        { label: "Torque", value: car.torque, suffix: "lb-ft" },
+        {
+          label: "0-60 mph",
+          value: car.acceleration,
+          suffix: "s",
+          isDecimal: true,
+        },
+        { label: "Top Speed", value: car.topSpeed, suffix: "mph" },
+      ]
+    : [];
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-US", {
@@ -347,6 +262,43 @@ export default function CarDetail() {
       maximumFractionDigits: 0,
     }).format(price);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/60">Loading vehicle details...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Error state
+  if (error || !car) {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center px-4">
+          <h1
+            className="text-4xl font-bold mb-4"
+            style={{ fontFamily: "Cera Pro, sans-serif" }}
+          >
+            Vehicle Not Found
+          </h1>
+          <p className="text-white/60 mb-8">
+            {error || "The vehicle you're looking for doesn't exist."}
+          </p>
+          <Link
+            to="/collection"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white text-black font-medium rounded-full hover:bg-white/90 transition-colors"
+          >
+            ← Back to Collection
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -389,21 +341,22 @@ export default function CarDetail() {
         {/* Main Image */}
         <div className="relative h-[60vh] sm:h-screen overflow-hidden">
           {/* All images stacked with fade transitions */}
-          {car.images.map((image, index) => (
-            <div
-              key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                activeImageIndex === index ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <img
-                src={image}
-                alt={`${car.name} - Image ${index + 1}`}
-                className="w-full h-full object-cover object-center"
-                style={{ objectPosition: "center 40%" }}
-              />
-            </div>
-          ))}
+          {car.images &&
+            car.images.map((image, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  activeImageIndex === index ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`${car.name} - Image ${index + 1}`}
+                  className="w-full h-full object-cover object-center"
+                  style={{ objectPosition: "center 40%" }}
+                />
+              </div>
+            ))}
           {/* Gradient overlays */}
           <div className="absolute inset-0 bg-black/30" />
           <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/20" />

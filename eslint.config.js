@@ -5,9 +5,10 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "node_modules"]),
+  // Frontend React files configuration
   {
-    files: ["**/*.{js,jsx}"],
+    files: ["src/**/*.{js,jsx}"],
     extends: [
       js.configs.recommended,
       reactHooks.configs.flat.recommended,
@@ -24,20 +25,36 @@ export default defineConfig([
     },
     rules: {
       "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
-      "react-hooks/exhaustive-deps": "off", // Disable exhaustive deps warnings for refs
+      "react-hooks/exhaustive-deps": "off",
     },
   },
+  // Backend Node.js files configuration
   {
-    files: ["**/*.{js,jsx}"],
-    rules: {
-      // Disable Tailwind class warnings
-      "no-restricted-syntax": "off",
-    },
-    settings: {
-      tailwindCSS: {
-        // Disable Tailwind class validation
-        enabled: false,
+    files: ["backend/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "commonjs",
       },
     },
+    extends: [js.configs.recommended],
+    rules: {
+      "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]|^_" }],
+    },
+  },
+  // Config files
+  {
+    files: ["vite.config.js", "tailwind.config.js", "postcss.config.js"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.node,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "commonjs",
+      },
+    },
+    extends: [js.configs.recommended],
   },
 ]);
