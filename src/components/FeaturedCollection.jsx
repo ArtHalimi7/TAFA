@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { LazyImageContain } from "./LazyImage";
 import { SkeletonFeaturedCard } from "./Skeleton";
-import mercedesgt63s from "../assets/images/mercedesgt63s.jpg";
-import bmw7 from "../assets/images/bmw7.jpg";
-import audirs7 from "../assets/images/audirs7.jpg";
+import g63Image from "../assets/images/CARS/G63/1.jpg";
+import a6Image from "../assets/images/CARS/A6/1.jpg";
+import m4Image from "../assets/images/CARS/BMW/1.jpg";
 
 export default function FeaturedCollection() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -29,27 +29,27 @@ export default function FeaturedCollection() {
   const vehicles = [
     {
       id: 1,
-      name: "Mercedes-AMG GT 63 S",
-      slug: "mercedes-amg-gt-63-s",
-      category: "Performance",
-      price: "$185,000",
-      image: mercedesgt63s,
+      name: "Mercedes-Benz G-Class G63",
+      slug: "mercedes-g63",
+      category: "SUV",
+      price: "$179,000",
+      image: g63Image,
     },
     {
       id: 2,
-      name: "BMW M760i xDrive",
-      slug: "bmw-m760i-xdrive",
-      category: "Luxury Sedan",
-      price: "$155,000",
-      image: bmw7,
+      name: "2015 BMW M4 Competition",
+      slug: "bmw-m4-competition",
+      category: "Performance",
+      price: "$45,000",
+      image: m4Image,
     },
     {
       id: 3,
-      name: "Audi RS e-tron GT",
-      slug: "audi-rs-etron-gt",
-      category: "Electric",
-      price: "$142,000",
-      image: audirs7,
+      name: "2025 Audi A6 40TDI",
+      slug: "audi-a6-40tdi",
+      category: "Luxury Sedan",
+      price: "$58,000",
+      image: a6Image,
     },
   ];
 
@@ -104,45 +104,51 @@ export default function FeaturedCollection() {
                   style={{ transitionDelay: `${300 + index * 100}ms` }}
                 >
                   {/* Card Container */}
-                  <div className="relative h-96 rounded-lg overflow-hidden cursor-pointer">
-                    {/* Background Image */}
-                    <LazyImageContain
-                      src={vehicle.image}
-                      alt={vehicle.name}
-                      className="absolute inset-0 w-full h-full transition-transform duration-500 group-hover:scale-110"
-                    />
+                  <div className="relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-500">
+                    {/* Image Container */}
+                    <div className="relative aspect-4/3 overflow-hidden">
+                      <LazyImageContain
+                        src={vehicle.image}
+                        alt={vehicle.name}
+                        className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
 
-                    {/* Overlay Gradient */}
-                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/30 to-transparent opacity-60" />
-
-                    {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-between p-6">
-                      {/* Top - Category Badge */}
-                      <div>
-                        <div className="inline-block px-3 py-1 border border-white/40 rounded-full">
-                          <span className="text-xs font-light text-white/90 tracking-widest uppercase">
-                            {vehicle.category}
-                          </span>
-                        </div>
+                    {/* Content Below Image */}
+                    <div className="p-5 space-y-4">
+                      {/* Category Badge */}
+                      <div className="inline-block px-3 py-1 bg-white/10 rounded-full">
+                        <span
+                          className="text-xs font-medium text-white/70 tracking-widest uppercase"
+                          style={{ fontFamily: "Montserrat, sans-serif" }}
+                        >
+                          {vehicle.category}
+                        </span>
                       </div>
 
-                      {/* Bottom - Name and Price */}
-                      <div className="space-y-3">
-                        <h3
-                          className="text-2xl font-bold text-white transition-all duration-300 group-hover:translate-y-0 translate-y-1"
+                      {/* Name */}
+                      <h3
+                        className="text-xl font-bold text-white"
+                        style={{ fontFamily: "Cera Pro, sans-serif" }}
+                      >
+                        {vehicle.name}
+                      </h3>
+
+                      {/* Divider */}
+                      <div className="w-full h-px bg-white/10" />
+
+                      {/* Price and Arrow */}
+                      <div className="flex items-center justify-between">
+                        <span
+                          className="text-lg font-semibold text-white"
                           style={{ fontFamily: "Cera Pro, sans-serif" }}
                         >
-                          {vehicle.name}
-                        </h3>
-                        <div className="flex items-center justify-between pt-4 border-t border-white/20">
-                          <span className="text-lg font-semibold text-white">
-                            {vehicle.price}
+                          {vehicle.price}
+                        </span>
+                        <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white group-hover:bg-white transition-all duration-300">
+                          <span className="text-white/50 group-hover:text-black transition-colors duration-300">
+                            →
                           </span>
-                          <div className="w-8 h-8 rounded-full border border-white/40 flex items-center justify-center group-hover:border-white group-hover:bg-white transition-all duration-300">
-                            <span className="text-white/70 group-hover:text-black transition-colors duration-300">
-                              →
-                            </span>
-                          </div>
                         </div>
                       </div>
                     </div>

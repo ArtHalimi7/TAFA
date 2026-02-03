@@ -5,112 +5,151 @@ import { LazyImage } from "../components/LazyImage";
 import { SkeletonGallery } from "../components/Skeleton";
 
 // Sample car data (will be replaced with backend data later)
-import mercedesgt63s from "../assets/images/mercedesgt63s.jpg";
-import bmw7 from "../assets/images/bmw7.jpg";
-import audirs7 from "../assets/images/audirs7.jpg";
+import g63_1 from "../assets/images/CARS/G63/1.jpg";
+import g63_2 from "../assets/images/CARS/G63/2.jpg";
+import g63_3 from "../assets/images/CARS/G63/3.jpg";
+import g63_4 from "../assets/images/CARS/G63/4.jpg";
+import g63_5 from "../assets/images/CARS/G63/5.jpg";
+import g63_6 from "../assets/images/CARS/G63/6.jpg";
+import g63_7 from "../assets/images/CARS/G63/7.jpg";
+import g63_8 from "../assets/images/CARS/G63/8.jpg";
+import g63_9 from "../assets/images/CARS/G63/9.jpg";
+import g63_10 from "../assets/images/CARS/G63/10.jpg";
+
+import m4_1 from "../assets/images/CARS/BMW/1.jpg";
+import m4_2 from "../assets/images/CARS/BMW/2.jpg";
+import m4_3 from "../assets/images/CARS/BMW/3.jpg";
+import m4_4 from "../assets/images/CARS/BMW/4.jpg";
+import m4_5 from "../assets/images/CARS/BMW/5.jpg";
+import m4_6 from "../assets/images/CARS/BMW/6.jpg";
+import m4_7 from "../assets/images/CARS/BMW/7.jpg";
+import m4_8 from "../assets/images/CARS/BMW/8.jpg";
+import m4_9 from "../assets/images/CARS/BMW/9.jpg";
+
+import a6_1 from "../assets/images/CARS/A6/1.jpg";
+import a6_2 from "../assets/images/CARS/A6/2.jpg";
+import a6_3 from "../assets/images/CARS/A6/3.jpg";
+import a6_4 from "../assets/images/CARS/A6/4.jpg";
+import a6_5 from "../assets/images/CARS/A6/5.jpg";
+import a6_6 from "../assets/images/CARS/A6/6.jpg";
+import a6_7 from "../assets/images/CARS/A6/7.jpg";
+import a6_8 from "../assets/images/CARS/A6/8.jpg";
+import a6_9 from "../assets/images/CARS/A6/9.jpg";
+import a6_10 from "../assets/images/CARS/A6/10.jpg";
 
 const carsData = {
-  "mercedes-amg-gt-63-s": {
+  "mercedes-g63": {
     id: 1,
-    name: "Mercedes-AMG GT 63 S",
-    tagline: "Where Performance Meets Prestige",
-    category: "Performance",
-    price: 185000,
+    name: "Mercedes-Benz G-Class G63",
+    tagline: "Stronger Than Time",
+    category: "SUV",
+    price: 179000,
     year: 2024,
     mileage: 1250,
     exteriorColor: "Obsidian Black Metallic",
-    interiorColor: "Nappa Leather Red/Black",
+    interiorColor: "Nappa Leather Black/Red",
     engine: "4.0L V8 Biturbo",
-    horsepower: 630,
-    torque: 664,
-    acceleration: 3.1,
-    topSpeed: 196,
-    transmission: "AMG SPEEDSHIFT MCT 9-speed",
-    drivetrain: "AMG Performance 4MATIC+",
+    horsepower: 577,
+    torque: 627,
+    acceleration: 4.5,
+    topSpeed: 137,
+    transmission: "AMG SPEEDSHIFT TCT 9-speed",
+    drivetrain: "AMG Performance 4MATIC",
     fuelType: "Premium Gasoline",
-    mpg: "16/22",
-    vin: "WDD2173421A000000",
-    images: [mercedesgt63s, mercedesgt63s, mercedesgt63s, mercedesgt63s],
+    mpg: "13/16",
+    vin: "WDCYC5KF5LX000000",
+    images: [
+      g63_1,
+      g63_2,
+      g63_3,
+      g63_4,
+      g63_5,
+      g63_6,
+      g63_7,
+      g63_8,
+      g63_9,
+      g63_10,
+    ],
     features: [
-      "AMG Carbon Fiber Trim",
-      "Burmester High-End 3D Surround",
       "AMG Performance Exhaust",
-      "Active Rear Axle Steering",
-      "AMG Dynamic Plus Package",
+      "Burmester Surround Sound System",
+      "AMG Carbon Fiber Trim",
+      "360-Degree Camera",
+      "Adaptive Damping System",
       "Head-Up Display",
-      "Panoramic Sliding Sunroof",
+      "Heated & Ventilated Seats",
       "AMG Night Package",
     ],
     description:
-      "This Mercedes-AMG GT 63 S represents the pinnacle of automotive engineering. Hand-built by AMG craftsmen in Affalterbach, Germany, this four-door coupe delivers breathtaking performance while maintaining the luxury and refinement expected from the Mercedes-Benz marque.",
+      "The Mercedes-Benz G-Class G63 is the ultimate luxury SUV, combining legendary off-road capability with AMG performance. Its iconic boxy design and handcrafted V8 engine deliver an unmatched driving experience both on and off the road.",
   },
-  "bmw-m760i-xdrive": {
+  "bmw-m4-competition": {
     id: 2,
-    name: "BMW M760i xDrive",
+    name: "2015 BMW M4 Competition",
     tagline: "The Ultimate Driving Machine",
-    category: "Luxury Sedan",
-    price: 155000,
-    year: 2024,
-    mileage: 3200,
-    exteriorColor: "Alpine White",
-    interiorColor: "Cognac Merino Leather",
-    engine: "6.6L V12 TwinPower Turbo",
-    horsepower: 601,
-    torque: 627,
-    acceleration: 3.6,
-    topSpeed: 155,
-    transmission: "8-Speed Automatic",
-    drivetrain: "xDrive All-Wheel Drive",
+    category: "Performance",
+    price: 45000,
+    year: 2015,
+    mileage: 52000,
+    exteriorColor: "Austin Yellow Metallic",
+    interiorColor: "Black Merino Leather",
+    engine: "3.0L Twin-Turbo Inline-6",
+    horsepower: 444,
+    torque: 406,
+    acceleration: 3.9,
+    topSpeed: 174,
+    transmission: "7-Speed M DCT",
+    drivetrain: "Rear-Wheel Drive",
     fuelType: "Premium Gasoline",
-    mpg: "13/21",
-    vin: "WBA7F2C55JB000000",
-    images: [bmw7, bmw7, bmw7, bmw7],
+    mpg: "17/26",
+    vin: "WBS3R9C59FK000000",
+    images: [m4_1, m4_2, m4_3, m4_4, m4_5, m4_6, m4_7, m4_8, m4_9],
     features: [
-      "Executive Lounge Seating",
-      "Bowers & Wilkins Diamond Surround",
-      "Sky Lounge Panoramic Roof",
-      "Rear Seat Entertainment",
-      "M Sport Brakes",
-      "Soft-Close Doors",
-      "Ambient Air Package",
-      "Driving Assistance Professional",
+      "M Competition Package",
+      "Adaptive M Suspension",
+      "Carbon Fiber Roof",
+      "Harman Kardon Surround Sound",
+      "M Sport Exhaust",
+      "Active M Differential",
+      "Head-Up Display",
+      "M Carbon Ceramic Brakes",
     ],
     description:
-      "The BMW M760i xDrive is the flagship of the 7 Series lineup, combining the silky smoothness of a V12 engine with the latest in luxury technology and comfort features.",
+      "The 2015 BMW M4 Competition is a track-focused sports coupe that delivers exhilarating performance. With its twin-turbo inline-6 engine and precision handling, this M4 offers an authentic driving experience for enthusiasts.",
   },
-  "audi-rs-etron-gt": {
+  "audi-a6-40tdi": {
     id: 3,
-    name: "Audi RS e-tron GT",
-    tagline: "Electric Performance Redefined",
-    category: "Electric",
-    price: 142000,
-    year: 2024,
-    mileage: 890,
-    exteriorColor: "Tactical Green",
+    name: "2025 Audi A6 40TDI",
+    tagline: "Progress Through Technology",
+    category: "Luxury Sedan",
+    price: 58000,
+    year: 2025,
+    mileage: 0,
+    exteriorColor: "Glacier White Metallic",
     interiorColor: "Black Valcona Leather",
-    engine: "Dual Electric Motors",
-    horsepower: 637,
-    torque: 612,
-    acceleration: 3.1,
+    engine: "2.0L TDI Diesel",
+    horsepower: 204,
+    torque: 295,
+    acceleration: 7.1,
     topSpeed: 155,
-    transmission: "2-Speed Automatic",
-    drivetrain: "quattro All-Wheel Drive",
-    fuelType: "Electric",
-    mpg: "79 MPGe",
-    vin: "WUAESFF15N0000000",
-    images: [audirs7, audirs7, audirs7, audirs7],
+    transmission: "7-Speed S tronic",
+    drivetrain: "Front-Wheel Drive",
+    fuelType: "Diesel",
+    mpg: "38/48",
+    vin: "WAUZZZ4G0NN000000",
+    images: [a6_1, a6_2, a6_3, a6_4, a6_5, a6_6, a6_7, a6_8, a6_9, a6_10],
     features: [
-      "Carbon Fiber Roof",
+      "MMI Navigation Plus",
       "Bang & Olufsen 3D Sound",
       "Matrix LED Headlights",
-      "RS Sport Suspension Plus",
-      "Ceramic Brakes",
-      "Head-Up Display",
+      "Audi Virtual Cockpit Plus",
+      "Adaptive Cruise Control",
+      "Panoramic Sunroof",
+      "S line Exterior Package",
       "Sport Contour Seats",
-      "Carbon Optic Package",
     ],
     description:
-      "The Audi RS e-tron GT represents the future of high-performance motoring. With instant torque delivery and Audi's legendary quattro system, this electric gran turismo delivers supercar performance with zero emissions.",
+      "The 2025 Audi A6 40TDI combines elegant design with efficient diesel performance. Featuring Audi's latest technology and refined interior, this executive sedan delivers exceptional comfort and fuel economy for the modern professional.",
   },
 };
 
@@ -239,6 +278,17 @@ export default function CarDetail() {
     };
   }, [isGalleryOpen]);
 
+  // Autoplay for hero image slider
+  useEffect(() => {
+    if (!isLoaded || isGalleryOpen) return;
+
+    const autoplayInterval = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % car.images.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(autoplayInterval);
+  }, [isLoaded, isGalleryOpen, car.images.length]);
+
   const openGallery = (index) => {
     setModalImageIndex(index);
     setIsGalleryOpen(true);
@@ -338,22 +388,26 @@ export default function CarDetail() {
         </nav>
         {/* Main Image */}
         <div className="relative h-[60vh] sm:h-screen overflow-hidden">
-          <div
-            className={`absolute inset-0 transition-all duration-[1.5s] ease-out ${
-              isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-100"
-            }`}
-          >
-            <LazyImage
-              src={car.images[activeImageIndex]}
-              alt={car.name}
-              className="w-full h-full"
-            />
-            {/* Gradient overlays */}
-            <div className="absolute inset-0 bg-black/30" />{" "}
-            {/* General dark overlay for text readability */}
-            <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/20" />
-            <div className="absolute inset-0 bg-linear-to-r from-black/70 via-transparent to-transparent" />
-          </div>
+          {/* All images stacked with fade transitions */}
+          {car.images.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                activeImageIndex === index ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              <img
+                src={image}
+                alt={`${car.name} - Image ${index + 1}`}
+                className="w-full h-full object-cover object-center"
+                style={{ objectPosition: "center 40%" }}
+              />
+            </div>
+          ))}
+          {/* Gradient overlays */}
+          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/20" />
+          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-transparent to-transparent" />
 
           {/* Image Navigation Dots */}
           <div
@@ -366,7 +420,7 @@ export default function CarDetail() {
               <button
                 key={index}
                 onClick={() => setActiveImageIndex(index)}
-                className={`relative w-12 h-1 rounded-full transition-all duration-300 overflow-hidden ${
+                className={`relative w-12 h-1 rounded-full transition-all duration-500 overflow-hidden ${
                   activeImageIndex === index
                     ? "bg-white"
                     : "bg-white/30 hover:bg-white/50"
@@ -374,15 +428,23 @@ export default function CarDetail() {
               >
                 {activeImageIndex === index && (
                   <div
-                    className="absolute inset-0 bg-white/50"
+                    className="absolute inset-y-0 left-0 bg-white/70 rounded-full"
                     style={{
-                      animation: "progress 5s linear infinite",
+                      animation: "slideProgress 5s linear forwards",
                     }}
                   />
                 )}
               </button>
             ))}
           </div>
+
+          {/* Autoplay progress animation */}
+          <style>{`
+            @keyframes slideProgress {
+              from { width: 0%; }
+              to { width: 100%; }
+            }
+          `}</style>
 
           {/* Hero Content */}
           <div className="absolute inset-0 flex items-center justify-center sm:justify-start p-6 sm:p-12 lg:p-24">

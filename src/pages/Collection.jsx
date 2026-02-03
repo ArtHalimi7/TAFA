@@ -5,9 +5,9 @@ import { LazyImage } from "../components/LazyImage";
 import { SkeletonCarCard } from "../components/Skeleton";
 
 // Car images
-import mercedesgt63s from "../assets/images/mercedesgt63s.jpg";
-import bmw7 from "../assets/images/bmw7.jpg";
-import audirs7 from "../assets/images/audirs7.jpg";
+import g63Image from "../assets/images/CARS/G63/1.jpg";
+import m4Image from "../assets/images/CARS/BMW/1.jpg";
+import a6Image from "../assets/images/CARS/A6/1.jpg";
 
 // Brand logos
 import mercedesLogo from "../assets/images/mercedes.png";
@@ -21,69 +21,69 @@ import porscheLogo from "../assets/images/porsche.png";
 const carsData = [
   {
     id: 1,
-    name: "Mercedes-AMG GT 63 S",
-    slug: "mercedes-amg-gt-63-s",
-    category: "Performance",
+    name: "Mercedes-Benz G-Class G63",
+    slug: "mercedes-g63",
+    category: "SUV",
     brand: "Mercedes",
-    price: 185000,
+    price: 179000,
     year: 2024,
     mileage: 1250,
-    image: mercedesgt63s,
+    image: g63Image,
   },
   {
     id: 2,
-    name: "BMW M760i xDrive",
-    slug: "bmw-m760i-xdrive",
-    category: "Luxury Sedan",
+    name: "2015 BMW M4 Competition",
+    slug: "bmw-m4-competition",
+    category: "Performance",
     brand: "BMW",
-    price: 155000,
-    year: 2024,
-    mileage: 3200,
-    image: bmw7,
+    price: 45000,
+    year: 2015,
+    mileage: 52000,
+    image: m4Image,
   },
   {
     id: 3,
-    name: "Audi RS e-tron GT",
-    slug: "audi-rs-etron-gt",
-    category: "Electric",
+    name: "2025 Audi A6 40TDI",
+    slug: "audi-a6-40tdi",
+    category: "Luxury Sedan",
     brand: "Audi",
-    price: 142000,
-    year: 2024,
-    mileage: 890,
-    image: audirs7,
+    price: 58000,
+    year: 2025,
+    mileage: 0,
+    image: a6Image,
   },
   {
     id: 4,
-    name: "Mercedes-AMG GT 63 S",
-    slug: "mercedes-amg-gt-63-s",
-    category: "Performance",
+    name: "Mercedes-Benz G-Class G63",
+    slug: "mercedes-g63",
+    category: "SUV",
     brand: "Mercedes",
-    price: 195000,
+    price: 169000,
     year: 2023,
-    mileage: 5400,
-    image: mercedesgt63s,
+    mileage: 8400,
+    image: g63Image,
   },
   {
     id: 5,
-    name: "BMW M760i xDrive",
-    slug: "bmw-m760i-xdrive",
-    category: "Luxury Sedan",
+    name: "2015 BMW M4 Competition",
+    slug: "bmw-m4-competition",
+    category: "Performance",
     brand: "BMW",
-    price: 145000,
-    year: 2023,
-    mileage: 8200,
-    image: bmw7,
+    price: 42000,
+    year: 2015,
+    mileage: 68000,
+    image: m4Image,
   },
   {
     id: 6,
-    name: "Audi RS e-tron GT",
-    slug: "audi-rs-etron-gt",
-    category: "Electric",
+    name: "2025 Audi A6 40TDI",
+    slug: "audi-a6-40tdi",
+    category: "Luxury Sedan",
     brand: "Audi",
-    price: 138000,
-    year: 2023,
-    mileage: 2100,
-    image: audirs7,
+    price: 55000,
+    year: 2025,
+    mileage: 500,
+    image: a6Image,
   },
 ];
 
@@ -770,64 +770,75 @@ export default function Collection() {
                     style={{ transitionDelay: `${100 + index * 50}ms` }}
                   >
                     {/* Card */}
-                    <div className="relative aspect-4/3 rounded-xl overflow-hidden">
-                      {/* Image */}
-                      <LazyImage
-                        src={car.image}
-                        alt={car.name}
-                        className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-110"
-                      />
+                    <div className="relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-500">
+                      {/* Image Container */}
+                      <div className="relative aspect-4/3 overflow-hidden">
+                        <LazyImage
+                          src={car.image}
+                          alt={car.name}
+                          className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105"
+                        />
+                      </div>
 
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-linear-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-70 transition-opacity duration-500" />
-
-                      {/* Content */}
-                      <div className="absolute inset-0 flex flex-col justify-between p-5">
-                        {/* Top */}
-                        <div className="flex items-start justify-between">
-                          <span className="px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white/80 tracking-wider uppercase">
+                      {/* Content Below Image */}
+                      <div className="p-5 space-y-4">
+                        {/* Top Row - Category and Year */}
+                        <div className="flex items-center justify-between">
+                          <span
+                            className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-white/70 tracking-wider uppercase"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          >
                             {car.category}
                           </span>
-                          <span className="px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-xs font-medium text-white/80">
+                          <span
+                            className="text-sm text-white/50"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          >
                             {car.year}
                           </span>
                         </div>
 
-                        {/* Bottom */}
-                        <div>
-                          <h3
-                            className="text-xl lg:text-2xl font-bold text-white mb-2 group-hover:translate-y-0 translate-y-1 transition-transform duration-300"
-                            style={{ fontFamily: "Cera Pro, sans-serif" }}
-                          >
-                            {car.name}
-                          </h3>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <span
-                                className="text-2xl font-bold text-white"
-                                style={{ fontFamily: "Cera Pro, sans-serif" }}
-                              >
-                                {formatPrice(car.price)}
-                              </span>
-                              <span className="text-white/50 text-sm ml-2">
-                                {car.mileage.toLocaleString()} mi
-                              </span>
-                            </div>
-                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
-                              <svg
-                                className="w-4 h-4 text-white group-hover:text-black transition-colors duration-300"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                                />
-                              </svg>
-                            </div>
+                        {/* Name */}
+                        <h3
+                          className="text-xl font-bold text-white"
+                          style={{ fontFamily: "Cera Pro, sans-serif" }}
+                        >
+                          {car.name}
+                        </h3>
+
+                        {/* Divider */}
+                        <div className="w-full h-px bg-white/10" />
+
+                        {/* Price and Mileage Row */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span
+                              className="text-xl font-bold text-white"
+                              style={{ fontFamily: "Cera Pro, sans-serif" }}
+                            >
+                              {formatPrice(car.price)}
+                            </span>
+                            <span
+                              className="text-white/40 text-sm ml-2"
+                              style={{ fontFamily: "Montserrat, sans-serif" }}
+                            >
+                              {car.mileage.toLocaleString()} mi
+                            </span>
+                          </div>
+                          <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
+                            <svg
+                              className="w-4 h-4 text-white/50 group-hover:text-black transition-colors duration-300"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                              />
+                            </svg>
                           </div>
                         </div>
                       </div>

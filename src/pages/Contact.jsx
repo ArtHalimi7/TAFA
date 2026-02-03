@@ -532,7 +532,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Map Placeholder Section */}
+      {/* Map Section */}
       <section className="relative py-24 lg:py-40 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           <div className="mb-8">
@@ -550,47 +550,31 @@ export default function Contact() {
             </h2>
           </div>
 
-          {/* Map Placeholder */}
-          <div className="relative h-96 lg:h-96 bg-linear-to-b from-white/5 to-transparent border border-white/10 flex items-center justify-center group overflow-hidden">
-            {/* Background pattern */}
-            <div className="absolute inset-0 opacity-10">
-              <div
-                className="absolute inset-0"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(90deg, transparent 24%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 76%, transparent 77%, transparent), linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.05) 75%, rgba(255,255,255,0.05) 76%, transparent 77%, transparent)",
-                  backgroundSize: "50px 50px",
-                }}
-              />
-            </div>
+          {/* Google Maps Embed */}
+          <div className="relative h-96 lg:h-[500px] border border-white/10 overflow-hidden rounded-lg group">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2931.2!2d21.4552112!3d42.4347833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1706900000000"
+              width="100%"
+              height="100%"
+              style={{
+                border: 0,
+                filter: "invert(0.9) hue-rotate(180deg)",
+              }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
 
-            <div className="relative z-10 text-center">
-              <svg
-                className="w-16 h-16 mx-auto mb-4 text-white/40 group-hover:text-white/60 transition-colors duration-300"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <p
-                className="text-white/60"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                Gjilan, Kosovo
-              </p>
-            </div>
+          {/* Address Info */}
+          <div className="mt-8 p-6 border border-white/10 bg-white/2 rounded-lg">
+            <p
+              className="text-white/70 text-sm"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              <span className="font-semibold text-white">Address:</span> Auto Tafa,
+              Livoç i Poshtëm 60000
+            </p>
           </div>
         </div>
       </section>
