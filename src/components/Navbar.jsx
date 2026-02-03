@@ -31,9 +31,9 @@ const Navbar = () => {
   }, [isSidebarOpen]);
 
   const navLinks = [
-    { id: "collection", label: "Collection", path: "/collection" },
-    { id: "about", label: "About", path: "/about" },
-    { id: "contact", label: "Contact", path: "/contact" },
+    { id: "collection", label: "Koleksioni", path: "/collection" },
+    { id: "about", label: "Rreth Nesh", path: "/about" },
+    { id: "contact", label: "Kontakt", path: "/contact" },
   ];
 
   return (

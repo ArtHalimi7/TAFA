@@ -1,21 +1,30 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
+import emailjs from "@emailjs/browser";
+
+// Initialize EmailJS
+emailjs.init("-NWp731-hJ2KBhmcB");
 
 export default function Contact() {
+  const location = useLocation();
+
   // SEO optimization for contact page
   useSEO(seoContent.contact);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [infoVisible, setInfoVisible] = useState(false);
   const [formVisible, setFormVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
     message: "",
+    carName: location.state?.carName || "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const infoRef = useRef(null);
   const formRef = useRef(null);
@@ -51,15 +60,67 @@ export default function Contact() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    setSubmitError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      setFormData({ name: "", email: "", phone: "", message: "" });
-      setSubmitted(false);
-    }, 3000);
+    setIsSubmitting(true);
+    setSubmitError("");
+
+    try {
+      // Send email using EmailJS
+      const result = await emailjs.send("service_54yly7t", "template_pvpvfgf", {
+        from_name: formData.name,
+        from_email: formData.email,
+        phone: formData.phone,
+        car_name: formData.carName || "Nuk u specifikua",
+        message: formData.message,
+        to_email: "arthalimi989@gmail.com",
+      });
+
+      if (result.status === 200) {
+        // Also save to backend database
+        try {
+          await fetch(
+            `${import.meta.env.VITE_API_URL || "http://localhost:3001/api"}/contact`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                message: `Makina: ${formData.carName || "Nuk u specifikua"}\n\n${formData.message}`,
+              }),
+            },
+          );
+        } catch (dbError) {
+          console.warn("Database save failed, but email was sent:", dbError);
+        }
+
+        setSubmitted(true);
+        setTimeout(() => {
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            message: "",
+            carName: location.state?.carName || "",
+          });
+          setSubmitted(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setSubmitError(
+        "Pati një problem me dërgimin e emailit. Ju lutemi provoni më vonë.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactDetails = [
@@ -431,15 +492,31 @@ export default function Contact() {
                   />
                 </div>
 
+                {/* Car Name Field (hidden but included in message) */}
+                {formData.carName && (
+                  <div>
+                    <label
+                      className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      Interested Vehicle
+                    </label>
+                    <div className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white/70 rounded flex items-center justify-between">
+                      <span>{formData.carName}</span>
+                      <span className="text-xs text-white/50">Pre-filled</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <div>
                   <button
                     type="submit"
                     className="group relative w-full inline-flex items-center justify-center gap-3 px-8 py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40 disabled:opacity-50 disabled:cursor-not-allowed"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
-                    disabled={submitted}
+                    disabled={isSubmitting || submitted}
                   >
-                    {submitted ? (
+                    {isSubmitting ? (
                       <>
                         <svg
                           className="w-4 h-4 animate-spin"
@@ -455,6 +532,17 @@ export default function Contact() {
                           />
                         </svg>
                         Sending...
+                      </>
+                    ) : submitted ? (
+                      <>
+                        <svg
+                          className="w-4 h-4 text-green-400"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                        </svg>
+                        Sent!
                       </>
                     ) : (
                       <>
@@ -477,9 +565,16 @@ export default function Contact() {
                   </button>
                 </div>
 
+                {/* Error Message */}
+                {submitError && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded">
+                    {submitError}
+                  </div>
+                )}
+
                 {/* Success Message */}
                 {submitted && (
-                  <div className="p-4 bg-white/5 border border-white/20 text-white text-sm text-center">
+                  <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400 text-sm text-center rounded">
                     Thank you for reaching out! We'll be in touch soon.
                   </div>
                 )}

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { SkeletonGallery } from "../components/Skeleton";
@@ -23,6 +23,7 @@ const getImageUrl = (path) => {
 
 export default function CarDetail() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [isLoaded, setIsLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [car, setCar] = useState(null);
@@ -944,6 +945,11 @@ export default function CarDetail() {
             {/* Right side - CTAs */}
             <div className="flex flex-col sm:flex-row gap-4">
               <button
+                onClick={() =>
+                  navigate("/contact", {
+                    state: { carName: car.name, carSlug: slug },
+                  })
+                }
                 className="group px-10 py-4 bg-white text-black font-semibold tracking-widest uppercase text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.15)] rounded-lg"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >

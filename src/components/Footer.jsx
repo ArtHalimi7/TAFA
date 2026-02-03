@@ -24,7 +24,8 @@ export default function Footer() {
                 className="text-white/60 mb-8 leading-relaxed"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Eksploroni botën e makinave luksoze me ne, destinacioni juaj për shërbim të pakrahasueshëm.
+                Eksploroni botën e makinave luksoze me ne, destinacioni juaj për
+                shërbim të pakrahasueshëm.
               </p>
               <div className="flex gap-4">
                 <a
@@ -139,38 +140,29 @@ export default function Footer() {
               <ul className="space-y-4">
                 <li>
                   <a
-                    href="#"
+                    href="/custom-sourcing"
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Custom Sourcing
+                    Furnizim Custom
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/financing-options"
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Financing Options
+                    Opcione Financimi
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
+                    href="/delivery-services"
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Delivery Services
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-white/80 hover:text-white transition-colors duration-300"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Maintenance
+                    Shërbime Dorëzimi
                   </a>
                 </li>
               </ul>
@@ -200,7 +192,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                      info@autotafa.com
+                    info@autotafa.com
                   </a>
                 </li>
                 <li>
@@ -208,7 +200,7 @@ export default function Footer() {
                     className="text-white/80"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                     CFM4+W38, Livoç i Poshtëm 60000
+                    CFM4+W38, Livoç i Poshtëm 60000
                     <br />
                     Gjilan, Kosovë
                   </p>
@@ -227,7 +219,8 @@ export default function Footer() {
                 className="text-white/70 text-sm"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                &copy; {currentYear} AUTO TAFA. Të gjitha të drejtat e rezervuara.
+                &copy; {currentYear} AUTO TAFA. Të gjitha të drejtat e
+                rezervuara.
               </p>
               <div className="hidden sm:block w-px h-4 bg-white/20" />
               <p

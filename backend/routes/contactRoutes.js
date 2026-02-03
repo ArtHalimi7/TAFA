@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const ContactInquiry = require("../models/ContactInquiry");
+const { sendContactEmail } = require("../services/emailService");
 
 // Submit contact inquiry (public)
 router.post("/", async (req, res) => {
@@ -29,22 +30,27 @@ router.post("/", async (req, res) => {
       phone,
       message,
     });
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "Inquiry submitted successfully",
-        data: inquiry,
-      });
+
+    // Send email notification
+    try {
+      await sendContactEmail(name, email, phone, message);
+    } catch (emailError) {
+      console.error("Email sending failed, but inquiry was saved:", emailError);
+      // Don't fail the request if email fails, as inquiry is still saved
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Inquiry submitted successfully",
+      data: inquiry,
+    });
   } catch (error) {
     console.error("Error in createInquiry:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to submit inquiry",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to submit inquiry",
+      error: error.message,
+    });
   }
 });
 
@@ -66,13 +72,11 @@ router.get("/", async (req, res) => {
     res.json({ success: true, data: inquiries, count: inquiries.length });
   } catch (error) {
     console.error("Error in getAllInquiries:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch inquiries",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch inquiries",
+      error: error.message,
+    });
   }
 });
 
@@ -83,13 +87,11 @@ router.get("/counts", async (req, res) => {
     res.json({ success: true, data: counts });
   } catch (error) {
     console.error("Error in getInquiryCounts:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch inquiry counts",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch inquiry counts",
+      error: error.message,
+    });
   }
 });
 
@@ -108,13 +110,11 @@ router.get("/:id", async (req, res) => {
     res.json({ success: true, data: inquiry });
   } catch (error) {
     console.error("Error in getInquiryById:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch inquiry",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch inquiry",
+      error: error.message,
+    });
   }
 });
 
@@ -146,13 +146,11 @@ router.patch("/:id/status", async (req, res) => {
     });
   } catch (error) {
     console.error("Error in updateInquiryStatus:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to update inquiry status",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to update inquiry status",
+      error: error.message,
+    });
   }
 });
 
@@ -171,13 +169,11 @@ router.delete("/:id", async (req, res) => {
     res.json({ success: true, message: "Inquiry deleted successfully" });
   } catch (error) {
     console.error("Error in deleteInquiry:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to delete inquiry",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete inquiry",
+      error: error.message,
+    });
   }
 });
 

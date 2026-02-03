@@ -14,6 +14,9 @@ import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 import Loader from "./components/Loader";
 import ScrollToTopButton from "./components/ScrollToTop";
+import CustomSourcing from "./pages/CustomSourcing";
+import FinancingOptions from "./pages/FinancingOptions";
+import DeliveryServices from "./pages/DeliveryServices";
 
 // ScrollToTop component - scrolls to top on route change
 function ScrollToTop() {
@@ -51,6 +54,9 @@ function MainSite() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/car/:slug" element={<CarDetail />} />
+            <Route path="/custom-sourcing" element={<CustomSourcing />} />
+            <Route path="/financing-options" element={<FinancingOptions />} />
+            <Route path="/delivery-services" element={<DeliveryServices />} />
           </Routes>
         </main>
       )}
