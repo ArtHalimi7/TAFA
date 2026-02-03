@@ -2214,7 +2214,7 @@ export default function Dashboard() {
                         }`}
                       >
                         <img
-                          src={img}
+                          src={getImageUrl(img)}
                           alt={`Vehicle ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
