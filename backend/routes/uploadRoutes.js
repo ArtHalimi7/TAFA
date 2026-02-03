@@ -1,29 +1,18 @@
 const express = require("express");
 const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const { v2: cloudinary } = require("cloudinary");
 
 const router = express.Router();
 
-// Upload directory path
-const UPLOAD_DIR = path.join(__dirname, "../../uploads");
-
-// Ensure upload directory exists
-if (!fs.existsSync(UPLOAD_DIR)) {
-  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
-
-// Configure multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `car-${uniqueSuffix}${ext}`);
-  },
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+
+// Use memory storage for Cloudinary uploads
+const storage = multer.memoryStorage();
 
 // File filter - only allow images
 const fileFilter = (req, file, cb) => {
@@ -48,8 +37,33 @@ const upload = multer({
   },
 });
 
+// Helper function to upload to Cloudinary
+const uploadToCloudinary = (buffer, originalName) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "tafa-cars",
+        resource_type: "image",
+        public_id: `car-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+        transformation: [
+          { quality: "auto:good" },
+          { fetch_format: "auto" },
+        ],
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      },
+    );
+    uploadStream.end(buffer);
+  });
+};
+
 // Upload single image
-router.post("/single", upload.single("image"), (req, res) => {
+router.post("/single", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
       return res
@@ -57,32 +71,33 @@ router.post("/single", upload.single("image"), (req, res) => {
         .json({ success: false, message: "No file uploaded" });
     }
 
-    const imageUrl = `/uploads/${req.file.filename}`;
+    const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
 
     res.json({
       success: true,
       message: "Image uploaded successfully",
       data: {
-        url: imageUrl,
-        filename: req.file.filename,
+        url: result.secure_url,
+        publicId: result.public_id,
+        filename: result.public_id,
         originalName: req.file.originalname,
         size: req.file.size,
+        width: result.width,
+        height: result.height,
       },
     });
   } catch (error) {
     console.error("Error in uploadImage:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to upload image",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to upload image",
+      error: error.message,
+    });
   }
 });
 
 // Upload multiple images
-router.post("/multiple", upload.array("images", 20), (req, res) => {
+router.post("/multiple", upload.array("images", 20), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res
@@ -90,12 +105,19 @@ router.post("/multiple", upload.array("images", 20), (req, res) => {
         .json({ success: false, message: "No files uploaded" });
     }
 
-    const images = req.files.map((file) => ({
-      url: `/uploads/${file.filename}`,
-      filename: file.filename,
-      originalName: file.originalname,
-      size: file.size,
-    }));
+    const uploadPromises = req.files.map((file) =>
+      uploadToCloudinary(file.buffer, file.originalname).then((result) => ({
+        url: result.secure_url,
+        publicId: result.public_id,
+        filename: result.public_id,
+        originalName: file.originalname,
+        size: file.size,
+        width: result.width,
+        height: result.height,
+      })),
+    );
+
+    const images = await Promise.all(uploadPromises);
 
     res.json({
       success: true,
@@ -104,40 +126,36 @@ router.post("/multiple", upload.array("images", 20), (req, res) => {
     });
   } catch (error) {
     console.error("Error in uploadImages:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to upload images",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to upload images",
+      error: error.message,
+    });
   }
 });
 
-// Delete image
-router.delete("/:filename", (req, res) => {
+// Delete image from Cloudinary
+router.delete("/:publicId", async (req, res) => {
   try {
-    const { filename } = req.params;
-    const filepath = path.join(UPLOAD_DIR, filename);
+    const { publicId } = req.params;
 
-    if (!fs.existsSync(filepath)) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Image not found" });
+    // Handle nested public IDs (folder/filename format)
+    const fullPublicId = publicId.includes("/") ? publicId : `tafa-cars/${publicId}`;
+
+    const result = await cloudinary.uploader.destroy(fullPublicId);
+
+    if (result.result === "ok") {
+      res.json({ success: true, message: "Image deleted successfully" });
+    } else {
+      res.status(404).json({ success: false, message: "Image not found or already deleted" });
     }
-
-    fs.unlinkSync(filepath);
-
-    res.json({ success: true, message: "Image deleted successfully" });
   } catch (error) {
     console.error("Error in deleteImage:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to delete image",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete image",
+      error: error.message,
+    });
   }
 });
 

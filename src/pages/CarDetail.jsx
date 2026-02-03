@@ -28,6 +28,7 @@ export default function CarDetail() {
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showcaseImage, setShowcaseImage] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [modalImageIndex, setModalImageIndex] = useState(0);
   const [animatedPrice, setAnimatedPrice] = useState(0);
@@ -49,15 +50,20 @@ export default function CarDetail() {
         if (response.success) {
           // Transform backend data
           const carData = response.data;
+          const showcaseIdx = carData.showcase_image || 0;
           setCar({
             ...carData,
             exteriorColor: carData.exterior_color,
             interiorColor: carData.interior_color,
             topSpeed: carData.top_speed,
             fuelType: carData.fuel_type,
+            showcaseImage: showcaseIdx,
             // Transform images to full URLs
             images: (carData.images || []).map((img) => getImageUrl(img)),
           });
+          // Set initial active image to showcase image
+          setActiveImageIndex(showcaseIdx);
+          setShowcaseImage(showcaseIdx);
         } else {
           setError("Vehicle not found");
         }
