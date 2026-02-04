@@ -468,18 +468,14 @@ const Car = {
       return cache.featured.slice(0, limit);
     }
 
-    // Get cars marked as featured, or fall back to active cars if none are featured
-    let result = await this.getAll({ isFeatured: true, limit: 50 });
+    // Get only cars explicitly marked as featured (no fallback)
+    // This includes both active AND sold cars - sold cars should still be visible with "I SHITUR" badge
+    const result = await this.getAll({ isFeatured: true, limit: 50 });
 
-    // If no featured cars, fall back to active cars
-    if (!result || result.length === 0) {
-      result = await this.getAll({ status: "active", limit: 50 });
-    }
-
-    // Cache the result
-    cache.featured = result;
+    // Cache the result (even if empty)
+    cache.featured = result || [];
     cache.featuredExpiry = Date.now() + CACHE_TTL;
-    return result.slice(0, limit);
+    return cache.featured.slice(0, limit);
   },
 
   // Get stats for dashboard with caching
