@@ -183,8 +183,26 @@ async function startServer() {
           `[${new Date().toISOString()}] Keep-alive ping failed:`,
           err.message,
         );
+        // Don't let ping errors crash the server - just log and continue
       }
     }, 60000); // Every 60 seconds (1 minute)
+
+    // Handle any unexpected process exits
+    process.on("exit", (code) => {
+      console.log(`⚠️  Process is about to exit with code: ${code}`);
+    });
+
+    // Prevent the process from exiting on unhandled rejections
+    process.on("unhandledRejection", (reason, promise) => {
+      console.error(`❌ Unhandled Rejection at:`, promise, `reason:`, reason);
+      // Don't exit - just log the error
+    });
+
+    // Prevent the process from exiting on uncaught exceptions
+    process.on("uncaughtException", (error) => {
+      console.error(`❌ Uncaught Exception:`, error);
+      // Don't exit - just log the error
+    });
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
