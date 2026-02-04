@@ -145,7 +145,7 @@ async function startServer() {
     await initializeDatabase();
 
     // Start listening
-    const server = app.listen(PORT, () => {
+    app.listen(PORT, () => {
       console.log(`
 ╔═══════════════════════════════════════════════════╗
 ║   TAFA Auto Dealership API v1.0.0                 ║
@@ -172,7 +172,7 @@ async function startServer() {
 
     // Keep-alive: prevent server from shutting down on Render
     // Ping health endpoint every 1 minute to keep the service active
-    const keepAliveInterval = setInterval(async () => {
+    setInterval(async () => {
       try {
         const connection = await db.getConnection();
         await connection.ping();
@@ -185,18 +185,6 @@ async function startServer() {
         );
       }
     }, 60000); // Every 60 seconds (1 minute)
-
-    // Graceful shutdown
-    process.on("SIGTERM", () => {
-      console.log("\n🛑 Shutting down gracefully...");
-      clearInterval(keepAliveInterval);
-      server.close(() => {
-        db.end(() => {
-          console.log("✅ Server shut down successfully");
-          process.exit(0);
-        });
-      });
-    });
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
@@ -204,18 +192,5 @@ async function startServer() {
 }
 
 startServer();
-
-// Graceful shutdown
-process.on("SIGINT", async () => {
-  console.log("\n🛑 Shutting down gracefully...");
-  await db.end();
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  console.log("\n🛑 Shutting down gracefully...");
-  await db.end();
-  process.exit(0);
-});
 
 module.exports = app;

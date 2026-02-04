@@ -16,7 +16,7 @@ export default function DeliveryServices() {
     <main className="min-h-screen bg-black">
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-center justify-center px-6 sm:px-12 lg:px-24 py-20">
-        <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent" />
+        <div className="absolute inset-0 bg-linear-b from-white/5 to-transparent" />
         <div className="relative max-w-4xl mx-auto text-center">
           <h1
             className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6"
@@ -224,7 +224,7 @@ export default function DeliveryServices() {
           </div>
 
           {/* CTA */}
-          <div className="bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-lg p-8 text-center mt-12">
+          <div className="bg-linear-r from-white/5 to-white/10 border border-white/10 rounded-lg p-8 text-center mt-12">
             <h3
               className="text-2xl font-bold text-white mb-4"
               style={{ fontFamily: "Cera Pro, sans-serif" }}

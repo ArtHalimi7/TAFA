@@ -157,9 +157,6 @@ export default function Dashboard() {
 
   const [cars, setCars] = useState([]);
   const [stats, setStats] = useState(null);
-  const [isLoadingCars, setIsLoadingCars] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [uploadingImages, setUploadingImages] = useState(false);
   const [pendingImageFiles, setPendingImageFiles] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
@@ -216,7 +213,6 @@ export default function Dashboard() {
 
   const fetchCars = async () => {
     try {
-      setIsLoadingCars(true);
       const response = await carsApi.getAllCars();
       if (response.success) {
         // Transform backend data to match frontend format
@@ -235,8 +231,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error fetching cars:", error);
       showNotification(t.failedLoadCars, "error");
-    } finally {
-      setIsLoadingCars(false);
     }
   };
 
@@ -491,13 +485,11 @@ export default function Dashboard() {
   // Save car (add or update)
   const handleSaveCar = async (e) => {
     e.preventDefault();
-    setIsSaving(true);
 
     try {
       // Upload pending images first
       let uploadedImageUrls = [];
       if (pendingImageFiles.length > 0) {
-        setUploadingImages(true);
         try {
           const uploadResponse =
             await uploadApi.uploadImages(pendingImageFiles);
@@ -508,7 +500,6 @@ export default function Dashboard() {
           console.error("Error uploading images:", uploadError);
           showNotification(t.failedUploadSomeImages, "error");
         }
-        setUploadingImages(false);
       }
 
       // Combine existing URLs with new uploads
@@ -570,8 +561,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error saving car:", error);
       showNotification(error.message || t.failedSaveCar, "error");
-    } finally {
-      setIsSaving(false);
     }
   };
 

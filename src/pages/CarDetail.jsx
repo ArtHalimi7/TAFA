@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
-import { SkeletonGallery } from "../components/Skeleton";
 import { carsApi } from "../services/api";
 import logo from "../assets/images/logo.png";
 
@@ -36,7 +35,9 @@ export default function CarDetail() {
   const [specsVisible, setSpecsVisible] = useState(true);
   const [galleryVisible, setGalleryVisible] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const [similarCars, setSimilarCars] = useState([]);
+  const [downPaymentPercent, setDownPaymentPercent] = useState(20);
+  const [financingMonths, setFinancingMonths] = useState(60);
   const specsRef = useRef(null);
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
@@ -79,6 +80,36 @@ export default function CarDetail() {
       fetchCar();
     }
   }, [slug]);
+
+  // Fetch similar cars
+  useEffect(() => {
+    const fetchSimilarCars = async () => {
+      if (!car || !car.category) return;
+      try {
+        const response = await carsApi.getActiveCars({
+          category: car.category,
+        });
+        if (response.success && response.data) {
+          // Filter out the current car and get up to 4 similar cars
+          const filtered = response.data
+            .filter((c) => c.slug !== slug)
+            .slice(0, 4);
+          setSimilarCars(
+            filtered.map((c) => ({
+              ...c,
+              images: (c.images || []).map((img) => getImageUrl(img)),
+            })),
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching similar cars:", err);
+      }
+    };
+
+    if (car && car.category) {
+      fetchSimilarCars();
+    }
+  }, [car, slug]);
 
   // Dynamic SEO for car detail page
   useSEO(
@@ -235,7 +266,6 @@ export default function CarDetail() {
 
   const handleTouchEnd = (e) => {
     const endX = e.changedTouches[0].clientX;
-    setTouchEnd(endX);
 
     // Detect swipe direction
     if (!touchStart) return;
@@ -352,9 +382,10 @@ export default function CarDetail() {
         {/* Main Image */}
         <div className="px-4 sm:px-6 lg:px-8">
           <div
-            className="relative max-w-7xl mx-auto aspect-[16/9] sm:aspect-[2/1] lg:aspect-[21/9] overflow-hidden rounded-xl cursor-grab active:cursor-grabbing"
+            className="relative max-w-7xl mx-auto aspect-video sm:aspect-2/1 lg:aspect-21/9 overflow-hidden rounded-xl cursor-grab active:cursor-grabbing hover:opacity-90 transition-opacity duration-300"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
+            onClick={() => openGallery(activeImageIndex)}
           >
             {/* All images stacked with fade transitions */}
             {car.images &&
@@ -450,6 +481,9 @@ export default function CarDetail() {
               from { width: 0%; }
               to { width: 100%; }
             }
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
           `}</style>
           </div>
         </div>
@@ -520,7 +554,7 @@ export default function CarDetail() {
                 >
                   <div className="flex flex-col">
                     <span
-                      className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+                      className="text-xl sm:text-4xl lg:text-5xl font-bold"
                       style={{ fontFamily: "Cera Pro, sans-serif" }}
                     >
                       {car.year}
@@ -535,7 +569,7 @@ export default function CarDetail() {
                   <div className="w-px h-12 bg-white/20 hidden sm:block" />
                   <div className="flex flex-col">
                     <span
-                      className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+                      className="text-xl sm:text-4xl lg:text-5xl font-bold"
                       style={{ fontFamily: "Cera Pro, sans-serif" }}
                     >
                       {car.mileage.toLocaleString()}
@@ -550,7 +584,7 @@ export default function CarDetail() {
                   <div className="w-px h-12 bg-white/20 hidden sm:block" />
                   <div className="flex flex-col">
                     <span
-                      className="text-3xl sm:text-4xl lg:text-5xl font-bold"
+                      className="text-xl sm:text-4xl lg:text-5xl font-bold"
                       style={{ fontFamily: "Cera Pro, sans-serif" }}
                     >
                       {formatPrice(animatedPrice)}
@@ -577,7 +611,7 @@ export default function CarDetail() {
                 <img
                   src={logo}
                   alt="TAFA Logo"
-                  className="w-full h-auto max-w-[200px] object-contain"
+                  className="w-full h-auto max-w-50 object-contain"
                 />
               </div>
             </div>
@@ -967,21 +1001,107 @@ export default function CarDetail() {
         </div>
       </section>
 
+      {/* Similar Cars Section */}
+      {similarCars.length > 0 && (
+        <section className="relative py-20 lg:py-32 border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
+            {/* Section Header */}
+            <div className="mb-12 lg:mb-16">
+              <h2
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4"
+                style={{ fontFamily: "Cera Pro, sans-serif" }}
+              >
+                Automjete të ngjashme<span className="text-white/30">.</span>
+              </h2>
+              <p
+                className="text-white/60 max-w-2xl"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Eksploroni më shumë përjekëpje të ngjashme nga koleksioni ynë i
+                kuruar
+              </p>
+            </div>
+
+            {/* Similar Cars Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {similarCars.map((similarCar) => (
+                <Link
+                  key={similarCar.id}
+                  to={`/car/${similarCar.slug}`}
+                  className="group relative overflow-hidden rounded-lg transition-all duration-500 hover:shadow-2xl"
+                >
+                  {/* Image */}
+                  <div className="relative aspect-4/3 overflow-hidden rounded-lg">
+                    {similarCar.images && similarCar.images[0] ? (
+                      <LazyImage
+                        src={similarCar.images[0]}
+                        alt={similarCar.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-white/5" />
+                    )}
+
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-500" />
+                  </div>
+
+                  {/* Car Info */}
+                  <div className="p-4 bg-black/40 backdrop-blur-sm border border-white/10 group-hover:border-white/30 transition-colors duration-500 rounded-b-lg">
+                    <h3
+                      className="font-bold text-lg text-white mb-1 group-hover:text-white transition-colors duration-300"
+                      style={{ fontFamily: "Cera Pro, sans-serif" }}
+                    >
+                      {similarCar.name}
+                    </h3>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2 text-xs text-white/50">
+                        <span>{similarCar.year}</span>
+                        <span>•</span>
+                        <span>{similarCar.mileage.toLocaleString()} km</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-white/10">
+                      <p
+                        className="text-white font-semibold"
+                        style={{ fontFamily: "Cera Pro, sans-serif" }}
+                      >
+                        {new Intl.NumberFormat("de-DE", {
+                          style: "currency",
+                          currency: "EUR",
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        }).format(similarCar.price)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Corner Accent */}
+                  <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/0 group-hover:border-white/60 rounded-tr-lg transition-colors duration-300" />
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* CTA Section */}
-      <section className="relative py-20 lg:py-32 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
+      <section className="relative min-h-screen flex items-center justify-center border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 w-full py-10 lg:py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
             {/* Left side - Price & Info */}
-            <div className="text-center lg:text-left">
+            <div>
               <p
                 className="text-sm text-white/50 uppercase tracking-widest mb-2"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Çmimi i listuar
               </p>
-              <div className="flex items-baseline gap-2 justify-center lg:justify-start">
+              <div className="flex items-baseline gap-2">
                 <span
-                  className="text-5xl sm:text-6xl lg:text-7xl font-bold"
+                  className="text-4xl sm:text-5xl lg:text-6xl font-bold"
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
                   {formatPrice(car.price)}
@@ -993,60 +1113,193 @@ export default function CarDetail() {
               >
                 Financim i disponueshëm • Pranohen këmbime
               </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                <button
+                  onClick={() =>
+                    navigate("/contact", {
+                      state: { carName: car.name, carSlug: slug },
+                    })
+                  }
+                  className="group px-8 py-3 bg-white text-black font-semibold tracking-widest uppercase text-xs sm:text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.15)] rounded-lg"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    Rezervo Termin
+                    <svg
+                      className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2.5}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
+                    </svg>
+                  </span>
+                </button>
+                <a
+                  href="tel:+38344666662"
+                  className="group flex items-center justify-center gap-2 px-5 py-3 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
+                    <svg
+                      className="w-3 h-3 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
+                    </svg>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium tracking-wide text-white">
+                    Na kontaktoni
+                  </span>
+                </a>
+              </div>
+
+              {/* Logo */}
+              <div className="mt-8 ml-20 hidden sm:flex justify-start">
+                <img
+                  src={logo}
+                  alt="TAFA Logo"
+                  className="h-56 object-contain opacity-80"
+                />
+              </div>
             </div>
 
-            {/* Right side - CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() =>
-                  navigate("/contact", {
-                    state: { carName: car.name, carSlug: slug },
-                  })
-                }
-                className="group px-10 py-4 bg-white text-black font-semibold tracking-widest uppercase text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.15)] rounded-lg"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
+            {/* Right side - Financing Calculator */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-5 lg:p-6 backdrop-blur-sm h-fit">
+              <h3
+                className="text-xl font-bold mb-5"
+                style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                <span className="flex items-center justify-center gap-3">
-                  Rezervo Termin
-                  <svg
-                    className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                Plani i Financimit
+              </h3>
+
+              {/* Down Payment */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label
+                    className="text-xs text-white/70 uppercase tracking-wider"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2.5}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
-                  </svg>
-                </span>
-              </button>
-              <a
-                href="tel:+38344666662"
-                className="group flex items-center justify-center gap-2.5 px-6 py-3.5 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
-                  <svg
-                    className="w-4 h-4 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                    Pagesa Paraprakisht ({downPaymentPercent}%)
+                  </label>
+                  <span
+                    className="text-sm font-semibold text-white"
+                    style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
+                    {formatPrice((car.price * downPaymentPercent) / 100)}
+                  </span>
                 </div>
-                <span className="text-sm font-medium tracking-wide text-white">
-                  Na kontaktoni
-                </span>
-              </a>
+                <input
+                  type="range"
+                  min="5"
+                  max="50"
+                  value={downPaymentPercent}
+                  onChange={(e) =>
+                    setDownPaymentPercent(parseInt(e.target.value))
+                  }
+                  className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+                />
+                <div className="flex justify-between text-xs text-white/40 mt-1.5">
+                  <span>5%</span>
+                  <span>50%</span>
+                </div>
+              </div>
+
+              {/* Financing Duration */}
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <label
+                    className="text-xs text-white/70 uppercase tracking-wider"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    Periudha Financimi
+                  </label>
+                  <span
+                    className="text-sm font-semibold text-white"
+                    style={{ fontFamily: "Cera Pro, sans-serif" }}
+                  >
+                    {financingMonths} muaj
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {[24, 36, 48, 60].map((months) => (
+                    <button
+                      key={months}
+                      onClick={() => setFinancingMonths(months)}
+                      className={`py-1.5 rounded text-xs font-medium transition-all duration-300 ${
+                        financingMonths === months
+                          ? "bg-white text-black"
+                          : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                      }`}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      {months}mo
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Monthly Payment */}
+              <div className="bg-white/10 border border-white/20 rounded-lg p-3 mb-4">
+                <p
+                  className="text-xs text-white/60 uppercase tracking-wider mb-1"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  Pagesa Mujore
+                </p>
+                <p
+                  className="text-2xl font-bold text-white"
+                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                >
+                  {formatPrice(
+                    (car.price * (1 - downPaymentPercent / 100)) /
+                      financingMonths,
+                  )}
+                </p>
+              </div>
+
+              {/* Summary */}
+              <div className="space-y-2 text-xs border-t border-white/10 pt-3">
+                <div className="flex justify-between">
+                  <span className="text-white/60">Çmimi i mjetit:</span>
+                  <span className="text-white font-medium">
+                    {formatPrice(car.price)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Pagesa paraprakisht:</span>
+                  <span className="text-white font-medium">
+                    {formatPrice((car.price * downPaymentPercent) / 100)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Shuma për financim:</span>
+                  <span className="text-white font-medium">
+                    {formatPrice(car.price * (1 - downPaymentPercent / 100))}
+                  </span>
+                </div>
+              </div>
+
+              <p
+                className="text-xs text-white/40 mt-3 italic"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                *Kontaktoni për detaje të sakta të financimit.
+              </p>
             </div>
           </div>
         </div>
@@ -1111,7 +1364,12 @@ export default function CarDetail() {
           >
             {/* Previous Button */}
             <button
-              onClick={prevImage}
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalImageIndex(
+                  (prev) => (prev - 1 + car.images.length) % car.images.length,
+                );
+              }}
               className="absolute left-2 sm:left-6 lg:left-12 z-10 w-10 h-10 sm:w-14 sm:h-14 items-center justify-center border border-white/20 rounded-full bg-black/50 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 group flex"
             >
               <svg
@@ -1134,14 +1392,17 @@ export default function CarDetail() {
               <img
                 src={car.images[modalImageIndex]}
                 alt={`${car.name} - View ${modalImageIndex + 1}`}
-                className="max-w-full max-h-[70vh] sm:max-h-[75vh] object-contain select-none transition-opacity duration-300 pointer-events-none"
+                className="max-w-full max-h-[calc(100vh-140px)] sm:max-h-[calc(100vh-200px)] lg:max-h-[75vh] object-contain select-none transition-opacity duration-300 pointer-events-none"
                 draggable={false}
               />
             </div>
 
             {/* Next Button */}
             <button
-              onClick={nextImage}
+              onClick={(e) => {
+                e.stopPropagation();
+                setModalImageIndex((prev) => (prev + 1) % car.images.length);
+              }}
               className="absolute right-2 sm:right-6 lg:right-12 z-10 w-10 h-10 sm:w-14 sm:h-14 items-center justify-center border border-white/20 rounded-full bg-black/50 backdrop-blur-sm hover:bg-white/10 hover:border-white/40 transition-all duration-300 group flex"
             >
               <svg
@@ -1158,27 +1419,22 @@ export default function CarDetail() {
                 />
               </svg>
             </button>
-
-            {/* Mobile Swipe Hint */}
-            <div
-              className="absolute sm:bottom-20 bottom-24 left-1/2 -translate-x-1/2 sm:hidden text-white/40 text-xs tracking-wider"
-              style={{ fontFamily: "Montserrat, sans-serif" }}
-            >
-              Rrëshqit për të naviguar
-            </div>
           </div>
 
           {/* Thumbnail Strip */}
           <div
-            className="pt-2 sm:pt-3 pb-4 sm:pb-6 px-4 sm:px-6"
+            className="lg:hidden mt-auto pt-4 sm:pt-6 pb-4 sm:pb-6 px-4 sm:px-6 relative z-50 border-t border-white/10"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide">
+            <div
+              className="flex justify-center gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
               {car.images.map((image, index) => (
                 <button
                   key={index}
                   onClick={() => setModalImageIndex(index)}
-                  className={`relative shrink-0 w-16 h-12 sm:w-20 sm:h-14 lg:w-24 lg:h-16 rounded-md overflow-hidden transition-all duration-300 ${
+                  className={`relative shrink-0 w-20 h-16 sm:w-28 sm:h-20 lg:w-32 lg:h-24 rounded-md overflow-visible transition-all duration-300 z-50 ${
                     modalImageIndex === index
                       ? "ring-2 ring-white ring-offset-2 ring-offset-black opacity-100"
                       : "opacity-40 hover:opacity-70"
@@ -1219,27 +1475,28 @@ export default function CarDetail() {
       )}
 
       {/* Floating Action Button - Mobile */}
-      <div className="fixed bottom-6 right-6 lg:hidden z-40">
-        <button className="group w-14 h-14 bg-black/70 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] active:scale-95 hover:bg-black/90 hover:border-white/40 transition-all duration-300">
-          <div className="relative">
-            <svg
-              className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-              />
-            </svg>
-            {/* Pulse ring animation */}
-            <div className="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-30" />
-          </div>
-        </button>
-      </div>
+      <a
+        href="tel:+38344666662"
+        className="fixed bottom-6 right-6 lg:hidden z-40 group w-14 h-14 bg-black/70 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] active:scale-95 hover:bg-black/90 hover:border-white/40 transition-all duration-300"
+      >
+        <div className="relative">
+          <svg
+            className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+            />
+          </svg>
+          {/* Pulse ring animation */}
+          <div className="absolute inset-0 rounded-full border border-white/30 animate-ping opacity-30" />
+        </div>
+      </a>
     </main>
   );
 }

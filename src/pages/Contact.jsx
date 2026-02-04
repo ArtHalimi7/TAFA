@@ -152,7 +152,7 @@ export default function Contact() {
     },
     {
       label: "Telefon",
-      value: "+383 44 XXX XXX",
+      value: "+383 44 666 662",
       icon: (
         <svg
           className="w-5 h-5"
@@ -312,7 +312,7 @@ export default function Contact() {
               <img
                 src={logo}
                 alt="TAFA Logo"
-                className="w-full h-auto w-[480px] object-contain"
+                className="h-auto w-120 object-contain"
               />
             </div>
           </div>
@@ -394,9 +394,9 @@ export default function Contact() {
                 className="text-4xl sm:text-5xl lg:text-5xl font-bold mb-8"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                Ne vlerësojmë
+                Ne i vlerësojmë
                 <br />
-                <span className="text-white/30">pyetjen tuaj</span>
+                <span className="text-white/30">pyetjet tuaja</span>
               </h2>
 
               <div
@@ -523,7 +523,7 @@ export default function Contact() {
                       className="block text-xs uppercase tracking-[0.2em] text-white/50 mb-3"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      Automjeti i interesuar
+                      Për automjetin që jeni interesuar
                     </label>
                     <div className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white/70 rounded flex items-center justify-between">
                       <span>{formData.carName}</span>
@@ -671,7 +671,7 @@ export default function Contact() {
           </div>
 
           {/* Google Maps Embed */}
-          <div className="relative h-96 lg:h-[500px] border border-white/10 overflow-hidden rounded-lg group">
+          <div className="relative h-96 lg:h-125 border border-white/10 overflow-hidden rounded-lg group">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2931.2!2d21.4552112!3d42.4347833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1706900000000"
               width="100%"
