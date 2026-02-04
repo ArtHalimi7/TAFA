@@ -3,9 +3,9 @@ import useSEO from "../hooks/useSEO";
 
 export default function CustomSourcing() {
   useSEO({
-    title: "Furnizim Custom | AUTO TAFA",
+    title: "Furnizim sipas kërkesës | AUTO TAFA",
     description:
-      "Shërbimi ynë i furnizimit custom vë në dispozicion makinat më të kërkuara në treg.",
+      "Shërbimi ynë i furnizimit sipas kërkesës vë në dispozicion makinat më të kërkuara në treg.",
   });
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function CustomSourcing() {
             className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6"
             style={{ fontFamily: "Cera Pro, sans-serif" }}
           >
-            Furnizim Custom
+            Furnizim sipas kërkesës
           </h1>
           <p
             className="text-xl text-white/80 mb-8"
@@ -63,7 +63,7 @@ export default function CustomSourcing() {
               className="text-3xl font-bold text-white mb-6"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Përfitimet e Furnizimit Custom
+              Përfitimet e Furnizimit sipas kërkesës
             </h2>
             <div className="grid sm:grid-cols-2 gap-8">
               {[
@@ -180,14 +180,14 @@ export default function CustomSourcing() {
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Kontaktohuni me ekipin tonë sot për të diskutuar nevojat tuaja të
-              furnizimit custom.
+              furnizimit sipas kërkesës.
             </p>
             <a
               href="/contact"
               className="inline-block px-8 py-3 bg-white text-black font-bold rounded-lg hover:bg-white/90 transition-colors duration-300"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Kontakto Më
+              Kontakto Tani
             </a>
           </div>
         </div>

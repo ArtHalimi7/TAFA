@@ -37,7 +37,7 @@ export default function WhyCurated() {
       ),
       title: "Inspektim rigoroz",
       description:
-        "Çdo automjet i nënshtrohet protokollit tonë gjithëpërfshirës të inspektimit prej 200 pikash. Ne verifikojmë autenticitetin, përsosmërinë mekanike dhe gjendjen e tij të përsosur.",
+        "Çdo automjet i nënshtrohet protokollit tonë gjithëpërfshirës të inspektimit prej 200 pikash. Ne verifikojmë autenticitetin dhe përsosmërinë mekanike.",
     },
     {
       number: "02",
@@ -58,7 +58,7 @@ export default function WhyCurated() {
       ),
       title: "Performancë e Verifikuar",
       description:
-        "Çdo makinë testohet në mënyrë dinamike për të siguruar performancën maksimale. Nga përshpejtimi te manovrimi, ne garantojmë përsosmërinë.",
+        "Çdo makinë testohet në mënyrë dinamike për të siguruar performancën maksimale. Nga përshpejtimi te manovrimi, ne synojmë performancë optimale.",
     },
     {
       number: "03",
@@ -77,9 +77,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Proveniencë Autentike",
+      title: "Histori e Qartë",
       description:
-        "Dokumentacion i plotë historik. Regjistrimet e shërbimeve, transferimet e pronësisë dhe certifikatat e autenticitetit përfshihen me çdo blerje.",
+        "Dokumentacion i plotë historik. Regjistrimet e serviseve, transferimet e pronësisë dhe certifikatat e autenticitetit përfshihen me çdo blerje.",
     },
     {
       number: "04",
@@ -100,7 +100,7 @@ export default function WhyCurated() {
       ),
       title: "Vlerësim i Drejtë",
       description:
-        "Çmim transparent bazuar në të dhënat e tregut, gjendjen dhe rrallësinë. Pa markup të fshehura ose tarifa surprizë.",
+        "Çmim transparent bazuar në të dhënat e tregut dhe gjendjen e automjetit. Pa tarifa të fshehura.",
     },
     {
       number: "05",
@@ -119,9 +119,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Mbështetje për Jetë",
+      title: "Proces i Thjeshtë",
       description:
-        "Pronësia nuk përfundon kurrë me ne. Shërbim koncierge, udhëzime për mirëmbajtje dhe këshilla ekspertësh në dispozicion 24/7.",
+        "Nga kontakti i parë deri te marrja e makinës, gjithçka mbahet e drejtpërdrejtë dhe pa komplikime.",
     },
     {
       number: "06",
@@ -140,9 +140,9 @@ export default function WhyCurated() {
           />
         </svg>
       ),
-      title: "Shërbime të Personalizuara",
+      title: "Komunikim i Drejtë",
       description:
-        "Zgjidhje të personalizuara duke përfshirë financimin, koordinimin e sigurimeve dhe opsione të specializuara dorëzimi.",
+        "Flasim hapur për çdo detaj të automjetit. Pa presion. Pa surpriza.",
     },
   ];
 
@@ -212,7 +212,7 @@ export default function WhyCurated() {
                 transitionDelay: "200ms",
               }}
             >
-              Në një botë autosallonesh, ne dallohemi. Angazhimi ynë ndaj
+              Në një treg me shumë autosallone, ne dallohemi. Angazhimi ynë ndaj
               përsosmërisë do të thotë që çdo detaj ka rëndësi.
             </p>
           </div>
@@ -248,7 +248,7 @@ export default function WhyCurated() {
               style={{ transitionDelay: `${index * 80}ms` }}
             >
               {/* Card */}
-              <div className="h-full flex flex-col p-8 lg:p-10 border border-white/15 hover:border-white/35 hover:bg-white/8 transition-all duration-500 rounded-lg">
+              <div className="h-full flex flex-col items-start p-8 lg:p-10 border border-white/15 hover:border-white/35 hover:bg-white/8 transition-all duration-500 rounded-lg">
                 {/* Top accent */}
                 <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -267,7 +267,7 @@ export default function WhyCurated() {
 
                 {/* Title */}
                 <h3
-                  className="text-xl lg:text-2xl font-bold mb-4 text-white"
+                  className="text-xl lg:text-2xl font-bold mb-4 text-white h-16 flex items-start"
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
                   {feature.title}
@@ -301,7 +301,7 @@ export default function WhyCurated() {
           >
             Kjo nuk është thjesht për të blerë një makinë.
             <span className="block font-bold mt-4">
-              Bëhet fjalë për t'u bashkuar me një trashëgimi të përsosmërisë.
+              Bëhet fjalë për besim të ndërtuar ndër vite.
             </span>
           </p>
 

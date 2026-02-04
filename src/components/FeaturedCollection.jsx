@@ -95,7 +95,7 @@ export default function FeaturedCollection() {
               isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
-            Seleksioni i përzgjedhur i automjeteve tona më të mira, të disponueshme për ju.
+            Përzgjedhja e automjeteve tona më të mira.
           </p>
         </div>
 

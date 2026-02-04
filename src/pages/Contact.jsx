@@ -171,7 +171,7 @@ export default function Contact() {
     },
     {
       label: "Email",
-      value: "hello@autotafa.com",
+      value: "info@autotafa.com",
       icon: (
         <svg
           className="w-5 h-5"
@@ -279,10 +279,10 @@ export default function Contact() {
                 }}
               >
                 <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold">
-                  Le të flasim
+                  Bisedoni me ne
                 </span>
                 <span className="block text-2xl sm:text-3xl lg:text-4xl font-light text-white/40 mt-3">
-                  Jemi këtu për t'ju ndihmuar.
+                  Jemi në dispozicion për informacione dhe takime.
                 </span>
               </h1>
 
@@ -299,8 +299,8 @@ export default function Contact() {
                 }}
               >
                 Nëse jeni të interesuar për koleksionin tonë, keni nevojë për
-                ndihmë, ose dëshironi të diskutoni projektet tuaja, ekipi ynë
-                është gati të lidhet me ju.
+                ndihmë, ose dëshironi të diskutoni kërkesat tuaja, ekipi ynë
+                është gati t’ju kontaktojë.
               </p>
             </div>
 
@@ -394,9 +394,9 @@ export default function Contact() {
                 className="text-4xl sm:text-5xl lg:text-5xl font-bold mb-8"
                 style={{ fontFamily: "Cera Pro, sans-serif" }}
               >
-                Ne i vlerësojmë
+                Çdo pyetje trajtohet
                 <br />
-                <span className="text-white/30">pyetjet tuaja</span>
+                <span className="text-white/30">me kujdes</span>
               </h2>
 
               <div
@@ -404,9 +404,9 @@ export default function Contact() {
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <p className="text-lg leading-relaxed">
-                  Ekipi ynë përgjigjet zakonisht brenda 24 orëve. Qoftë një
-                  pyetje për inventarin, një takim në showroom, apo shërbime të
-                  personalizuara — jemi të përkushtuar të ofrojmë shërbim të
+                  Ekipi ynë përgjigjet zakonisht brenda një dite pune. Qoftë një
+                  pyetje për inventarin, një takim në showroom, apo shërbime sipas kerkesës
+                   — jemi të përkushtuar të ofrojmë shërbim të
                   shkëlqyer.
                 </p>
                 <p className="text-lg leading-relaxed">
@@ -453,7 +453,7 @@ export default function Contact() {
                     required
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
-                    placeholder="Emri juaj"
+                    placeholder="Emri dhe mbiemri juaj"
                   />
                 </div>
 
@@ -512,7 +512,7 @@ export default function Contact() {
                     rows="6"
                     className="w-full px-6 py-4 bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300 backdrop-blur-sm resize-none"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
-                    placeholder="Na tregoni më shumë rreth pyetjes suaj..."
+                    placeholder="Shkruani mesazhin tuaj..."
                   />
                 </div>
 
@@ -617,15 +617,15 @@ export default function Contact() {
               {
                 title: "Vizita në showroom",
                 description:
-                  "Përjetoni koleksionin tonë personalisht. Rezervoni një takim për një vizitë të personalizuar.",
+                  "Përjetoni koleksionin tonë personalisht. Rezervoni një takim për vizitë në showroom.",
               },
               {
                 title: "Provë drejtimi",
                 description:
-                  "Ndjeni ndryshimin. Rezervoni një provë drejtimi me një nga automjetet tona sot.",
+                  "Rezervoni një provë drejtimi me një nga automjetet tona sot.",
               },
               {
-                title: "Konsultime",
+                title: "Këshillim",
                 description:
                   "Keni nevojë për këshilla ekspertësh? Ekipi ynë është gati t'ju ndihmojë të gjeni automjetin ideal.",
               },

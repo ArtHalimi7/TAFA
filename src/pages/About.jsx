@@ -162,7 +162,7 @@ export default function About() {
               }}
             >
               <span className="block text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-bold">
-                Ne nuk i bindemi tregut.
+                Ne nuk ndjekim tregun.
               </span>
               <span
                 className="block text-xl sm:text-2xl lg:text-4xl font-light text-white/50 mt-2 sm:mt-3 lg:mt-4"
@@ -366,13 +366,12 @@ export default function About() {
                 <p className="text-lg leading-relaxed">
                   Në vitin 2006, në zemrën e Kosovës, AUTO TAFA  hapi dyert
                   me një vizion që shkonte përtej shitjes së automjeteve. Ne
-                  vendosëm të krijonim një strehë për ata që kuptojnë se një
-                  makinë është më shumë se transporti—ajo është një shprehje e
-                  identitetit.
+                  vendosëm të krijonim një një vend për ata që kërkojnë më shumë 
+                  se një makinë të zakonshme.
                 </p>
                 <p className="text-lg leading-relaxed">
                   Që nga dita e parë, ne funksionuam sipas një parimi të
-                  thjeshtë: trajto çdo klient si familje, dhe çdo automjet si
+                  thjeshtë: trajto çdo klient me respekt afatgjatë, dhe çdo automjet si
                   një vepër arti.
                 </p>
               </div>
@@ -387,8 +386,8 @@ export default function About() {
                   zgjaten për brezat.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  Ne nuk thjesht shesim makina. Ne ju ndihmojmë të gjeni atë që
-                  flet me shpirtin tuaj.
+                  Ne nuk shesim vetëm makina.. Ne ju ndihmojmë të gjeni atë 
+                  që përputhet me stilin tuaj.
                 </p>
               </div>
             </div>
@@ -438,7 +437,7 @@ export default function About() {
               {
                 num: "01",
                 title: "Përsosmëria",
-                text: "Përfeksion në çdo detaj. Nga automjetet që gjendjemi në përvojën që ne ofrojmë—ne nuk pranojmë më pak.",
+                text: "Përfeksion në çdo detaj. Nga automjetet që zgjedhim te përvoja që ofrojmë - ne nuk pranojmë më pak.",
               },
               {
                 num: "02",

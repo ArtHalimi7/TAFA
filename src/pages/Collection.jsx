@@ -285,7 +285,7 @@ export default function Collection() {
               }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Eksploroni përzgjedhjen tonë të automjeteve më të prestigjioze në
+              Eksploroni përzgjedhjen tonë të automjeteve më prestigjioze në
               botë
             </p>
           </div>

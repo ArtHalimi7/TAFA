@@ -43,7 +43,7 @@ export default function Footer() {
                 className="text-white/60 mb-8 leading-relaxed"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Eksploroni botën e makinave luksoze me ne, destinacioni juaj për
+                Zbuloni koleksionin tonë të automjeteve luksoze, destinacioni juaj për
                 shërbim të pakrahasueshëm.
               </p>
               <div className="flex gap-4">
@@ -132,7 +132,7 @@ export default function Footer() {
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    Furnizim Custom
+                    Furnizim sipas kërkesës
                   </a>
                 </li>
                 <li>
@@ -142,15 +142,6 @@ export default function Footer() {
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
                     Opcione Financimi
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="/delivery-services"
-                    className="text-white/80 hover:text-white transition-colors duration-300"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Shërbime Dorëzimi
                   </a>
                 </li>
               </ul>
