@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Car = require("../models/Car");
 
-// Get all active cars (public)
+// Get all active and sold cars (public) - excludes drafts
 router.get("/public", async (req, res) => {
   try {
     const filters = {
-      status: "active",
+      statusIn: ["active", "sold"], // Include both active and sold cars
       brand: req.query.brand,
       category: req.query.category,
       minPrice: req.query.minPrice,
@@ -29,13 +29,11 @@ router.get("/public", async (req, res) => {
     res.json({ success: true, data: cars, count: cars.length });
   } catch (error) {
     console.error("Error in getActiveCars:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch cars",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch cars",
+      error: error.message,
+    });
   }
 });
 
@@ -47,13 +45,11 @@ router.get("/featured", async (req, res) => {
     res.json({ success: true, data: cars });
   } catch (error) {
     console.error("Error in getFeaturedCars:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch featured cars",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch featured cars",
+      error: error.message,
+    });
   }
 });
 
@@ -64,13 +60,11 @@ router.get("/stats", async (req, res) => {
     res.json({ success: true, data: stats });
   } catch (error) {
     console.error("Error in getStats:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch stats",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch stats",
+      error: error.message,
+    });
   }
 });
 
@@ -90,13 +84,11 @@ router.get("/slug/:slug", async (req, res) => {
     res.json({ success: true, data: car });
   } catch (error) {
     console.error("Error in getCarBySlug:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch car",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch car",
+      error: error.message,
+    });
   }
 });
 
@@ -126,13 +118,11 @@ router.get("/", async (req, res) => {
     res.json({ success: true, data: cars, count: cars.length });
   } catch (error) {
     console.error("Error in getAllCars:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch cars",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch cars",
+      error: error.message,
+    });
   }
 });
 
@@ -149,13 +139,11 @@ router.get("/:id", async (req, res) => {
     res.json({ success: true, data: car });
   } catch (error) {
     console.error("Error in getCarById:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to fetch car",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch car",
+      error: error.message,
+    });
   }
 });
 
@@ -194,21 +182,17 @@ router.post("/", async (req, res) => {
     console.error("Error in createCar:", error);
 
     if (error.code === "ER_DUP_ENTRY") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "A car with this slug or VIN already exists",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "A car with this slug or VIN already exists",
+      });
     }
 
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to create car",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to create car",
+      error: error.message,
+    });
   }
 });
 
@@ -229,21 +213,17 @@ router.put("/:id", async (req, res) => {
     console.error("Error in updateCar:", error);
 
     if (error.code === "ER_DUP_ENTRY") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "A car with this slug or VIN already exists",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "A car with this slug or VIN already exists",
+      });
     }
 
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to update car",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to update car",
+      error: error.message,
+    });
   }
 });
 
@@ -261,13 +241,11 @@ router.delete("/:id", async (req, res) => {
     res.json({ success: true, message: "Car deleted successfully" });
   } catch (error) {
     console.error("Error in deleteCar:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to delete car",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete car",
+      error: error.message,
+    });
   }
 });
 
@@ -288,13 +266,11 @@ router.patch("/:id/toggle-status", async (req, res) => {
     });
   } catch (error) {
     console.error("Error in toggleCarStatus:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to toggle car status",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to toggle car status",
+      error: error.message,
+    });
   }
 });
 

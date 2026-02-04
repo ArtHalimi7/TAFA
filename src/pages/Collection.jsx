@@ -742,16 +742,16 @@ export default function Collection() {
                         {/* Sold Overlay */}
                         {car.status === "sold" && (
                           <>
-                            <div className="absolute inset-0 bg-black/50 z-10" />
-                            <div className="absolute inset-0 flex items-center justify-center z-20">
-                              <div className="px-6 py-3 bg-red-600 rounded-lg transform -rotate-12">
+                            <div className="absolute inset-0 bg-black/40 z-10" />
+                            <div className="absolute top-3 right-3 z-20">
+                              <div className="px-3 py-1.5 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-full shadow-lg">
                                 <span
-                                  className="text-xl font-bold text-white tracking-wider uppercase"
+                                  className="text-xs font-semibold text-red-100 tracking-wider uppercase"
                                   style={{
                                     fontFamily: "Montserrat, sans-serif",
                                   }}
                                 >
-                                  I SHITUR
+                                  I Shitur
                                 </span>
                               </div>
                             </div>
@@ -791,12 +791,29 @@ export default function Collection() {
                         {/* Price and Mileage Row */}
                         <div className="flex items-center justify-between">
                           <div>
-                            <span
-                              className="text-xl font-bold text-white"
-                              style={{ fontFamily: "Cera Pro, sans-serif" }}
-                            >
-                              {formatPrice(car.price)}
-                            </span>
+                            {car.discountPrice ? (
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="text-sm text-red-400 line-through"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.price)}
+                                </span>
+                                <span
+                                  className="text-xl font-bold text-white"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.discountPrice)}
+                                </span>
+                              </div>
+                            ) : (
+                              <span
+                                className="text-xl font-bold text-white"
+                                style={{ fontFamily: "Cera Pro, sans-serif" }}
+                              >
+                                {formatPrice(car.price)}
+                              </span>
+                            )}
                             <span
                               className="text-white/40 text-sm ml-2"
                               style={{ fontFamily: "Montserrat, sans-serif" }}

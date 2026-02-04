@@ -184,6 +184,7 @@ export default function Dashboard() {
     category: "Performance",
     brand: "Mercedes",
     price: "",
+    discountPrice: "",
     year: new Date().getFullYear(),
     mileage: "",
     exteriorColor: "",
@@ -365,6 +366,7 @@ export default function Dashboard() {
       category: "Performance",
       brand: "Mercedes",
       price: "",
+      discountPrice: "",
       year: new Date().getFullYear(),
       mileage: "",
       exteriorColor: "",
@@ -396,6 +398,7 @@ export default function Dashboard() {
     setPendingImageFiles([]);
     setFormData({
       ...car,
+      discountPrice: car.discountPrice || "",
       features: car.features && car.features.length > 0 ? car.features : [""],
       images: car.images || [],
     });
@@ -535,6 +538,9 @@ export default function Dashboard() {
         category: formData.category,
         brand: formData.brand,
         price: Number(formData.price),
+        discountPrice: formData.discountPrice
+          ? Number(formData.discountPrice)
+          : null,
         year: Number(formData.year),
         mileage: Number(formData.mileage),
         exteriorColor: formData.exteriorColor,
@@ -2094,6 +2100,20 @@ export default function Dashboard() {
                       onChange={handleInputChange}
                       required
                       placeholder="185000"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
+                      Çmimi me Zbritje
+                    </label>
+                    <input
+                      type="number"
+                      name="discountPrice"
+                      value={formData.discountPrice}
+                      onChange={handleInputChange}
+                      placeholder="Lere bosh nese nuk ka zbritje"
                       className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     />

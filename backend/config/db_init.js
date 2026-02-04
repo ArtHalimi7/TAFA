@@ -101,6 +101,20 @@ const initializeDatabase = async () => {
       }
     }
 
+    // Add discount_price column if it doesn't exist
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN discount_price DECIMAL(12, 2) DEFAULT NULL
+      `);
+      console.log("✅ Added discount_price column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ discount_price column already exists");
+      }
+    }
+
     // Create car_images table if it doesn't exist
     await connection.query(`
       CREATE TABLE IF NOT EXISTS car_images (

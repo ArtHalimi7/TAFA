@@ -15,7 +15,7 @@ const Car = {
   async getAll(filters = {}) {
     try {
       let query = `
-        SELECT c.id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, 
+        SELECT c.id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
                c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
@@ -33,6 +33,17 @@ const Car = {
       if (filters.status) {
         conditions.push("c.status = ?");
         params.push(filters.status);
+      }
+
+      // Support for multiple statuses (e.g., active AND sold)
+      if (
+        filters.statusIn &&
+        Array.isArray(filters.statusIn) &&
+        filters.statusIn.length > 0
+      ) {
+        const placeholders = filters.statusIn.map(() => "?").join(", ");
+        conditions.push(`c.status IN (${placeholders})`);
+        params.push(...filters.statusIn);
       }
 
       if (filters.brand) {
@@ -118,6 +129,9 @@ const Car = {
         images: row.images ? row.images.split(",") : [],
         features: row.features ? row.features.split(",") : [],
         price: parseFloat(row.price),
+        discountPrice: row.discount_price
+          ? parseFloat(row.discount_price)
+          : null,
         acceleration: parseFloat(row.acceleration),
       }));
     } catch (error) {
@@ -149,6 +163,9 @@ const Car = {
         images: car.images ? car.images.split(",") : [],
         features: car.features ? car.features.split(",") : [],
         price: parseFloat(car.price),
+        discountPrice: car.discount_price
+          ? parseFloat(car.discount_price)
+          : null,
         acceleration: parseFloat(car.acceleration),
       };
     } catch (error) {
@@ -180,6 +197,9 @@ const Car = {
         images: car.images ? car.images.split(",") : [],
         features: car.features ? car.features.split(",") : [],
         price: parseFloat(car.price),
+        discountPrice: car.discount_price
+          ? parseFloat(car.discount_price)
+          : null,
         acceleration: parseFloat(car.acceleration),
       };
     } catch (error) {
@@ -201,6 +221,7 @@ const Car = {
         category,
         brand,
         price,
+        discountPrice,
         year,
         mileage,
         exteriorColor,
@@ -225,11 +246,11 @@ const Car = {
 
       const [result] = await connection.query(
         `INSERT INTO cars (
-          name, slug, tagline, category, brand, price, year, mileage,
+          name, slug, tagline, category, brand, price, discount_price, year, mileage,
           exterior_color, interior_color, engine, horsepower, torque,
           acceleration, top_speed, transmission, drivetrain, fuel_type,
           mpg, vin, description, status, showcase_image, is_featured
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           name,
           slug,
@@ -237,6 +258,7 @@ const Car = {
           category,
           brand,
           price,
+          discountPrice || null,
           year,
           mileage,
           exteriorColor,
@@ -322,6 +344,7 @@ const Car = {
         category,
         brand,
         price,
+        discountPrice,
         year,
         mileage,
         exteriorColor,
@@ -347,7 +370,7 @@ const Car = {
       await connection.query(
         `UPDATE cars SET
           name = ?, slug = ?, tagline = ?, category = ?, brand = ?,
-          price = ?, year = ?, mileage = ?, exterior_color = ?,
+          price = ?, discount_price = ?, year = ?, mileage = ?, exterior_color = ?,
           interior_color = ?, engine = ?, horsepower = ?, torque = ?,
           acceleration = ?, top_speed = ?, transmission = ?, drivetrain = ?,
           fuel_type = ?, mpg = ?, vin = ?, description = ?, status = ?,
@@ -360,6 +383,7 @@ const Car = {
           category,
           brand,
           price,
+          discountPrice || null,
           year,
           mileage,
           exteriorColor,

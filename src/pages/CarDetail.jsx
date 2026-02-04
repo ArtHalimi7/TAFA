@@ -134,7 +134,8 @@ export default function CarDetail() {
     if (isLoaded && car && car.price) {
       const duration = 1500;
       const startTime = Date.now();
-      const target = car.price;
+      // Animate to discount price if available, otherwise original price
+      const target = car.discountPrice || car.price;
 
       const animate = () => {
         const progress = Math.min((Date.now() - startTime) / duration, 1);
@@ -592,12 +593,29 @@ export default function CarDetail() {
                   </div>
                   <div className="w-px h-12 bg-white/20 hidden sm:block" />
                   <div className="flex flex-col">
-                    <span
-                      className="text-xl sm:text-4xl lg:text-5xl font-bold"
-                      style={{ fontFamily: "Cera Pro, sans-serif" }}
-                    >
-                      {formatPrice(animatedPrice)}
-                    </span>
+                    {car.discountPrice ? (
+                      <>
+                        <span
+                          className="text-sm sm:text-lg text-red-400 line-through"
+                          style={{ fontFamily: "Cera Pro, sans-serif" }}
+                        >
+                          {formatPrice(car.price)}
+                        </span>
+                        <span
+                          className="text-xl sm:text-4xl lg:text-5xl font-bold"
+                          style={{ fontFamily: "Cera Pro, sans-serif" }}
+                        >
+                          {formatPrice(animatedPrice)}
+                        </span>
+                      </>
+                    ) : (
+                      <span
+                        className="text-xl sm:text-4xl lg:text-5xl font-bold"
+                        style={{ fontFamily: "Cera Pro, sans-serif" }}
+                      >
+                        {formatPrice(animatedPrice)}
+                      </span>
+                    )}
                     <span
                       className="text-xs text-white/50 uppercase tracking-widest mt-1"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
@@ -1073,17 +1091,44 @@ export default function CarDetail() {
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-white/10">
-                      <p
-                        className="text-white font-semibold"
-                        style={{ fontFamily: "Cera Pro, sans-serif" }}
-                      >
-                        {new Intl.NumberFormat("de-DE", {
-                          style: "currency",
-                          currency: "EUR",
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }).format(similarCar.price)}
-                      </p>
+                      {similarCar.discountPrice ? (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="text-xs text-red-400 line-through"
+                            style={{ fontFamily: "Cera Pro, sans-serif" }}
+                          >
+                            {new Intl.NumberFormat("de-DE", {
+                              style: "currency",
+                              currency: "EUR",
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(similarCar.price)}
+                          </span>
+                          <span
+                            className="text-white font-semibold"
+                            style={{ fontFamily: "Cera Pro, sans-serif" }}
+                          >
+                            {new Intl.NumberFormat("de-DE", {
+                              style: "currency",
+                              currency: "EUR",
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 0,
+                            }).format(similarCar.discountPrice)}
+                          </span>
+                        </div>
+                      ) : (
+                        <p
+                          className="text-white font-semibold"
+                          style={{ fontFamily: "Cera Pro, sans-serif" }}
+                        >
+                          {new Intl.NumberFormat("de-DE", {
+                            style: "currency",
+                            currency: "EUR",
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0,
+                          }).format(similarCar.price)}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1108,12 +1153,20 @@ export default function CarDetail() {
               >
                 Çmimi i listuar
               </p>
-              <div className="flex items-baseline gap-2">
+              <div className="flex items-baseline gap-3">
+                {car.discountPrice && (
+                  <span
+                    className="text-xl sm:text-2xl text-red-400 line-through"
+                    style={{ fontFamily: "Cera Pro, sans-serif" }}
+                  >
+                    {formatPrice(car.price)}
+                  </span>
+                )}
                 <span
                   className="text-4xl sm:text-5xl lg:text-6xl font-bold"
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
-                  {formatPrice(car.price)}
+                  {formatPrice(car.discountPrice || car.price)}
                 </span>
               </div>
               <p
@@ -1209,7 +1262,10 @@ export default function CarDetail() {
                     className="text-sm font-semibold text-white"
                     style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    {formatPrice((car.price * downPaymentPercent) / 100)}
+                    {formatPrice(
+                      ((car.discountPrice || car.price) * downPaymentPercent) /
+                        100,
+                    )}
                   </span>
                 </div>
                 <input
@@ -1275,7 +1331,8 @@ export default function CarDetail() {
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
                   {formatPrice(
-                    (car.price * (1 - downPaymentPercent / 100)) /
+                    ((car.discountPrice || car.price) *
+                      (1 - downPaymentPercent / 100)) /
                       financingMonths,
                   )}
                 </p>
@@ -1286,19 +1343,25 @@ export default function CarDetail() {
                 <div className="flex justify-between">
                   <span className="text-white/60">Çmimi i mjetit:</span>
                   <span className="text-white font-medium">
-                    {formatPrice(car.price)}
+                    {formatPrice(car.discountPrice || car.price)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Pagesa paraprakisht:</span>
                   <span className="text-white font-medium">
-                    {formatPrice((car.price * downPaymentPercent) / 100)}
+                    {formatPrice(
+                      ((car.discountPrice || car.price) * downPaymentPercent) /
+                        100,
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-white/60">Shuma për financim:</span>
                   <span className="text-white font-medium">
-                    {formatPrice(car.price * (1 - downPaymentPercent / 100))}
+                    {formatPrice(
+                      (car.discountPrice || car.price) *
+                        (1 - downPaymentPercent / 100),
+                    )}
                   </span>
                 </div>
               </div>

@@ -46,11 +46,20 @@ export default function FeaturedCollection() {
             slug: car.slug,
             category: car.category,
             status: car.status,
-            price: new Intl.NumberFormat("de-DE", {
+            price: car.price,
+            discountPrice: car.discountPrice,
+            formattedPrice: new Intl.NumberFormat("de-DE", {
               style: "currency",
               currency: "EUR",
               minimumFractionDigits: 0,
-            }).format(car.price),
+            }).format(car.discountPrice || car.price),
+            formattedOriginalPrice: car.discountPrice
+              ? new Intl.NumberFormat("de-DE", {
+                  style: "currency",
+                  currency: "EUR",
+                  minimumFractionDigits: 0,
+                }).format(car.price)
+              : null,
             image:
               car.images && car.images.length > 0
                 ? getImageUrl(car.images[0])
@@ -152,14 +161,14 @@ export default function FeaturedCollection() {
                       {/* Sold Overlay */}
                       {vehicle.status === "sold" && (
                         <>
-                          <div className="absolute inset-0 bg-black/50 z-10" />
-                          <div className="absolute inset-0 flex items-center justify-center z-20">
-                            <div className="px-6 py-3 bg-red-600 rounded-lg transform -rotate-12">
+                          <div className="absolute inset-0 bg-black/40 z-10" />
+                          <div className="absolute top-3 right-3 z-20">
+                            <div className="px-3 py-1.5 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-full shadow-lg">
                               <span
-                                className="text-xl font-bold text-white tracking-wider uppercase"
+                                className="text-xs font-semibold text-red-100 tracking-wider uppercase"
                                 style={{ fontFamily: "Montserrat, sans-serif" }}
                               >
-                                I SHITUR
+                                I Shitur
                               </span>
                             </div>
                           </div>
@@ -192,12 +201,22 @@ export default function FeaturedCollection() {
 
                       {/* Price and Arrow */}
                       <div className="flex items-center justify-between">
-                        <span
-                          className="text-lg font-semibold text-white"
-                          style={{ fontFamily: "Cera Pro, sans-serif" }}
-                        >
-                          {vehicle.price}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {vehicle.formattedOriginalPrice && (
+                            <span
+                              className="text-sm text-red-400 line-through"
+                              style={{ fontFamily: "Cera Pro, sans-serif" }}
+                            >
+                              {vehicle.formattedOriginalPrice}
+                            </span>
+                          )}
+                          <span
+                            className="text-lg font-semibold text-white"
+                            style={{ fontFamily: "Cera Pro, sans-serif" }}
+                          >
+                            {vehicle.formattedPrice}
+                          </span>
+                        </div>
                         <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white group-hover:bg-white transition-all duration-300">
                           <span className="text-white/50 group-hover:text-black transition-colors duration-300">
                             →
