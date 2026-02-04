@@ -1604,35 +1604,16 @@ export default function Dashboard() {
                                   : "Shëno si të shitur"
                               }
                             >
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                              <span
+                                className={`w-4 h-4 flex items-center justify-center text-sm font-bold ${
+                                  car.status === "sold"
+                                    ? "bg-red-400 text-black rounded-full"
+                                    : ""
+                                }`}
+                                style={{ fontFamily: "Arial, sans-serif" }}
                               >
-                                <circle
-                                  cx="12"
-                                  cy="12"
-                                  r="9"
-                                  strokeWidth={1.5}
-                                  fill={
-                                    car.status === "sold"
-                                      ? "currentColor"
-                                      : "none"
-                                  }
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={1.5}
-                                  stroke={
-                                    car.status === "sold"
-                                      ? "#000"
-                                      : "currentColor"
-                                  }
-                                  d="M12 6v2m0 8v2m-2-9.5c0-.828 1.12-1.5 2.5-1.5s2.5.672 2.5 1.5c0 1.5-2.5 1.5-2.5 3m0 0c0 1.5 2.5 1.5 2.5 3 0 .828-1.12 1.5-2.5 1.5s-2.5-.672-2.5-1.5"
-                                />
-                              </svg>
+                                €
+                              </span>
                             </button>
                             <button
                               onClick={() => openEditModal(car)}
@@ -1854,35 +1835,16 @@ export default function Dashboard() {
                                   : "Shëno si të shitur"
                               }
                             >
-                              <svg
-                                className="w-5 h-5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
+                              <span
+                                className={`w-5 h-5 flex items-center justify-center text-base font-bold ${
+                                  car.status === "sold"
+                                    ? "bg-red-400 text-black rounded-full"
+                                    : ""
+                                }`}
+                                style={{ fontFamily: "Arial, sans-serif" }}
                               >
-                                <circle
-                                  cx="12"
-                                  cy="12"
-                                  r="9"
-                                  strokeWidth={1.5}
-                                  fill={
-                                    car.status === "sold"
-                                      ? "currentColor"
-                                      : "none"
-                                  }
-                                />
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={1.5}
-                                  stroke={
-                                    car.status === "sold"
-                                      ? "#000"
-                                      : "currentColor"
-                                  }
-                                  d="M12 6v2m0 8v2m-2-9.5c0-.828 1.12-1.5 2.5-1.5s2.5.672 2.5 1.5c0 1.5-2.5 1.5-2.5 3m0 0c0 1.5 2.5 1.5 2.5 3 0 .828-1.12 1.5-2.5 1.5s-2.5-.672-2.5-1.5"
-                                />
-                              </svg>
+                                €
+                              </span>
                             </button>
 
                             {/* Edit */}
