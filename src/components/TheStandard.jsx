@@ -23,7 +23,7 @@ export default function TheStandard() {
   ];
 
   const features = [
-    { title: "Precizion", description: "Çdo detaj i kontrolluar dhe verifikuar" },
+    { title: "Saktësi", description: "Çdo detaj i kontrolluar dhe verifikuar" },
     { title: "Trashëgimi", description: "Dekada përvoje automobilistike" },
     {
       title: "Ekskluzivitet",

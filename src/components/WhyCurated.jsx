@@ -1,4 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import {
+  ClipboardCheck,
+  Zap,
+  Clock,
+  Scale,
+  CheckCircle,
+  MessageCircle,
+} from "lucide-react";
 import logo from "../assets/images/logo.png";
 
 export default function WhyCurated() {
@@ -20,126 +28,42 @@ export default function WhyCurated() {
   const features = [
     {
       number: "01",
-      icon: (
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-          />
-        </svg>
-      ),
+      icon: <ClipboardCheck className="w-8 h-8" />,
       title: "Inspektim rigoroz",
       description:
-        "Çdo automjet i nënshtrohet protokollit tonë gjithëpërfshirës të inspektimit prej 200 pikash. Ne verifikojmë autenticitetin dhe përsosmërinë mekanike.",
+        "Çdo automjet i nënshtrohet protokollit tonë gjithëpërfshirës të inspektimit te detajuar. Ne verifikojmë autenticitetin dhe përsosmërinë mekanike.",
     },
     {
       number: "02",
-      icon: (
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
-      ),
+      icon: <Zap className="w-8 h-8" />,
       title: "Performancë e Verifikuar",
       description:
         "Çdo makinë testohet në mënyrë dinamike për të siguruar performancën maksimale. Nga përshpejtimi te manovrimi, ne synojmë performancë optimale.",
     },
     {
       number: "03",
-      icon: (
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M14.828 14.828a4 4 0 01-5.656 0M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      ),
+      icon: <Clock className="w-8 h-8" />,
       title: "Histori e Qartë",
       description:
         "Dokumentacion i plotë historik. Regjistrimet e serviseve, transferimet e pronësisë dhe certifikatat e autenticitetit përfshihen me çdo blerje.",
     },
     {
       number: "04",
-      icon: (
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      ),
+      icon: <Scale className="w-8 h-8" />,
       title: "Vlerësim i Drejtë",
       description:
         "Çmim transparent bazuar në të dhënat e tregut dhe gjendjen e automjetit. Pa tarifa të fshehura.",
     },
     {
       number: "05",
-      icon: (
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-          />
-        </svg>
-      ),
+      icon: <CheckCircle className="w-8 h-8" />,
       title: "Proces i Thjeshtë",
       description:
-        "Nga kontakti i parë deri te marrja e makinës, gjithçka mbahet e drejtpërdrejtë dhe pa komplikime.",
+        "Nga kontakti i parë deri te marrja e makinës, gjithçka kryhet në mënyrë të drejtpërdrejtë dhe pa komplikime.",
     },
     {
       number: "06",
-      icon: (
-        <svg
-          className="w-8 h-8"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
-          />
-        </svg>
-      ),
+      icon: <MessageCircle className="w-8 h-8" />,
       title: "Komunikim i Drejtë",
       description:
         "Flasim hapur për çdo detaj të automjetit. Pa presion. Pa surpriza.",
@@ -260,8 +184,8 @@ export default function WhyCurated() {
                   {feature.number}
                 </span>
 
-                {/* Icon */}
-                <div className="w-12 h-12 rounded-full border border-white/25 flex items-center justify-center mb-6 text-white/65 group-hover:text-white/85 group-hover:border-white/55 transition-all duration-300">
+                {/* Icon (no circle/border) */}
+                <div className="w-12 h-12 flex items-center justify-center mb-6 text-white/65 group-hover:text-white/85 transition-all duration-300">
                   {feature.icon}
                 </div>
 
@@ -299,9 +223,9 @@ export default function WhyCurated() {
             className="text-2xl lg:text-3xl font-light leading-relaxed text-white"
             style={{ fontFamily: "Montserrat, sans-serif" }}
           >
-            Kjo nuk është thjesht për të blerë një makinë.
+            Nuk është thjeshtë një blerje makine.
             <span className="block font-bold mt-4">
-              Bëhet fjalë për besim të ndërtuar ndër vite.
+              Është besim i ndërtuar ndër vite.
             </span>
           </p>
 
