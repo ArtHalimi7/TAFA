@@ -737,18 +737,25 @@ export default function Collection() {
                         <LazyImage
                           src={car.image}
                           alt={car.name}
-                          className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105"
+                          className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${car.status === "sold" ? "grayscale" : ""}`}
                         />
-                        {/* Sold Badge */}
+                        {/* Sold Overlay */}
                         {car.status === "sold" && (
-                          <div className="absolute top-3 right-3 px-3 py-1.5 bg-red-600 rounded-full z-10">
-                            <span
-                              className="text-xs font-bold text-white tracking-wider uppercase"
-                              style={{ fontFamily: "Montserrat, sans-serif" }}
-                            >
-                              I Shitur
-                            </span>
-                          </div>
+                          <>
+                            <div className="absolute inset-0 bg-black/50 z-10" />
+                            <div className="absolute inset-0 flex items-center justify-center z-20">
+                              <div className="px-6 py-3 bg-red-600 rounded-lg transform -rotate-12">
+                                <span
+                                  className="text-xl font-bold text-white tracking-wider uppercase"
+                                  style={{
+                                    fontFamily: "Montserrat, sans-serif",
+                                  }}
+                                >
+                                  I SHITUR
+                                </span>
+                              </div>
+                            </div>
+                          </>
                         )}
                       </div>
 

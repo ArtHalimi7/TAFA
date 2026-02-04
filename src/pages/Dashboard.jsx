@@ -175,6 +175,7 @@ export default function Dashboard() {
   const [notification, setNotification] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -232,6 +233,8 @@ export default function Dashboard() {
           topSpeed: car.top_speed,
           fuelType: car.fuel_type,
           showcaseImage: car.showcase_image,
+          // Convert is_featured to boolean (MySQL returns 0/1)
+          isFeatured: car.is_featured === 1 || car.is_featured === true,
           createdAt: car.created_at,
           views: car.views || 0,
         }));
@@ -496,6 +499,10 @@ export default function Dashboard() {
   const handleSaveCar = async (e) => {
     e.preventDefault();
 
+    // Prevent double submission
+    if (isSaving) return;
+    setIsSaving(true);
+
     try {
       // Upload pending images first
       let uploadedImageUrls = [];
@@ -571,9 +578,11 @@ export default function Dashboard() {
       setIsModalOpen(false);
       setSelectedCar(null);
       setPendingImageFiles([]);
+      setIsSaving(false);
     } catch (error) {
       console.error("Error saving car:", error);
       showNotification(error.message || t.failedSaveCar, "error");
+      setIsSaving(false);
     }
   };
 
@@ -609,6 +618,57 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Gabim gjatë ndryshimit të statusit:", error);
       showNotification(t.failedUpdateStatus, "error");
+    }
+  };
+
+  // Toggle car featured status
+  const toggleFeatured = async (car) => {
+    try {
+      const newFeaturedStatus = !car.isFeatured;
+      const response = await carsApi.updateCar(car.id, {
+        ...car,
+        isFeatured: newFeaturedStatus,
+      });
+      if (response.success) {
+        setCars((prev) =>
+          prev.map((c) =>
+            c.id === car.id ? { ...c, isFeatured: newFeaturedStatus } : c,
+          ),
+        );
+        showNotification(
+          newFeaturedStatus
+            ? "Automjeti u shtua te të veçuarat!"
+            : "Automjeti u hoq nga të veçuarat!",
+        );
+      }
+    } catch (error) {
+      console.error("Gabim gjatë ndryshimit të veçimit:", error);
+      showNotification("Ndryshimi dështoi", "error");
+    }
+  };
+
+  // Toggle car sold status
+  const toggleSoldStatus = async (car) => {
+    try {
+      const newStatus = car.status === "sold" ? "active" : "sold";
+      const response = await carsApi.updateCar(car.id, {
+        ...car,
+        status: newStatus,
+      });
+      if (response.success) {
+        setCars((prev) =>
+          prev.map((c) => (c.id === car.id ? { ...c, status: newStatus } : c)),
+        );
+        showNotification(
+          newStatus === "sold"
+            ? "Automjeti u shënua si i shitur!"
+            : "Automjeti nuk është më i shitur!",
+        );
+        await fetchStats();
+      }
+    } catch (error) {
+      console.error("Gabim gjatë ndryshimit të statusit:", error);
+      showNotification("Ndryshimi dështoi", "error");
     }
   };
 
@@ -1477,6 +1537,66 @@ export default function Dashboard() {
                             {formatPrice(car.price)}
                           </p>
                           <div className="flex items-center gap-2">
+                            {/* Featured Indicator */}
+                            <button
+                              onClick={() => toggleFeatured(car)}
+                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                car.isFeatured
+                                  ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
+                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-yellow-400"
+                              }`}
+                              title={
+                                car.isFeatured
+                                  ? "Hiq nga të veçuarat"
+                                  : "Shto te të veçuarat"
+                              }
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill={car.isFeatured ? "currentColor" : "none"}
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                />
+                              </svg>
+                            </button>
+                            {/* Sold Indicator */}
+                            <button
+                              onClick={() => toggleSoldStatus(car)}
+                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                                car.status === "sold"
+                                  ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
+                              }`}
+                              title={
+                                car.status === "sold"
+                                  ? "Hiq statusin e shitur"
+                                  : "Shëno si të shitur"
+                              }
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill={
+                                  car.status === "sold"
+                                    ? "currentColor"
+                                    : "none"
+                                }
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
+                              </svg>
+                            </button>
                             <button
                               onClick={() => openEditModal(car)}
                               className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -1633,6 +1753,68 @@ export default function Dashboard() {
                                   strokeLinejoin="round"
                                   strokeWidth={1.5}
                                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            </button>
+
+                            {/* Featured Indicator */}
+                            <button
+                              onClick={() => toggleFeatured(car)}
+                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                                car.isFeatured
+                                  ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
+                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-yellow-400"
+                              }`}
+                              title={
+                                car.isFeatured
+                                  ? "Hiq nga të veçuarat"
+                                  : "Shto te të veçuarat"
+                              }
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill={car.isFeatured ? "currentColor" : "none"}
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                                />
+                              </svg>
+                            </button>
+
+                            {/* Sold Indicator */}
+                            <button
+                              onClick={() => toggleSoldStatus(car)}
+                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                                car.status === "sold"
+                                  ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
+                              }`}
+                              title={
+                                car.status === "sold"
+                                  ? "Hiq statusin e shitur"
+                                  : "Shëno si të shitur"
+                              }
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill={
+                                  car.status === "sold"
+                                    ? "currentColor"
+                                    : "none"
+                                }
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                 />
                               </svg>
                             </button>
@@ -2465,17 +2647,47 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 border border-white/20 rounded-xl text-white hover:bg-white/10 transition-all"
+                  disabled={isSaving}
+                  className="flex-1 py-3 border border-white/20 rounded-xl text-white hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {t.cancelBtn}
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-white text-black rounded-xl font-semibold hover:bg-white/90 transition-all"
+                  disabled={isSaving}
+                  className="flex-1 py-3 bg-white text-black rounded-xl font-semibold hover:bg-white/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  {modalMode === "add" ? t.addVehicle : t.saveChanges}
+                  {isSaving ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5 text-black"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Duke ruajtur...
+                    </>
+                  ) : modalMode === "add" ? (
+                    t.addVehicle
+                  ) : (
+                    t.saveChanges
+                  )}
                 </button>
               </div>
             </form>

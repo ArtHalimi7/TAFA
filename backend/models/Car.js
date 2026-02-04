@@ -70,7 +70,7 @@ const Car = {
 
       if (filters.isFeatured !== undefined) {
         conditions.push("c.is_featured = ?");
-        params.push(filters.isFeatured);
+        params.push(filters.isFeatured ? 1 : 0);
       }
 
       if (conditions.length > 0) {
@@ -254,7 +254,7 @@ const Car = {
           description,
           status || "draft",
           showcaseImage || 0,
-          isFeatured || false,
+          isFeatured ? 1 : 0,
         ],
       );
 
@@ -377,7 +377,7 @@ const Car = {
           description,
           status,
           showcaseImage || 0,
-          isFeatured || false,
+          isFeatured ? 1 : 0,
           id,
         ],
       );
@@ -542,6 +542,7 @@ const Car = {
         newStatus,
         id,
       ]);
+      this._invalidateCache();
       return await this.getById(id);
     } catch (error) {
       console.error("Error toggling status:", error);
