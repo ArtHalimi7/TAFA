@@ -120,13 +120,13 @@ export default function FeaturedCollection() {
         {!error && showContent && vehicles.length === 0 && (
           <div className="text-center py-12">
             <p className="text-white/60 text-lg">
-              No featured vehicles available at the moment.
+              Nuk ka automjete të veçuar në dispozicion në këtë moment.
             </p>
             <Link
               to="/collection"
               className="inline-block mt-4 text-white underline hover:no-underline"
             >
-              View all vehicles
+              Shiko të gjitha automjetet
             </Link>
           </div>
         )}

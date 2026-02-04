@@ -42,7 +42,7 @@ const t = {
   failedDeleteCar: "Fshirja e automjetit dështoi",
   failedUpdateStatus: "Përditësimi i statusit dështoi",
   dashboardTitle: "Paneli",
-  inventoryTitle: "Inventar",
+  inventoryTitle: "Inventari",
   // Additional UI strings
   save: "Ruaj",
   cancel: "Anulo",
@@ -1124,7 +1124,7 @@ export default function Dashboard() {
               >
                 {activeTab === "overview"
                   ? "Mire se vini. Menaxho inventarin tënd."
-                  : "Manage your vehicle inventory"}
+                  : "Shiko dhe menaxho automjetet në inventar."}
               </p>
             </div>
 
@@ -1536,12 +1536,31 @@ export default function Dashboard() {
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <p
-                            className="text-lg font-bold"
-                            style={{ fontFamily: "Cera Pro, sans-serif" }}
-                          >
-                            {formatPrice(car.price)}
-                          </p>
+                          <div>
+                            {car.discountPrice ? (
+                              <div className="flex items-center gap-2">
+                                <p
+                                  className="text-sm text-red-400 line-through"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.price)}
+                                </p>
+                                <p
+                                  className="text-lg font-bold"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.discountPrice)}
+                                </p>
+                              </div>
+                            ) : (
+                              <p
+                                className="text-lg font-bold"
+                                style={{ fontFamily: "Cera Pro, sans-serif" }}
+                              >
+                                {formatPrice(car.price)}
+                              </p>
+                            )}
+                          </div>
                           <div className="flex items-center gap-2">
                             {/* Featured Indicator */}
                             <button
@@ -1587,19 +1606,31 @@ export default function Dashboard() {
                             >
                               <svg
                                 className="w-4 h-4"
-                                fill={
-                                  car.status === "sold"
-                                    ? "currentColor"
-                                    : "none"
-                                }
+                                fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  strokeWidth={1.5}
+                                  fill={
+                                    car.status === "sold"
+                                      ? "currentColor"
+                                      : "none"
+                                  }
+                                />
                                 <path
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={1.5}
-                                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  stroke={
+                                    car.status === "sold"
+                                      ? "#000"
+                                      : "currentColor"
+                                  }
+                                  d="M12 6v2m0 8v2m-2-9.5c0-.828 1.12-1.5 2.5-1.5s2.5.672 2.5 1.5c0 1.5-2.5 1.5-2.5 3m0 0c0 1.5 2.5 1.5 2.5 3 0 .828-1.12 1.5-2.5 1.5s-2.5-.672-2.5-1.5"
                                 />
                               </svg>
                             </button>
@@ -1642,7 +1673,7 @@ export default function Dashboard() {
                     className="text-2xl font-bold"
                     style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    All Vehicles
+                    Të gjitha Veturat
                   </h2>
                   <p
                     className="text-sm text-white/50 mt-1"
@@ -1718,12 +1749,29 @@ export default function Dashboard() {
                               {car.year} • {car.brand} • {car.category} •{" "}
                               {car.mileage.toLocaleString()} km
                             </p>
-                            <p
-                              className="text-xl font-bold"
-                              style={{ fontFamily: "Cera Pro, sans-serif" }}
-                            >
-                              {formatPrice(car.price)}
-                            </p>
+                            {car.discountPrice ? (
+                              <div className="flex items-center gap-2">
+                                <p
+                                  className="text-sm text-red-400 line-through"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.price)}
+                                </p>
+                                <p
+                                  className="text-xl font-bold"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.discountPrice)}
+                                </p>
+                              </div>
+                            ) : (
+                              <p
+                                className="text-xl font-bold"
+                                style={{ fontFamily: "Cera Pro, sans-serif" }}
+                              >
+                                {formatPrice(car.price)}
+                              </p>
+                            )}
                           </div>
 
                           {/* Actions */}
@@ -1808,19 +1856,31 @@ export default function Dashboard() {
                             >
                               <svg
                                 className="w-5 h-5"
-                                fill={
-                                  car.status === "sold"
-                                    ? "currentColor"
-                                    : "none"
-                                }
+                                fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
                               >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  strokeWidth={1.5}
+                                  fill={
+                                    car.status === "sold"
+                                      ? "currentColor"
+                                      : "none"
+                                  }
+                                />
                                 <path
                                   strokeLinecap="round"
                                   strokeLinejoin="round"
                                   strokeWidth={1.5}
-                                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  stroke={
+                                    car.status === "sold"
+                                      ? "#000"
+                                      : "currentColor"
+                                  }
+                                  d="M12 6v2m0 8v2m-2-9.5c0-.828 1.12-1.5 2.5-1.5s2.5.672 2.5 1.5c0 1.5-2.5 1.5-2.5 3m0 0c0 1.5 2.5 1.5 2.5 3 0 .828-1.12 1.5-2.5 1.5s-2.5-.672-2.5-1.5"
                                 />
                               </svg>
                             </button>
@@ -2179,7 +2239,7 @@ export default function Dashboard() {
                   className="text-sm uppercase tracking-[0.2em] text-white/40 mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Appearance
+                  Pamja
                 </h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
