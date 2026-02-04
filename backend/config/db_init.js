@@ -87,6 +87,20 @@ const initializeDatabase = async () => {
       }
     }
 
+    // Add is_featured column if it doesn't exist
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN is_featured BOOLEAN DEFAULT false
+      `);
+      console.log("✅ Added is_featured column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ is_featured column already exists");
+      }
+    }
+
     // Create car_images table if it doesn't exist
     await connection.query(`
       CREATE TABLE IF NOT EXISTS car_images (

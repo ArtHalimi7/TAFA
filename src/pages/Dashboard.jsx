@@ -36,7 +36,7 @@ const t = {
   backToWebsite: "Kthehu te faqja",
   overview: "Përmbledhje",
   inventory: "Inventari",
-  addVehicle: "Shtoni nje automjet",
+  addVehicle: "Shtoni automjetin",
   failedLoadCars: "Ngarkimi i automjeteve dështoi",
   failedSaveCar: "Ruajtja e automjetit dështoi",
   failedDeleteCar: "Fshirja e automjetit dështoi",
@@ -60,6 +60,7 @@ const t = {
   statusLabel: "Statusi",
   draft: "I papublikuar",
   active: "Aktiv",
+  sold: "I shitur",
   exteriorColor: "Ngjyra e jashtme",
   interiorColor: "Ngjyra e brendshme",
   engine: "Motor",
@@ -108,6 +109,7 @@ const t = {
     "Ngarko imazhet e automjetit. Kliko ikonën me yll për të vendosur imazhin kryesor",
   clickToUploadImages: "Kliko për të ngarkuar imazhe",
   basicInfo: "Informacion Bazë",
+  addToFeatured: "Shtoje te veturat e vequara",
 };
 
 const categories = [
@@ -133,7 +135,13 @@ const brands = [
   "Bentley",
   "Rolls-Royce",
 ];
-const fuelTypes = ["Benzin", "Elektrik", "Hybrid", "Diesel"];
+const fuelTypes = [
+  "Benzin",
+  "Diesel",
+  "Hibrid Diesel",
+  "Hibrid Benzin",
+  "Elektrik",
+];
 
 export default function Dashboard() {
   // Prevent dashboard from being indexed by search engines
@@ -194,6 +202,7 @@ export default function Dashboard() {
     features: [""],
     description: "",
     status: "draft",
+    isFeatured: false,
   });
 
   const fileInputRef = useRef(null);
@@ -372,6 +381,7 @@ export default function Dashboard() {
       features: [""],
       description: "",
       status: "draft",
+      isFeatured: false,
     });
     setModalMode("add");
     setIsModalOpen(true);
@@ -502,11 +512,13 @@ export default function Dashboard() {
         }
       }
 
-      // Combine existing URLs with new uploads
+      // Combine existing URLs with new uploads and deduplicate
       const existingUrls = formData.images.filter(
-        (img) => !img.startsWith("blob:") && !img.startsWith("data:"),
+        (img) => img && !img.startsWith("blob:") && !img.startsWith("data:"),
       );
-      const allImages = [...existingUrls, ...uploadedImageUrls];
+      const allImages = [
+        ...new Set([...existingUrls, ...uploadedImageUrls]),
+      ].filter(Boolean);
 
       const cleanedFeatures = formData.features.filter((f) => f.trim() !== "");
 
@@ -533,6 +545,7 @@ export default function Dashboard() {
         description: formData.description,
         status: formData.status,
         showcaseImage: formData.showcaseImage,
+        isFeatured: formData.isFeatured,
         features: cleanedFeatures,
         images: allImages,
         slug: generateSlug(formData.name),
@@ -1950,6 +1963,9 @@ export default function Dashboard() {
                       <option value="active" className="bg-black">
                         {t.active}
                       </option>
+                      <option value="sold" className="bg-black">
+                        {t.sold}
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -2105,7 +2121,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Fuel Type
+                      Karburanti
                     </label>
                     <select
                       name="fuelType"
@@ -2421,6 +2437,27 @@ export default function Dashboard() {
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all resize-none"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 />
+              </div>
+
+              {/* Featured Checkbox */}
+              <div className="flex items-center gap-3 pt-4">
+                <input
+                  type="checkbox"
+                  name="isFeatured"
+                  id="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isFeatured: e.target.checked })
+                  }
+                  className="w-5 h-5 cursor-pointer accent-white"
+                />
+                <label
+                  htmlFor="isFeatured"
+                  className="text-sm uppercase tracking-widest text-white/70 cursor-pointer hover:text-white transition-colors"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  {t.addToFeatured}
+                </label>
               </div>
 
               {/* Actions */}

@@ -19,7 +19,7 @@ const Car = {
                c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
-               c.showcase_image, c.views, c.created_at, c.updated_at,
+               c.showcase_image, c.views, c.is_featured, c.created_at, c.updated_at,
                GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
                GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
         FROM cars c
@@ -66,6 +66,11 @@ const Car = {
         );
         const searchTerm = `%${filters.search}%`;
         params.push(searchTerm, searchTerm, searchTerm);
+      }
+
+      if (filters.isFeatured !== undefined) {
+        conditions.push("c.is_featured = ?");
+        params.push(filters.isFeatured);
       }
 
       if (conditions.length > 0) {
@@ -213,6 +218,7 @@ const Car = {
         description,
         status,
         showcaseImage,
+        isFeatured,
         images,
         features,
       } = carData;
@@ -222,8 +228,8 @@ const Car = {
           name, slug, tagline, category, brand, price, year, mileage,
           exterior_color, interior_color, engine, horsepower, torque,
           acceleration, top_speed, transmission, drivetrain, fuel_type,
-          mpg, vin, description, status, showcase_image
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          mpg, vin, description, status, showcase_image, is_featured
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           name,
           slug,
@@ -248,18 +254,34 @@ const Car = {
           description,
           status || "draft",
           showcaseImage || 0,
+          isFeatured || false,
         ],
       );
 
       const carId = result.insertId;
 
-      // Insert images
+      // Insert images - filter out empty/invalid URLs and remove duplicates
       if (images && images.length > 0) {
-        const imageValues = images.map((url, index) => [carId, url, index]);
-        await connection.query(
-          "INSERT INTO car_images (car_id, image_url, image_order) VALUES ?",
-          [imageValues],
+        const validImages = [...new Set(images)].filter(
+          (url) =>
+            url &&
+            typeof url === "string" &&
+            url.trim() !== "" &&
+            !url.startsWith("blob:") &&
+            !url.startsWith("data:"),
         );
+
+        if (validImages.length > 0) {
+          const imageValues = validImages.map((url, index) => [
+            carId,
+            url.trim(),
+            index,
+          ]);
+          await connection.query(
+            "INSERT INTO car_images (car_id, image_url, image_order) VALUES ?",
+            [imageValues],
+          );
+        }
       }
 
       // Insert features
@@ -317,6 +339,7 @@ const Car = {
         description,
         status,
         showcaseImage,
+        isFeatured,
         images,
         features,
       } = carData;
@@ -328,7 +351,7 @@ const Car = {
           interior_color = ?, engine = ?, horsepower = ?, torque = ?,
           acceleration = ?, top_speed = ?, transmission = ?, drivetrain = ?,
           fuel_type = ?, mpg = ?, vin = ?, description = ?, status = ?,
-          showcase_image = ?
+          showcase_image = ?, is_featured = ?
         WHERE id = ?`,
         [
           name,
@@ -354,6 +377,7 @@ const Car = {
           description,
           status,
           showcaseImage || 0,
+          isFeatured || false,
           id,
         ],
       );
@@ -363,12 +387,28 @@ const Car = {
       await connection.query("DELETE FROM car_features WHERE car_id = ?", [id]);
 
       // Insert new images
+      // Insert images - filter out empty/invalid URLs and remove duplicates
       if (images && images.length > 0) {
-        const imageValues = images.map((url, index) => [id, url, index]);
-        await connection.query(
-          "INSERT INTO car_images (car_id, image_url, image_order) VALUES ?",
-          [imageValues],
+        const validImages = [...new Set(images)].filter(
+          (url) =>
+            url &&
+            typeof url === "string" &&
+            url.trim() !== "" &&
+            !url.startsWith("blob:") &&
+            !url.startsWith("data:"),
         );
+
+        if (validImages.length > 0) {
+          const imageValues = validImages.map((url, index) => [
+            id,
+            url.trim(),
+            index,
+          ]);
+          await connection.query(
+            "INSERT INTO car_images (car_id, image_url, image_order) VALUES ?",
+            [imageValues],
+          );
+        }
       }
 
       // Insert new features
@@ -428,7 +468,14 @@ const Car = {
       return cache.featured.slice(0, limit);
     }
 
-    const result = await this.getAll({ status: "active", limit: 50 });
+    // Get cars marked as featured, or fall back to active cars if none are featured
+    let result = await this.getAll({ isFeatured: true, limit: 50 });
+
+    // If no featured cars, fall back to active cars
+    if (!result || result.length === 0) {
+      result = await this.getAll({ status: "active", limit: 50 });
+    }
+
     // Cache the result
     cache.featured = result;
     cache.featuredExpiry = Date.now() + CACHE_TTL;

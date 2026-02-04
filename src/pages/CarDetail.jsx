@@ -509,6 +509,15 @@ export default function CarDetail() {
                   >
                     {car.category}
                   </span>
+                  {/* Sold Badge */}
+                  {car.status === "sold" && (
+                    <span
+                      className="px-4 py-1.5 bg-red-600 rounded-full text-xs font-bold tracking-[0.2em] uppercase text-white"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      I Shitur
+                    </span>
+                  )}
                 </div>
 
                 {/* Car Name */}

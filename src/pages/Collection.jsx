@@ -739,6 +739,17 @@ export default function Collection() {
                           alt={car.name}
                           className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105"
                         />
+                        {/* Sold Badge */}
+                        {car.status === "sold" && (
+                          <div className="absolute top-3 right-3 px-3 py-1.5 bg-red-600 rounded-full z-10">
+                            <span
+                              className="text-xs font-bold text-white tracking-wider uppercase"
+                              style={{ fontFamily: "Montserrat, sans-serif" }}
+                            >
+                              I Shitur
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Content Below Image */}
