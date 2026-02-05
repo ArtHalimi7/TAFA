@@ -1,6 +1,5 @@
 import React from "react";
 import Hero from "../components/Hero";
-import Showcase from "../components/Showcase";
 import FeaturedCollection from "../components/FeaturedCollection";
 import TheStandard from "../components/TheStandard";
 import WhyCurated from "../components/WhyCurated";
@@ -14,7 +13,6 @@ const Home = () => {
   return (
     <>
       <Hero />
-      <Showcase />
       <FeaturedCollection />
       <WhyCurated />
       <TheStandard />

@@ -659,37 +659,6 @@ export default function Dashboard() {
     }
   };
 
-  // Toggle car showcase status (only one car can be showcase at a time)
-  const toggleShowcase = async (car) => {
-    try {
-      const newShowcaseStatus = !car.isShowcase;
-      const response = await carsApi.updateCar(car.id, {
-        ...car,
-        isShowcase: newShowcaseStatus,
-      });
-      if (response.success) {
-        // If setting a car as showcase, remove showcase from all others
-        setCars((prev) =>
-          prev.map((c) =>
-            c.id === car.id
-              ? { ...c, isShowcase: newShowcaseStatus }
-              : newShowcaseStatus
-                ? { ...c, isShowcase: false }
-                : c,
-          ),
-        );
-        showNotification(
-          newShowcaseStatus
-            ? "Automjeti u vendos në Podium!"
-            : "Automjeti u hoq nga Podium!",
-        );
-      }
-    } catch (error) {
-      console.error("Gabim gjatë ndryshimit të podiumit:", error);
-      showNotification("Ndryshimi dështoi", "error");
-    }
-  };
-
   // Toggle car sold status
   const toggleSoldStatus = async (car) => {
     try {
@@ -1599,34 +1568,6 @@ export default function Dashboard() {
                             )}
                           </div>
                           <div className="flex items-center gap-2">
-                            {/* Showcase (Podium) Indicator */}
-                            <button
-                              onClick={() => toggleShowcase(car)}
-                              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
-                                car.isShowcase
-                                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 ring-1 ring-amber-400/50"
-                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-amber-400"
-                              }`}
-                              title={
-                                car.isShowcase
-                                  ? "Hiq nga Podium"
-                                  : "Vendos në Podium"
-                              }
-                            >
-                              <svg
-                                className="w-4 h-4"
-                                fill={car.isShowcase ? "currentColor" : "none"}
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={1.5}
-                                  d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"
-                                />
-                              </svg>
-                            </button>
                             {/* Featured Indicator */}
                             <button
                               onClick={() => toggleFeatured(car)}
@@ -1853,35 +1794,6 @@ export default function Dashboard() {
                                   strokeLinejoin="round"
                                   strokeWidth={1.5}
                                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                />
-                              </svg>
-                            </button>
-
-                            {/* Showcase (Podium) Indicator */}
-                            <button
-                              onClick={() => toggleShowcase(car)}
-                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
-                                car.isShowcase
-                                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 ring-1 ring-amber-400/50"
-                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-amber-400"
-                              }`}
-                              title={
-                                car.isShowcase
-                                  ? "Hiq nga Podium"
-                                  : "Vendos në Podium"
-                              }
-                            >
-                              <svg
-                                className="w-5 h-5"
-                                fill={car.isShowcase ? "currentColor" : "none"}
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={1.5}
-                                  d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"
                                 />
                               </svg>
                             </button>
