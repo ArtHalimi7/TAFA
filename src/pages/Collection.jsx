@@ -157,12 +157,12 @@ const ITEMS_PER_PAGE = 6;
 // Helper to get saved filters from localStorage
 const getSavedFilters = () => {
   try {
-    const saved = localStorage.getItem('collectionFilters');
+    const saved = localStorage.getItem("collectionFilters");
     if (saved) {
       return JSON.parse(saved);
     }
   } catch (e) {
-    console.error('Error reading filters from localStorage:', e);
+    console.error("Error reading filters from localStorage:", e);
   }
   return null;
 };
@@ -177,19 +177,31 @@ export default function Collection() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(true);
   const [allCars, setAllCars] = useState([]);
-  const [selectedBrands, setSelectedBrands] = useState(savedFilters?.selectedBrands || []);
-  const [selectedCategory, setSelectedCategory] = useState(savedFilters?.selectedCategory || "Të gjitha");
-  const [selectedPriceRange, setSelectedPriceRange] = useState(
-    savedFilters?.selectedPriceRange 
-      ? priceRanges.find(r => r.label === savedFilters.selectedPriceRange.label) || priceRanges[0]
-      : priceRanges[0]
+  const [selectedBrands, setSelectedBrands] = useState(
+    savedFilters?.selectedBrands || [],
   );
-  const [selectedYear, setSelectedYear] = useState(savedFilters?.selectedYear || "Të gjitha vitet");
-  const [selectedFuelType, setSelectedFuelType] = useState(savedFilters?.selectedFuelType || "Të gjitha");
+  const [selectedCategory, setSelectedCategory] = useState(
+    savedFilters?.selectedCategory || "Të gjitha",
+  );
+  const [selectedPriceRange, setSelectedPriceRange] = useState(
+    savedFilters?.selectedPriceRange
+      ? priceRanges.find(
+          (r) => r.label === savedFilters.selectedPriceRange.label,
+        ) || priceRanges[0]
+      : priceRanges[0],
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    savedFilters?.selectedYear || "Të gjitha vitet",
+  );
+  const [selectedFuelType, setSelectedFuelType] = useState(
+    savedFilters?.selectedFuelType || "Të gjitha",
+  );
   const [sortBy, setSortBy] = useState(savedFilters?.sortBy || "featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filteredCars, setFilteredCars] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(savedFilters?.searchQuery || "");
+  const [searchQuery, setSearchQuery] = useState(
+    savedFilters?.searchQuery || "",
+  );
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -204,8 +216,16 @@ export default function Collection() {
       sortBy,
       searchQuery,
     };
-    localStorage.setItem('collectionFilters', JSON.stringify(filters));
-  }, [selectedBrands, selectedCategory, selectedPriceRange, selectedYear, selectedFuelType, sortBy, searchQuery]);
+    localStorage.setItem("collectionFilters", JSON.stringify(filters));
+  }, [
+    selectedBrands,
+    selectedCategory,
+    selectedPriceRange,
+    selectedYear,
+    selectedFuelType,
+    sortBy,
+    searchQuery,
+  ]);
 
   // Fetch cars from backend
   useEffect(() => {
@@ -882,17 +902,17 @@ export default function Collection() {
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
                   className="w-full px-4 py-3 bg-transparent border border-white/20 rounded-lg text-white/90 text-sm appearance-none cursor-pointer focus:outline-none focus:border-white/40 transition-all duration-300"
-                  style={{ 
+                  style={{
                     fontFamily: "Montserrat, sans-serif",
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.5)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 12px center',
-                    backgroundSize: '20px'
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "right 12px center",
+                    backgroundSize: "20px",
                   }}
                 >
                   {years.map((year) => (
-                    <option 
-                      key={year} 
+                    <option
+                      key={year}
                       value={year}
                       className="bg-black text-white"
                     >
