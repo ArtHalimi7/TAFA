@@ -18,7 +18,7 @@ export default function WhyCurated() {
       ([entry]) => {
         if (entry.isIntersecting) setIsVisible(true);
       },
-      { threshold: 0.2 },
+      { threshold: 0.05 },
     );
 
     if (sectionRef.current) observer.observe(sectionRef.current);
@@ -73,22 +73,8 @@ export default function WhyCurated() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-32 lg:py-48 bg-[#1a1a1a] text-white overflow-hidden"
+      className="relative py-20 lg:py-32 bg-[#1a1a1a] text-white overflow-hidden"
     >
-      {/* Subtle background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div
-          className={`absolute -top-1/4 -right-1/4 w-200 h-200 rounded-full bg-white/8 blur-3xl transition-all duration-[2s] ${
-            isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50"
-          }`}
-        />
-        <div
-          className={`absolute -bottom-1/4 -left-1/4 w-150 h-150 rounded-full bg-white/6 blur-3xl transition-all duration-[2s] delay-300 ${
-            isVisible ? "opacity-100 scale-100" : "opacity-0 scale-50"
-          }`}
-        />
-      </div>
-
       <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
         {/* Header with Logo */}
         <div className="grid lg:grid-cols-3 gap-12 items-start mb-20 lg:mb-32">
