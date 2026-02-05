@@ -13,10 +13,14 @@ export default function TheStandard() {
   }, []);
 
   const statsData = [
-    { value: 500, suffix: "+", label: "Automjete të përzgjedhura individualisht" },
     {
-      value: 20,
-      suffix: " Vite",
+      value: 500,
+      suffix: "+",
+      label: "Automjete të përzgjedhura individualisht",
+    },
+    {
+      value: 25,
+      suffix: "+ Vite",
       label: "Ekselencë në Industrinë Automobilistike",
     },
     { value: 12, suffix: " Marka", label: "Vetëm Emra të Besueshëm" },
@@ -29,7 +33,10 @@ export default function TheStandard() {
       title: "Ekskluzivitet",
       description: "Vetëm më të mirat kalojnë filtrin",
     },
-    { title: "Shërbim", description: "Mbështetje e drejtpërdrejtë dhe e qartë" },
+    {
+      title: "Shërbim",
+      description: "Mbështetje e drejtpërdrejtë dhe e qartë",
+    },
   ];
 
   return (
@@ -71,8 +78,8 @@ export default function TheStandard() {
                     </p>
                     <p className="text-sm lg:text-base text-white/60 leading-relaxed">
                       Çdo automjet në koleksionin tonë i nënshtrohet një procesi
-                      rigoroz të përzgjedhjes dhe inspektimit për të siguruar
-                      që vetëm më të mirat të bëhen pjesë e ofertës sonë
+                      rigoroz të përzgjedhjes dhe inspektimit për të siguruar që
+                      vetëm më të mirat të bëhen pjesë e ofertës sonë
                       ekskluzive.
                     </p>
                   </div>

@@ -63,7 +63,7 @@ export default function About() {
     if (statsVisible) {
       const duration = 2000;
       const startTime = Date.now();
-      const targets = { years: 20, cars: 500, clients: 1200, brands: 12 };
+      const targets = { years: 25, cars: 500, clients: 1200, brands: 12 };
 
       const animate = () => {
         const progress = Math.min((Date.now() - startTime) / duration, 1);
@@ -144,7 +144,7 @@ export default function About() {
                 className="text-xs tracking-[0.3em] uppercase text-white/60"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Themeluar në 2006 — Gjilan, Kosovë
+                Themeluar në 2002 — Gjilan, Kosovë
               </span>
             </div>
 
@@ -250,8 +250,8 @@ export default function About() {
                       fontWeight: 300,
                     }}
                   >
-                    Çdo automjet përzgjidhet mbi bazën e cilësisë, historikut dhe gjendjes.
-                    Asgjë më pak se maksimumi.
+                    Çdo automjet përzgjidhet mbi bazën e cilësisë, historikut
+                    dhe gjendjes. Asgjë më pak se maksimumi.
                   </p>
 
                   {/* Minimal accent */}
@@ -261,7 +261,7 @@ export default function About() {
                       className="text-sm text-white/40 tracking-wider"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      Që nga 2006
+                      Që nga 2002
                     </span>
                   </div>
                 </div>
@@ -364,15 +364,15 @@ export default function About() {
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <p className="text-lg leading-relaxed">
-                  Në vitin 2006, në zemrën e Kosovës, AUTO TAFA  hapi dyert
-                  me një vizion që shkonte përtej shitjes së automjeteve. Ne
-                  vendosëm të krijonim një një vend për ata që kërkojnë më shumë 
+                  Që nga viti 2002, në zemrën e Kosovës, AUTO TAFA hapi dyert me
+                  një vizion që shkonte përtej shitjes së automjeteve. Ne
+                  vendosëm të krijonim një një vend për ata që kërkojnë më shumë
                   se një makinë të zakonshme.
                 </p>
                 <p className="text-lg leading-relaxed">
                   Që nga dita e parë, ne funksionuam sipas një parimi të
-                  thjeshtë: trajto çdo klient me respekt afatgjatë, dhe çdo automjet si
-                  një vepër arti.
+                  thjeshtë: trajto çdo klient me respekt afatgjatë, dhe çdo
+                  automjet si një vepër arti.
                 </p>
               </div>
               <div
@@ -386,8 +386,8 @@ export default function About() {
                   zgjaten për brezat.
                 </p>
                 <p className="text-lg leading-relaxed">
-                  Ne nuk shesim vetëm makina.. Ne ju ndihmojmë të gjeni atë 
-                  që përputhet me stilin tuaj.
+                  Ne nuk shesim vetëm makina.. Ne ju ndihmojmë të gjeni atë që
+                  përputhet me stilin tuaj.
                 </p>
               </div>
             </div>
@@ -530,13 +530,14 @@ export default function About() {
               className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mb-16 text-white/60"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <span className="text-lg">Hën — Sht: 9:00 – 19:00</span>
+              <span className="text-lg">Hënë — Shtunë: 9:00 – 19:00</span>
               <span className="hidden sm:block text-white/20">|</span>
               <span className="text-lg">+383 44 666 662</span>
             </div>
 
-            {/* CTA Button */}
-            <button
+            {/* CTA Button - link to contact form */}
+            <Link
+              to="/contact"
               className="group inline-flex items-center gap-4 px-12 py-5 bg-white text-black font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-neutral-100"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
@@ -554,7 +555,7 @@ export default function About() {
                   d="M17 8l4 4m0 0l-4 4m4-4H3"
                 />
               </svg>
-            </button>
+            </Link>
           </div>
         </div>
       </section>
