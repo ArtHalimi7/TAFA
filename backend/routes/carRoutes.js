@@ -53,6 +53,21 @@ router.get("/featured", async (req, res) => {
   }
 });
 
+// Get showcase car (the single most exclusive car)
+router.get("/showcase", async (req, res) => {
+  try {
+    const car = await Car.getShowcase();
+    res.json({ success: true, data: car });
+  } catch (error) {
+    console.error("Error in getShowcaseCar:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch showcase car",
+      error: error.message,
+    });
+  }
+});
+
 // Get dashboard stats
 router.get("/stats", async (req, res) => {
   try {

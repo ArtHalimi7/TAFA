@@ -61,6 +61,11 @@ export const carsApi = {
     return apiCall(`/cars/featured?limit=${limit}`);
   },
 
+  // Get showcase car (the single most exclusive car)
+  getShowcaseCar: async () => {
+    return apiCall("/cars/showcase");
+  },
+
   // Get car by slug (public)
   getCarBySlug: async (slug) => {
     return apiCall(`/cars/slug/${slug}`);

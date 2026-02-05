@@ -101,6 +101,20 @@ const initializeDatabase = async () => {
       }
     }
 
+    // Add is_showcase column if it doesn't exist (for the exclusive showcase car)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN is_showcase BOOLEAN DEFAULT false
+      `);
+      console.log("✅ Added is_showcase column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ is_showcase column already exists");
+      }
+    }
+
     // Add discount_price column if it doesn't exist
     try {
       await connection.query(`

@@ -4,6 +4,8 @@ const db = require("../config/db_connect");
 const cache = {
   featured: null,
   featuredExpiry: 0,
+  showcase: null,
+  showcaseExpiry: 0,
   stats: null,
   statsExpiry: 0,
 };
@@ -19,7 +21,7 @@ const Car = {
                c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
-               c.showcase_image, c.views, c.is_featured, c.created_at, c.updated_at,
+               c.showcase_image, c.views, c.is_featured, c.is_showcase, c.created_at, c.updated_at,
                GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
                GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
         FROM cars c
@@ -82,6 +84,11 @@ const Car = {
       if (filters.isFeatured !== undefined) {
         conditions.push("c.is_featured = ?");
         params.push(filters.isFeatured ? 1 : 0);
+      }
+
+      if (filters.isShowcase !== undefined) {
+        conditions.push("c.is_showcase = ?");
+        params.push(filters.isShowcase ? 1 : 0);
       }
 
       if (conditions.length > 0) {
@@ -240,17 +247,25 @@ const Car = {
         status,
         showcaseImage,
         isFeatured,
+        isShowcase,
         images,
         features,
       } = carData;
+
+      // If setting this car as showcase, remove showcase from all other cars first
+      if (isShowcase) {
+        await connection.query(
+          "UPDATE cars SET is_showcase = 0 WHERE is_showcase = 1",
+        );
+      }
 
       const [result] = await connection.query(
         `INSERT INTO cars (
           name, slug, tagline, category, brand, price, discount_price, year, mileage,
           exterior_color, interior_color, engine, horsepower, torque,
           acceleration, top_speed, transmission, drivetrain, fuel_type,
-          mpg, vin, description, status, showcase_image, is_featured
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          mpg, vin, description, status, showcase_image, is_featured, is_showcase
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           name,
           slug,
@@ -277,6 +292,7 @@ const Car = {
           status || "draft",
           showcaseImage || 0,
           isFeatured ? 1 : 0,
+          isShowcase ? 1 : 0,
         ],
       );
 
@@ -363,9 +379,18 @@ const Car = {
         status,
         showcaseImage,
         isFeatured,
+        isShowcase,
         images,
         features,
       } = carData;
+
+      // If setting this car as showcase, remove showcase from all other cars first
+      if (isShowcase) {
+        await connection.query(
+          "UPDATE cars SET is_showcase = 0 WHERE is_showcase = 1 AND id != ?",
+          [id],
+        );
+      }
 
       await connection.query(
         `UPDATE cars SET
@@ -374,7 +399,7 @@ const Car = {
           interior_color = ?, engine = ?, horsepower = ?, torque = ?,
           acceleration = ?, top_speed = ?, transmission = ?, drivetrain = ?,
           fuel_type = ?, mpg = ?, vin = ?, description = ?, status = ?,
-          showcase_image = ?, is_featured = ?
+          showcase_image = ?, is_featured = ?, is_showcase = ?
         WHERE id = ?`,
         [
           name,
@@ -402,6 +427,7 @@ const Car = {
           status,
           showcaseImage || 0,
           isFeatured ? 1 : 0,
+          isShowcase ? 1 : 0,
           id,
         ],
       );
@@ -502,6 +528,22 @@ const Car = {
     return cache.featured.slice(0, limit);
   },
 
+  // Get the showcase car (the single most exclusive car)
+  async getShowcase() {
+    // Check cache
+    if (cache.showcase && cache.showcaseExpiry > Date.now()) {
+      return cache.showcase;
+    }
+
+    // Get the car marked as showcase (only one can exist)
+    const result = await this.getAll({ isShowcase: true, limit: 1 });
+
+    // Cache the result (even if empty/null)
+    cache.showcase = result && result.length > 0 ? result[0] : null;
+    cache.showcaseExpiry = Date.now() + CACHE_TTL;
+    return cache.showcase;
+  },
+
   // Get stats for dashboard with caching
   async getStats() {
     // Check cache
@@ -547,6 +589,8 @@ const Car = {
   _invalidateCache() {
     cache.featured = null;
     cache.featuredExpiry = 0;
+    cache.showcase = null;
+    cache.showcaseExpiry = 0;
     cache.stats = null;
     cache.statsExpiry = 0;
   },

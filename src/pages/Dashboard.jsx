@@ -110,6 +110,7 @@ const t = {
   clickToUploadImages: "Kliko për të ngarkuar imazhe",
   basicInfo: "Informacion Bazë",
   addToFeatured: "Shtoje te veturat e vequara",
+  addToShowcase: "Vendos në Podium (Ekskluzive)",
 };
 
 const categories = [
@@ -205,6 +206,7 @@ export default function Dashboard() {
     description: "",
     status: "draft",
     isFeatured: false,
+    isShowcase: false,
   });
 
   const fileInputRef = useRef(null);
@@ -236,6 +238,8 @@ export default function Dashboard() {
           showcaseImage: car.showcase_image,
           // Convert is_featured to boolean (MySQL returns 0/1)
           isFeatured: car.is_featured === 1 || car.is_featured === true,
+          // Convert is_showcase to boolean (MySQL returns 0/1)
+          isShowcase: car.is_showcase === 1 || car.is_showcase === true,
           createdAt: car.created_at,
           views: car.views || 0,
         }));
@@ -387,6 +391,7 @@ export default function Dashboard() {
       description: "",
       status: "draft",
       isFeatured: false,
+      isShowcase: false,
     });
     setModalMode("add");
     setIsModalOpen(true);
@@ -559,6 +564,7 @@ export default function Dashboard() {
         status: formData.status,
         showcaseImage: formData.showcaseImage,
         isFeatured: formData.isFeatured,
+        isShowcase: formData.isShowcase,
         features: cleanedFeatures,
         images: allImages,
         slug: generateSlug(formData.name),
@@ -649,6 +655,37 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error("Gabim gjatë ndryshimit të veçimit:", error);
+      showNotification("Ndryshimi dështoi", "error");
+    }
+  };
+
+  // Toggle car showcase status (only one car can be showcase at a time)
+  const toggleShowcase = async (car) => {
+    try {
+      const newShowcaseStatus = !car.isShowcase;
+      const response = await carsApi.updateCar(car.id, {
+        ...car,
+        isShowcase: newShowcaseStatus,
+      });
+      if (response.success) {
+        // If setting a car as showcase, remove showcase from all others
+        setCars((prev) =>
+          prev.map((c) =>
+            c.id === car.id
+              ? { ...c, isShowcase: newShowcaseStatus }
+              : newShowcaseStatus
+                ? { ...c, isShowcase: false }
+                : c,
+          ),
+        );
+        showNotification(
+          newShowcaseStatus
+            ? "Automjeti u vendos në Podium!"
+            : "Automjeti u hoq nga Podium!",
+        );
+      }
+    } catch (error) {
+      console.error("Gabim gjatë ndryshimit të podiumit:", error);
       showNotification("Ndryshimi dështoi", "error");
     }
   };
@@ -1562,6 +1599,34 @@ export default function Dashboard() {
                             )}
                           </div>
                           <div className="flex items-center gap-2">
+                            {/* Showcase (Podium) Indicator */}
+                            <button
+                              onClick={() => toggleShowcase(car)}
+                              className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                                car.isShowcase
+                                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 ring-1 ring-amber-400/50"
+                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-amber-400"
+                              }`}
+                              title={
+                                car.isShowcase
+                                  ? "Hiq nga Podium"
+                                  : "Vendos në Podium"
+                              }
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill={car.isShowcase ? "currentColor" : "none"}
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"
+                                />
+                              </svg>
+                            </button>
                             {/* Featured Indicator */}
                             <button
                               onClick={() => toggleFeatured(car)}
@@ -1788,6 +1853,35 @@ export default function Dashboard() {
                                   strokeLinejoin="round"
                                   strokeWidth={1.5}
                                   d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            </button>
+
+                            {/* Showcase (Podium) Indicator */}
+                            <button
+                              onClick={() => toggleShowcase(car)}
+                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
+                                car.isShowcase
+                                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 ring-1 ring-amber-400/50"
+                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-amber-400"
+                              }`}
+                              title={
+                                car.isShowcase
+                                  ? "Hiq nga Podium"
+                                  : "Vendos në Podium"
+                              }
+                            >
+                              <svg
+                                className="w-5 h-5"
+                                fill={car.isShowcase ? "currentColor" : "none"}
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={1.5}
+                                  d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"
                                 />
                               </svg>
                             </button>
@@ -2677,11 +2771,66 @@ export default function Dashboard() {
                 />
                 <label
                   htmlFor="isFeatured"
-                  className="text-sm uppercase tracking-widest text-white/70 cursor-pointer hover:text-white transition-colors"
+                  className="text-sm uppercase tracking-widest text-white/70 cursor-pointer hover:text-white transition-colors flex items-center gap-2"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
+                  <svg
+                    className="w-4 h-4"
+                    fill={formData.isFeatured ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                    />
+                  </svg>
                   {t.addToFeatured}
                 </label>
+              </div>
+
+              {/* Showcase Checkbox (The Podium - Exclusive) */}
+              <div className="flex items-center gap-3 p-4 bg-linear-to-r from-amber-500/10 to-transparent border border-amber-500/20 rounded-xl">
+                <input
+                  type="checkbox"
+                  name="isShowcase"
+                  id="isShowcase"
+                  checked={formData.isShowcase}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isShowcase: e.target.checked })
+                  }
+                  className="w-5 h-5 cursor-pointer accent-amber-400"
+                />
+                <label
+                  htmlFor="isShowcase"
+                  className="text-sm uppercase tracking-widest text-amber-300 cursor-pointer hover:text-amber-200 transition-colors flex items-center gap-2"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill={formData.isShowcase ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"
+                    />
+                  </svg>
+                  {t.addToShowcase}
+                </label>
+                {formData.isShowcase && (
+                  <span
+                    className="ml-auto text-xs text-amber-400/70"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    Vetëm 1 automjet mund të jetë në Podium
+                  </span>
+                )}
               </div>
 
               {/* Actions */}
