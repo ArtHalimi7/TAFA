@@ -190,7 +190,7 @@ export default function Contact() {
     },
     {
       label: "Orari",
-      value: "Hën - Sht: 9:00 - 19:00",
+      value: "Hënë - Shtunë: 9:00 - 19:00",
       icon: (
         <svg
           className="w-5 h-5"

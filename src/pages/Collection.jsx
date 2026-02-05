@@ -12,6 +12,17 @@ import audiLogo from "../assets/images/audi.png";
 import lamboLogo from "../assets/images/lambo.png";
 import ferrariLogo from "../assets/images/ferrari.png";
 import porscheLogo from "../assets/images/porsche.png";
+import bugattiLogo from "../assets/images/bugatti.png";
+import alfaLogo from "../assets/images/alfa.png";
+import bentleyLogo from "../assets/images/bentley.png";
+import citroenLogo from "../assets/images/citroen.png";
+import landroverLogo from "../assets/images/landrover.png";
+import peugeotLogo from "../assets/images/peugeot.png";
+import renaultLogo from "../assets/images/renault.png";
+import rollsroyceLogo from "../assets/images/rollsroyce.png";
+import teslaLogo from "../assets/images/tesla.png";
+import volvoLogo from "../assets/images/volvo.png";
+import vwLogo from "../assets/images/vw.png";
 
 // API Base URL for images
 const API_BASE_URL =
@@ -29,13 +40,61 @@ const getImageUrl = (path) => {
   return `${API_BASE_URL}${path}`;
 };
 
-const brands = [
-  { name: "Ferrari", logo: ferrariLogo },
-  { name: "Mercedes", logo: mercedesLogo },
-  { name: "Lamborghini", logo: lamboLogo },
-  { name: "BMW", logo: bmwLogo, filter: true },
-  { name: "Porsche", logo: porscheLogo },
-  { name: "Audi", logo: audiLogo },
+// Brand logos mapping - add more logos here as they become available
+const brandLogos = {
+  Mercedes: { logo: mercedesLogo },
+  BMW: { logo: bmwLogo, filter: true },
+  Audi: { logo: audiLogo },
+  Volkswagen: { logo: vwLogo },
+  Porsche: { logo: porscheLogo },
+  "Alfa Romeo": { logo: alfaLogo },
+  Bentley: { logo: bentleyLogo },
+  Bugatti: { logo: bugattiLogo },
+  Citroen: { logo: citroenLogo },
+  Ferrari: { logo: ferrariLogo },
+  Lamborghini: { logo: lamboLogo },
+  "Land Rover": { logo: landroverLogo },
+  Peugeot: { logo: peugeotLogo },
+  Renault: { logo: renaultLogo },
+  "Rolls-Royce": { logo: rollsroyceLogo },
+  Tesla: { logo: teslaLogo },
+  Volvo: { logo: volvoLogo },
+};
+
+// All supported brands (will only show if car exists AND logo exists)
+const allBrands = [
+  "Mercedes",
+  "BMW",
+  "Audi",
+  "Volkswagen",
+  "Porsche",
+  "Alfa Romeo",
+  "Alpine",
+  "Aston Martin",
+  "Bentley",
+  "Bugatti",
+  "Citroen",
+  "Cupra",
+  "DS",
+  "Ferrari",
+  "Fiat",
+  "Jaguar",
+  "Lamborghini",
+  "Land Rover",
+  "Lotus",
+  "Maserati",
+  "McLaren",
+  "Mini",
+  "Opel",
+  "Pagani",
+  "Peugeot",
+  "Renault",
+  "Rolls-Royce",
+  "Seat",
+  "Skoda",
+  "Smart",
+  "Tesla",
+  "Volvo",
 ];
 
 const categories = [
@@ -56,6 +115,15 @@ const priceRanges = [
 ];
 
 const years = ["Të gjitha vitet", "2024", "2023", "2022", "2021"];
+
+const fuelTypes = [
+  "Të gjitha",
+  "Benzin",
+  "Diesel",
+  "Hibrid Diesel",
+  "Hibrid Benzin",
+  "Elektrik",
+];
 
 const sortOptions = [
   { value: "featured", label: "Sipas relevancës" },
@@ -78,13 +146,13 @@ export default function Collection() {
   const [selectedCategory, setSelectedCategory] = useState("Të gjitha");
   const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
   const [selectedYear, setSelectedYear] = useState("Të gjitha vitet");
+  const [selectedFuelType, setSelectedFuelType] = useState("Të gjitha");
   const [sortBy, setSortBy] = useState("featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filteredCars, setFilteredCars] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [fetchError, setFetchError] = useState(null);
 
   // Fetch cars from backend
   useEffect(() => {
@@ -107,7 +175,6 @@ export default function Collection() {
         }
       } catch (error) {
         console.error("Error fetching cars:", error);
-        setFetchError("Ngarkimi i automjeteve dështoi");
       } finally {
         setIsContentLoading(false);
       }
@@ -155,6 +222,11 @@ export default function Collection() {
       result = result.filter((car) => car.year === parseInt(selectedYear));
     }
 
+    // Filter by fuel type
+    if (selectedFuelType !== "Të gjitha") {
+      result = result.filter((car) => car.fuel_type === selectedFuelType);
+    }
+
     // Sort
     switch (sortBy) {
       case "price-low":
@@ -174,7 +246,6 @@ export default function Collection() {
         break;
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilteredCars(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [
@@ -183,6 +254,7 @@ export default function Collection() {
     selectedCategory,
     selectedPriceRange,
     selectedYear,
+    selectedFuelType,
     sortBy,
     searchQuery,
   ]);
@@ -218,15 +290,29 @@ export default function Collection() {
     setSelectedCategory("Të gjitha");
     setSelectedPriceRange(priceRanges[0]);
     setSelectedYear("Të gjitha vitet");
+    setSelectedFuelType("Të gjitha");
     setSortBy("featured");
     setSearchQuery("");
   };
+
+  // Filter brands to only show those that have cars AND have logos
+  const availableBrands = allBrands
+    .filter(
+      (brandName) =>
+        allCars.some((car) => car.brand === brandName) && brandLogos[brandName],
+    )
+    .map((brandName) => ({
+      name: brandName,
+      logo: brandLogos[brandName].logo,
+      filter: brandLogos[brandName].filter || false,
+    }));
 
   const activeFiltersCount =
     selectedBrands.length +
     (selectedCategory !== "Të gjitha" ? 1 : 0) +
     (selectedPriceRange.label !== "Të gjitha çmimet" ? 1 : 0) +
     (selectedYear !== "Të gjitha vitet" ? 1 : 0) +
+    (selectedFuelType !== "Të gjitha" ? 1 : 0) +
     (searchQuery.trim() ? 1 : 0);
 
   const formatPrice = (price) => {
@@ -402,7 +488,7 @@ export default function Collection() {
 
               {/* Brand Filters */}
               <div className="flex items-center gap-3">
-                {brands.map((brand) => (
+                {availableBrands.map((brand) => (
                   <button
                     key={brand.name}
                     onClick={() => toggleBrand(brand.name)}
@@ -526,6 +612,12 @@ export default function Collection() {
 
             {/* Category Pills */}
             <div className="hidden lg:flex items-center gap-3 mt-6">
+              <span
+                className="text-xs uppercase tracking-wider text-white/50 mr-2"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Kategoria:
+              </span>
               {categories.map((category) => (
                 <button
                   key={category}
@@ -538,6 +630,30 @@ export default function Collection() {
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {category}
+                </button>
+              ))}
+            </div>
+
+            {/* Fuel Type Pills */}
+            <div className="hidden lg:flex items-center gap-3 mt-4">
+              <span
+                className="text-xs uppercase tracking-wider text-white/50 mr-2"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Karburanti:
+              </span>
+              {fuelTypes.map((fuel) => (
+                <button
+                  key={fuel}
+                  onClick={() => setSelectedFuelType(fuel)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    selectedFuelType === fuel
+                      ? "bg-white text-black"
+                      : "border border-white/20 text-white/70 hover:border-white/40 hover:text-white"
+                  }`}
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  {fuel}
                 </button>
               ))}
             </div>
@@ -559,7 +675,7 @@ export default function Collection() {
                   Markat
                 </h3>
                 <div className="grid grid-cols-3 gap-3">
-                  {brands.map((brand) => (
+                  {availableBrands.map((brand) => (
                     <button
                       key={brand.name}
                       onClick={() => toggleBrand(brand.name)}
@@ -618,6 +734,32 @@ export default function Collection() {
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Fuel Type */}
+              <div>
+                <h3
+                  className="text-sm font-semibold uppercase tracking-wider mb-4"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  Karburanti
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {fuelTypes.map((fuel) => (
+                    <button
+                      key={fuel}
+                      onClick={() => setSelectedFuelType(fuel)}
+                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+                        selectedFuelType === fuel
+                          ? "bg-white text-black"
+                          : "border border-white/20 text-white/70"
+                      }`}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      {fuel}
                     </button>
                   ))}
                 </div>
@@ -929,7 +1071,7 @@ export default function Collection() {
               className="text-center text-white/40 text-sm mt-6"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Tregohen {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+              Duke treguar {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
               {Math.min(currentPage * ITEMS_PER_PAGE, filteredCars.length)} nga{" "}
               {filteredCars.length} automjete
             </p>

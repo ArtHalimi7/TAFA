@@ -42,16 +42,16 @@ export default function CustomSourcing() {
               className="text-4xl font-bold text-white mb-6"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Çfarë është Furnizimi Custom?
+              Çfarë është Furnizimi sipas kërkesës?
             </h2>
             <p
               className="text-white/80 text-lg leading-relaxed mb-4"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Furnizimi custom është një shërbim eksklusiv i AUTO TAFA ku ne
-              punojmë drejtpërdrejtë me ju për të gjetur dhe siguruar makinën e
-              përsosur sipas kërkesave dhe buxhetit tuaj. Pavarësisht nëse jeni
-              duke kërkuar një model të veçantë, vit specifik, ose
+              Furnizimi sipas kërkesës është një shërbim eksklusiv i AUTO TAFA
+              ku ne punojmë drejtpërdrejtë me ju për të gjetur dhe siguruar
+              makinën e përsosur sipas kërkesave dhe buxhetit tuaj. Pavarësisht
+              nëse jeni duke kërkuar një model të veçantë, vit specifik, ose
               karakteristika të caktuara, ekipi ynë i dedikuar do të sigurojë që
               të gjeni atë.
             </p>

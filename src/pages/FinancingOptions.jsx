@@ -55,7 +55,7 @@ export default function FinancingOptions() {
               className="text-4xl font-bold text-white mb-6"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Financim i Adaptuar për Juaj
+              Financim i Adaptuar për Ju
             </h2>
             <p
               className="text-white/80 text-lg leading-relaxed"
