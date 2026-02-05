@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const compression = require("compression");
+const cookieParser = require("cookie-parser");
 
 // Load .env from parent folder (local dev) or use Render's environment variables (production)
 if (process.env.NODE_ENV !== "production") {
@@ -14,6 +15,7 @@ const { initializeDatabase } = require("./config/db_init");
 const carRoutes = require("./routes/carRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -48,6 +50,8 @@ app.use(
 );
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+// Parse cookies for session handling
+app.use(cookieParser());
 
 // Serve static files from uploads directory
 app.use("/uploads", express.static(uploadsDir));
@@ -104,6 +108,7 @@ app.get("/api/health", async (req, res) => {
 app.use("/api/cars", carRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/auth", authRoutes);
 
 // 404 handler
 app.use((req, res) => {

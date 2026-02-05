@@ -183,6 +183,21 @@ export default function Dashboard() {
   const [pinError, setPinError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const pinInputRef = useRef(null);
+  // 2FA states
+  const [isPinValidated, setIsPinValidated] = useState(false); // PIN was correct but awaiting 2FA
+  const [adminEmail, setAdminEmail] = useState(
+    import.meta.env.VITE_ADMIN_EMAIL ||
+      localStorage.getItem("tafa_admin_email") ||
+      "",
+  );
+  const [twoFAToken, setTwoFAToken] = useState(null);
+  const [is2FASent, setIs2FASent] = useState(false);
+  const [twoFAInput, setTwoFAInput] = useState("");
+  const [twoFAError, setTwoFAError] = useState("");
+  const [sending2FA, setSending2FA] = useState(false);
+  const emailInputRef = useRef(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const resendTimerRef = useRef(null);
 
   const [cars, setCars] = useState([]);
   const [stats, setStats] = useState(null);
@@ -301,12 +316,22 @@ export default function Dashboard() {
   const handlePinSubmit = (e) => {
     e.preventDefault();
     if (pinInput === ADMIN_PIN) {
-      setIsDashboardLoading(true);
-      sessionStorage.setItem("tafa_admin_auth", "true");
-      setTimeout(() => {
-        setIsAuthenticated(true);
-        setIsDashboardLoading(false);
-      }, 1200);
+      // If device already verified for 2FA, proceed
+      const verified = localStorage.getItem("tafa_2fa_verified") === "true";
+      if (verified) {
+        setIsDashboardLoading(true);
+        sessionStorage.setItem("tafa_admin_auth", "true");
+        setTimeout(() => {
+          setIsAuthenticated(true);
+          setIsDashboardLoading(false);
+        }, 1200);
+      } else {
+        // PIN correct but 2FA required -> auto-send code to adminEmail
+        setIsPinValidated(true);
+        setPinError(false);
+        // send code automatically to configured admin email
+        send2FACode(adminEmail);
+      }
     } else {
       setPinError(true);
       setPinInput("");
@@ -314,11 +339,140 @@ export default function Dashboard() {
     }
   };
 
-  // Logout function
-  const handleLogout = () => {
+  // Request 2FA code from backend
+  const send2FACode = async (targetEmail, { force = false } = {}) => {
+    if (!targetEmail) {
+      setTwoFAError("Vendosni email.");
+      return;
+    }
+    if (resendCooldown > 0 && !force) {
+      setTwoFAError(`Përpiquni përsëri pas ${resendCooldown}s.`);
+      return;
+    }
+    setSending2FA(true);
+    setTwoFAError("");
+    try {
+      const resp = await fetch(`${API_BASE_URL}/api/auth/request-2fa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: targetEmail }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Failed to request 2FA");
+
+      // Backend returns a short-lived token identifying this request
+      setTwoFAToken(data.token || null);
+      setIs2FASent(true);
+      setAdminEmail(targetEmail);
+      localStorage.setItem("tafa_admin_email", targetEmail);
+      showNotification("Kodi 2FA u dërgua në email.");
+      setSending2FA(false);
+
+      // Start resend cooldown (60s)
+      setResendCooldown(60);
+      if (resendTimerRef.current) clearInterval(resendTimerRef.current);
+      resendTimerRef.current = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(resendTimerRef.current);
+            resendTimerRef.current = null;
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      setTimeout(() => emailInputRef.current?.blur(), 200);
+    } catch (err) {
+      console.error("2FA request failed:", err);
+      setTwoFAError("Dërgimi i kodit dështoi. Provoni përsëri.");
+      setSending2FA(false);
+    }
+  };
+
+  const verifyTwoFA = async (e) => {
+    e && e.preventDefault();
+    setTwoFAError("");
+    if (!twoFAToken) {
+      setTwoFAError(
+        "Tokeni i verifikimit mungon. Duke dërguar një kod të ri...",
+      );
+      send2FACode(adminEmail, { force: true });
+      return;
+    }
+    try {
+      const resp = await fetch(`${API_BASE_URL}/api/auth/verify-2fa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ token: twoFAToken, code: twoFAInput.trim() }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        // If token expired or invalid, request a new code
+        if (data && data.code === "EXPIRED") {
+          setTwoFAError("Kodi ka skaduar. Duke dërguar një kod të ri...");
+          send2FACode(adminEmail, { force: true });
+          return;
+        }
+        throw new Error(data.error || "Verification failed");
+      }
+
+      // Verified: server should set HttpOnly session cookie
+      localStorage.setItem("tafa_2fa_verified", "true");
+      sessionStorage.setItem("tafa_admin_auth", "true");
+      setTwoFAToken(null);
+      if (resendTimerRef.current) {
+        clearInterval(resendTimerRef.current);
+        resendTimerRef.current = null;
+      }
+      setResendCooldown(0);
+      setIsDashboardLoading(true);
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        setIsDashboardLoading(false);
+      }, 800);
+    } catch (err) {
+      console.error("2FA verify failed:", err);
+      setTwoFAError(
+        err.message || "Kodi është i papërshtatshëm. Provoni përsëri.",
+      );
+    }
+  };
+
+  // Logout function — calls backend to clear server session, then clears client state
+  const handleLogout = async () => {
+    try {
+      // Tell backend to clear server-side session cookie
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (err) {
+      // Non-fatal: still clear client state even if request fails
+      console.warn("Logout request failed:", err);
+    }
+
+    // Clear authentication and 2FA state from session/local storage
     sessionStorage.removeItem("tafa_admin_auth");
+    sessionStorage.removeItem("tafa_2fa_code");
+    sessionStorage.removeItem("tafa_2fa_exp");
+    sessionStorage.removeItem("tafa_2fa_email");
+    localStorage.removeItem("tafa_2fa_verified");
+    localStorage.removeItem("tafa_admin_email");
     setIsAuthenticated(false);
-    setPinInput(["", "", "", ""]);
+    setPinInput("");
+    setIsPinValidated(false);
+    setIs2FASent(false);
+    setTwoFAInput("");
+    setTwoFAError("");
+    setResendCooldown(0);
+    if (resendTimerRef.current) {
+      clearInterval(resendTimerRef.current);
+      resendTimerRef.current = null;
+    }
   };
 
   // Lock body scroll when modal is open
@@ -340,6 +494,16 @@ export default function Dashboard() {
       return () => clearTimeout(timer);
     }
   }, [notification]);
+
+  // Cleanup resend timer on unmount
+  useEffect(() => {
+    return () => {
+      if (resendTimerRef.current) {
+        clearInterval(resendTimerRef.current);
+        resendTimerRef.current = null;
+      }
+    };
+  }, []);
 
   const showNotification = (message, type = "success") => {
     setNotification({ message, type });
@@ -866,37 +1030,108 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* PIN Input */}
-            <form onSubmit={handlePinSubmit} className="mb-6">
-              <input
-                ref={pinInputRef}
-                type="password"
-                value={pinInput}
-                onChange={handlePinChange}
-                placeholder={t.enterPin}
-                className={`w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${
-                  pinError
-                    ? "border-red-500/50 text-red-400 animate-shake"
-                    : "border-white/10 text-white placeholder-white/30 focus:border-white/40"
-                }`}
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              />
-              <button
-                type="submit"
-                className="w-full mt-4 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-all duration-300 text-white"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                {t.unlock}
-              </button>
-            </form>
+            {/* PIN / 2FA Input */}
+            <div className="mb-6">
+              {!isPinValidated ? (
+                <form onSubmit={handlePinSubmit}>
+                  <input
+                    ref={pinInputRef}
+                    type="password"
+                    value={pinInput}
+                    onChange={handlePinChange}
+                    placeholder={t.enterPin}
+                    className={`w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${
+                      pinError
+                        ? "border-red-500/50 text-red-400 animate-shake"
+                        : "border-white/10 text-white placeholder-white/30 focus:border-white/40"
+                    }`}
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  />
+                  <button
+                    type="submit"
+                    className="w-full mt-4 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-all duration-300 text-white"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    {t.unlock}
+                  </button>
+                </form>
+              ) : (
+                <div>
+                  <p className="text-sm text-white/50 mb-3">
+                    Kodi 2FA do të dërgohet tek admini.
+                  </p>
+                  {sending2FA && (
+                    <p className="text-sm text-white/40 mb-3">
+                      Duke dërguar kodin...
+                    </p>
+                  )}
 
-            {/* Error Message */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      verifyTwoFA();
+                    }}
+                  >
+                    <label className="text-xs text-white/50 mb-2 block">
+                      Vendosni kodin 2FA
+                    </label>
+                    <input
+                      type="text"
+                      value={twoFAInput}
+                      onChange={(e) => setTwoFAInput(e.target.value)}
+                      placeholder="000000"
+                      className="w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border border-white/10 rounded-xl transition-all duration-300 focus:outline-none"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    />
+                    <button
+                      type="submit"
+                      className="w-full mt-4 px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium transition-all duration-300 text-white"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      Verifiko kodin
+                    </button>
+                  </form>
+
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => send2FACode(adminEmail)}
+                      disabled={sending2FA || resendCooldown > 0}
+                      className="flex-1 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white/60 hover:text-white"
+                    >
+                      {sending2FA
+                        ? "Duke dërguar..."
+                        : resendCooldown > 0
+                          ? `Rishpërnda (${resendCooldown}s)`
+                          : "Rishpërnda kodin"}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Error / Status Messages */}
             {pinError && (
               <p
-                className="text-center text-sm text-red-400 mb-6"
+                className="text-center text-sm text-red-400 mb-3"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 {t.incorrectPin}
+              </p>
+            )}
+            {twoFAError && (
+              <p
+                className="text-center text-sm text-red-400 mb-3"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                {twoFAError}
+              </p>
+            )}
+            {is2FASent && (
+              <p
+                className="text-center text-sm text-green-400 mb-3"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Kodi u dërgua tek admini (kontrolloni postën).
               </p>
             )}
 

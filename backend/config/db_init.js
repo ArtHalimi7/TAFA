@@ -210,6 +210,32 @@ const initializeDatabase = async () => {
     `);
     console.log("✅ Contact inquiries table ready");
 
+    // Create admin_2fa_requests table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS admin_2fa_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        token VARCHAR(128) NOT NULL UNIQUE,
+        email VARCHAR(255) NOT NULL,
+        code_hash VARCHAR(255) NOT NULL,
+        expires_at BIGINT NOT NULL,
+        attempts INT DEFAULT 0,
+        used BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✅ admin_2fa_requests table ready");
+
+    // Create admin_sessions table for server-side device sessions
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS admin_sessions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        session_token VARCHAR(128) NOT NULL UNIQUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        expires_at BIGINT NOT NULL
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log("✅ admin_sessions table ready");
+
     connection.release();
     console.log("✅ All database tables initialized successfully");
     return true;
