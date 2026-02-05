@@ -1,5 +1,5 @@
 # robots.txt for Auto TAFA
-# https://autotafa.com
+# https://autosallontafa.com
 
 User-agent: *
 Allow: /
@@ -9,7 +9,7 @@ Disallow: /dashboard
 Disallow: /dashboard/
 
 # Sitemap location
-Sitemap: https://autotafa.com/sitemap.xml
+Sitemap: https://autosallontafa.com/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1

@@ -46,6 +46,7 @@ export default function FeaturedCollection() {
             slug: car.slug,
             category: car.category,
             status: car.status,
+            isSold: car.isSold,
             price: car.price,
             discountPrice: car.discountPrice,
             formattedPrice: new Intl.NumberFormat("de-DE", {

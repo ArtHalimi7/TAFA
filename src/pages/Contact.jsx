@@ -171,7 +171,7 @@ export default function Contact() {
     },
     {
       label: "Email",
-      value: "info@autotafa.com",
+      value: "info@autosallontafa.com",
       icon: (
         <svg
           className="w-5 h-5"
@@ -405,8 +405,8 @@ export default function Contact() {
               >
                 <p className="text-lg leading-relaxed">
                   Ekipi ynë përgjigjet zakonisht brenda një dite pune. Qoftë një
-                  pyetje për inventarin, një takim në showroom, apo shërbime sipas kerkesës
-                   — jemi të përkushtuar të ofrojmë shërbim të
+                  pyetje për inventarin, një takim në showroom, apo shërbime
+                  sipas kerkesës — jemi të përkushtuar të ofrojmë shërbim të
                   shkëlqyer.
                 </p>
                 <p className="text-lg leading-relaxed">

@@ -43,8 +43,8 @@ export default function Footer() {
                 className="text-white/60 mb-8 leading-relaxed"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Zbuloni koleksionin tonë të automjeteve luksoze, destinacioni juaj për
-                shërbim të pakrahasueshëm.
+                Zbuloni koleksionin tonë të automjeteve luksoze, destinacioni
+                juaj për shërbim të pakrahasueshëm.
               </p>
               <div className="flex gap-4">
                 <a
@@ -167,11 +167,11 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    href="mailto:hello@autotafa.com"
+                    href="mailto:hello@autosallontafa.com"
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    info@autotafa.com
+                    info@autosallontafa.com
                   </a>
                 </li>
                 <li>
@@ -400,7 +400,7 @@ export default function Footer() {
                 <p>
                   You have the right to access, correct, or delete your personal
                   information. To exercise these rights, please contact us at
-                  privacy@autotafa.com.
+                  privacy@autosallontafa.com.
                 </p>
               </section>
 
@@ -410,7 +410,8 @@ export default function Footer() {
                 </h3>
                 <p>
                   If you have questions about this Privacy Policy, please
-                  contact us at hello@autotafa.com or call +1 (234) 567-890.
+                  contact us at hello@autosallontafa.com or call +1 (234)
+                  567-890.
                 </p>
               </section>
 
