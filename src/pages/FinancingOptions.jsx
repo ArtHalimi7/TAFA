@@ -343,7 +343,7 @@ export default function FinancingOptions() {
               className="inline-block px-8 py-3 bg-white text-black font-bold rounded-lg hover:bg-white/90 transition-colors duration-300"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              Aplikioni Tani
+              Aplikoni Tani
             </a>
           </div>
         </div>

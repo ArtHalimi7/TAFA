@@ -173,7 +173,7 @@ export default function CustomSourcing() {
               className="text-2xl font-bold text-white mb-4"
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Gati të Filloni?
+              Gati për të Filluar?
             </h3>
             <p
               className="text-white/70 mb-6"
