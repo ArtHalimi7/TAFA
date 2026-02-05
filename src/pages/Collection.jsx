@@ -108,13 +108,32 @@ const categories = [
 
 const priceRanges = [
   { label: "Të gjitha çmimet", min: 0, max: Infinity },
+  { label: "Nën €25K", min: 0, max: 25000 },
+  { label: "Nën €60K", min: 0, max: 60000 },
   { label: "Nën €100K", min: 0, max: 100000 },
-  { label: "€100K - €150K", min: 100000, max: 150000 },
-  { label: "€150K - €200K", min: 150000, max: 200000 },
-  { label: "Mbi €200K", min: 200000, max: Infinity },
+  { label: "Mbi €100K", min: 100000, max: Infinity },
 ];
 
-const years = ["Të gjitha vitet", "2024", "2023", "2022", "2021"];
+const years = [
+  "Të gjitha vitet",
+  "2026",
+  "2025",
+  "2024",
+  "2023",
+  "2022",
+  "2021",
+  "2020",
+  "2019",
+  "2018",
+  "2017",
+  "2016",
+  "2015",
+  "2014",
+  "2013",
+  "2012",
+  "2011",
+  "2010",
+];
 
 const fuelTypes = [
   "Të gjitha",
@@ -135,24 +154,58 @@ const sortOptions = [
 
 const ITEMS_PER_PAGE = 6;
 
+// Helper to get saved filters from localStorage
+const getSavedFilters = () => {
+  try {
+    const saved = localStorage.getItem('collectionFilters');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Error reading filters from localStorage:', e);
+  }
+  return null;
+};
+
 export default function Collection() {
   // SEO optimization for collection page
   useSEO(seoContent.collection);
 
+  // Initialize filters from localStorage or defaults
+  const savedFilters = getSavedFilters();
+
   const [isLoaded, setIsLoaded] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(true);
   const [allCars, setAllCars] = useState([]);
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("Të gjitha");
-  const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
-  const [selectedYear, setSelectedYear] = useState("Të gjitha vitet");
-  const [selectedFuelType, setSelectedFuelType] = useState("Të gjitha");
-  const [sortBy, setSortBy] = useState("featured");
+  const [selectedBrands, setSelectedBrands] = useState(savedFilters?.selectedBrands || []);
+  const [selectedCategory, setSelectedCategory] = useState(savedFilters?.selectedCategory || "Të gjitha");
+  const [selectedPriceRange, setSelectedPriceRange] = useState(
+    savedFilters?.selectedPriceRange 
+      ? priceRanges.find(r => r.label === savedFilters.selectedPriceRange.label) || priceRanges[0]
+      : priceRanges[0]
+  );
+  const [selectedYear, setSelectedYear] = useState(savedFilters?.selectedYear || "Të gjitha vitet");
+  const [selectedFuelType, setSelectedFuelType] = useState(savedFilters?.selectedFuelType || "Të gjitha");
+  const [sortBy, setSortBy] = useState(savedFilters?.sortBy || "featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filteredCars, setFilteredCars] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(savedFilters?.searchQuery || "");
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    const filters = {
+      selectedBrands,
+      selectedCategory,
+      selectedPriceRange,
+      selectedYear,
+      selectedFuelType,
+      sortBy,
+      searchQuery,
+    };
+    localStorage.setItem('collectionFilters', JSON.stringify(filters));
+  }, [selectedBrands, selectedCategory, selectedPriceRange, selectedYear, selectedFuelType, sortBy, searchQuery]);
 
   // Fetch cars from backend
   useEffect(() => {
@@ -657,12 +710,38 @@ export default function Collection() {
                 </button>
               ))}
             </div>
+
+            {/* Price Range Pills */}
+            <div className="hidden lg:flex items-center gap-3 mt-4">
+              <span
+                className="text-xs uppercase tracking-wider text-white/50 mr-2"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Çmimi:
+              </span>
+              {priceRanges.map((range) => (
+                <button
+                  key={range.label}
+                  onClick={() => setSelectedPriceRange(range)}
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                    selectedPriceRange.label === range.label
+                      ? "bg-white text-black"
+                      : "border border-white/20 text-white/70 hover:border-white/40 hover:text-white"
+                  }`}
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Mobile Filter Panel */}
           <div
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              isFilterOpen ? "max-h-150 opacity-100 mb-8" : "max-h-0 opacity-0"
+              isFilterOpen
+                ? "max-h-[1500px] opacity-100 mb-8"
+                : "max-h-0 opacity-0"
             }`}
           >
             <div className="p-6 border border-white/10 rounded-xl space-y-6">
@@ -771,7 +850,7 @@ export default function Collection() {
                   className="text-sm font-semibold uppercase tracking-wider mb-4"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
-                  Gama e Çmimeve
+                  Çmimi
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {priceRanges.map((range) => (
@@ -799,22 +878,28 @@ export default function Collection() {
                 >
                   Viti
                 </h3>
-                <div className="flex flex-wrap gap-2">
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="w-full px-4 py-3 bg-transparent border border-white/20 rounded-lg text-white/90 text-sm appearance-none cursor-pointer focus:outline-none focus:border-white/40 transition-all duration-300"
+                  style={{ 
+                    fontFamily: "Montserrat, sans-serif",
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.5)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 12px center',
+                    backgroundSize: '20px'
+                  }}
+                >
                   {years.map((year) => (
-                    <button
-                      key={year}
-                      onClick={() => setSelectedYear(year)}
-                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                        selectedYear === year
-                          ? "bg-white text-black"
-                          : "border border-white/20 text-white/70"
-                      }`}
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    <option 
+                      key={year} 
+                      value={year}
+                      className="bg-black text-white"
                     >
                       {year}
-                    </button>
+                    </option>
                   ))}
-                </div>
+                </select>
               </div>
 
               {/* Sort */}
