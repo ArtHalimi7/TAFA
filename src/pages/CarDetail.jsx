@@ -497,7 +497,7 @@ export default function CarDetail() {
               <div className="lg:col-span-2 text-center sm:text-left">
                 {/* Category Badge */}
                 <div
-                  className={`inline-block mb-4 transition-all duration-1000 ${
+                  className={`inline-flex items-center gap-3 mb-4 transition-all duration-1000 ${
                     isLoaded
                       ? "opacity-100 translate-y-0"
                       : "opacity-0 translate-y-4"
@@ -511,13 +511,15 @@ export default function CarDetail() {
                     {car.category}
                   </span>
                   {/* Sold Badge */}
-                  {car.status === "sold" && (
-                    <span
-                      className="px-4 py-1.5 bg-red-600 rounded-full text-xs font-bold tracking-[0.2em] uppercase text-white"
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      I Shitur
-                    </span>
+                  {car.isSold && (
+                    <div className="px-4 py-1.5 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-full shadow-lg">
+                      <span
+                        className="text-xs font-semibold text-red-100 tracking-wider uppercase"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        I Shitur
+                      </span>
+                    </div>
                   )}
                 </div>
 

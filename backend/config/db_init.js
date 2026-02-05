@@ -129,6 +129,30 @@ const initializeDatabase = async () => {
       }
     }
 
+    // Add is_sold column if it doesn't exist (separate from status for visibility control)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN is_sold BOOLEAN DEFAULT false
+      `);
+      console.log("✅ Added is_sold column to cars table");
+    } catch (err) {
+      // Column already exists, ignore error
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ is_sold column already exists");
+      }
+    }
+
+    // Migrate existing sold status to is_sold field
+    try {
+      await connection.query(`
+        UPDATE cars SET is_sold = 1, status = 'active' WHERE status = 'sold'
+      `);
+      console.log("✅ Migrated sold cars to new is_sold field");
+    } catch (err) {
+      console.log("ℹ️ Migration may have already been done");
+    }
+
     // Create car_images table if it doesn't exist
     await connection.query(`
       CREATE TABLE IF NOT EXISTS car_images (

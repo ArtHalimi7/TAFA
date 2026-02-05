@@ -110,16 +110,15 @@ const t = {
   clickToUploadImages: "Kliko për të ngarkuar imazhe",
   basicInfo: "Informacion Bazë",
   addToFeatured: "Shtoje te veturat e vequara",
-  addToShowcase: "Vendos në Podium (Ekskluzive)",
 };
 
 const categories = [
-  "Performance",
-  "Luxury Sedan",
-  "Electric",
+  "Performancë",
+  "Sedan",
+  "Elektrik",
   "SUV",
-  "Coupe",
-  "Convertible",
+  "Kupe",
+  "Kabriolet",
 ];
 const brands = [
   "Mercedes",
@@ -182,7 +181,7 @@ export default function Dashboard() {
   const [formData, setFormData] = useState({
     name: "",
     tagline: "",
-    category: "Performance",
+    category: "Performancë",
     brand: "Mercedes",
     price: "",
     discountPrice: "",
@@ -207,6 +206,7 @@ export default function Dashboard() {
     status: "draft",
     isFeatured: false,
     isShowcase: false,
+    isSold: false,
   });
 
   const fileInputRef = useRef(null);
@@ -367,7 +367,7 @@ export default function Dashboard() {
     setFormData({
       name: "",
       tagline: "",
-      category: "Performance",
+      category: "Performancë",
       brand: "Mercedes",
       price: "",
       discountPrice: "",
@@ -392,6 +392,7 @@ export default function Dashboard() {
       status: "draft",
       isFeatured: false,
       isShowcase: false,
+      isSold: false,
     });
     setModalMode("add");
     setIsModalOpen(true);
@@ -406,6 +407,7 @@ export default function Dashboard() {
       discountPrice: car.discountPrice || "",
       features: car.features && car.features.length > 0 ? car.features : [""],
       images: car.images || [],
+      isSold: car.isSold || false,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -659,20 +661,18 @@ export default function Dashboard() {
     }
   };
 
-  // Toggle car sold status
+  // Toggle car sold status (separate from visibility)
   const toggleSoldStatus = async (car) => {
     try {
-      const newStatus = car.status === "sold" ? "active" : "sold";
-      const response = await carsApi.updateCar(car.id, {
-        ...car,
-        status: newStatus,
-      });
+      const response = await carsApi.toggleSold(car.id);
       if (response.success) {
         setCars((prev) =>
-          prev.map((c) => (c.id === car.id ? { ...c, status: newStatus } : c)),
+          prev.map((c) =>
+            c.id === car.id ? { ...c, isSold: response.data.isSold } : c,
+          ),
         );
         showNotification(
-          newStatus === "sold"
+          response.data.isSold
             ? "Automjeti u shënua si i shitur!"
             : "Automjeti nuk është më i shitur!",
         );
@@ -1600,19 +1600,19 @@ export default function Dashboard() {
                             <button
                               onClick={() => toggleSoldStatus(car)}
                               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                car.status === "sold"
+                                car.isSold
                                   ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                                   : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
                               }`}
                               title={
-                                car.status === "sold"
+                                car.isSold
                                   ? "Hiq statusin e shitur"
                                   : "Shëno si të shitur"
                               }
                             >
                               <span
                                 className={`w-4 h-4 flex items-center justify-center text-sm font-bold ${
-                                  car.status === "sold"
+                                  car.isSold
                                     ? "bg-red-400 text-black rounded-full"
                                     : ""
                                 }`}
@@ -1831,19 +1831,19 @@ export default function Dashboard() {
                             <button
                               onClick={() => toggleSoldStatus(car)}
                               className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
-                                car.status === "sold"
+                                car.isSold
                                   ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                                   : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
                               }`}
                               title={
-                                car.status === "sold"
+                                car.isSold
                                   ? "Hiq statusin e shitur"
                                   : "Shëno si të shitur"
                               }
                             >
                               <span
                                 className={`w-5 h-5 flex items-center justify-center text-base font-bold ${
-                                  car.status === "sold"
+                                  car.isSold
                                     ? "bg-red-400 text-black rounded-full"
                                     : ""
                                 }`}
@@ -2193,10 +2193,35 @@ export default function Dashboard() {
                       <option value="active" className="bg-black">
                         {t.active}
                       </option>
-                      <option value="sold" className="bg-black">
-                        {t.sold}
-                      </option>
                     </select>
+                  </div>
+
+                  {/* Sold Status Checkbox */}
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          isSold: !prev.isSold,
+                        }))
+                      }
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
+                        formData.isSold ? "bg-red-500" : "bg-white/10"
+                      }`}
+                    >
+                      <span
+                        className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${
+                          formData.isSold ? "left-7" : "left-1"
+                        }`}
+                      />
+                    </button>
+                    <span
+                      className="text-sm text-white/70"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      {t.sold}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -2701,48 +2726,6 @@ export default function Dashboard() {
                   </svg>
                   {t.addToFeatured}
                 </label>
-              </div>
-
-              {/* Showcase Checkbox (The Podium - Exclusive) */}
-              <div className="flex items-center gap-3 p-4 bg-linear-to-r from-amber-500/10 to-transparent border border-amber-500/20 rounded-xl">
-                <input
-                  type="checkbox"
-                  name="isShowcase"
-                  id="isShowcase"
-                  checked={formData.isShowcase}
-                  onChange={(e) =>
-                    setFormData({ ...formData, isShowcase: e.target.checked })
-                  }
-                  className="w-5 h-5 cursor-pointer accent-amber-400"
-                />
-                <label
-                  htmlFor="isShowcase"
-                  className="text-sm uppercase tracking-widest text-amber-300 cursor-pointer hover:text-amber-200 transition-colors flex items-center gap-2"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill={formData.isShowcase ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"
-                    />
-                  </svg>
-                  {t.addToShowcase}
-                </label>
-                {formData.isShowcase && (
-                  <span
-                    className="ml-auto text-xs text-amber-400/70"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Vetëm 1 automjet mund të jetë në Podium
-                  </span>
-                )}
               </div>
 
               {/* Actions */}

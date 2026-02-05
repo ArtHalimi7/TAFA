@@ -116,9 +116,16 @@ export const carsApi = {
     });
   },
 
-  // Toggle car status
+  // Toggle car status (visibility: active/draft)
   toggleStatus: async (id) => {
     return apiCall(`/cars/${id}/toggle-status`, {
+      method: "PATCH",
+    });
+  },
+
+  // Toggle car sold status (isSold: true/false)
+  toggleSold: async (id) => {
+    return apiCall(`/cars/${id}/toggle-sold`, {
       method: "PATCH",
     });
   },

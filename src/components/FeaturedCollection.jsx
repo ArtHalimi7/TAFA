@@ -156,10 +156,10 @@ export default function FeaturedCollection() {
                       <LazyImageContain
                         src={vehicle.image}
                         alt={vehicle.name}
-                        className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${vehicle.status === "sold" ? "grayscale" : ""}`}
+                        className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${vehicle.isSold ? "grayscale" : ""}`}
                       />
                       {/* Sold Overlay */}
-                      {vehicle.status === "sold" && (
+                      {vehicle.isSold && (
                         <>
                           <div className="absolute inset-0 bg-black/40 z-10" />
                           <div className="absolute top-3 right-3 z-20">

@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Car = require("../models/Car");
 
-// Get all active and sold cars (public) - excludes drafts
+// Get all active cars (public) - excludes drafts, includes sold cars if they're active
 router.get("/public", async (req, res) => {
   try {
     const filters = {
-      statusIn: ["active", "sold"], // Include both active and sold cars
+      status: "active", // Only show active cars (visibility is controlled by status)
       brand: req.query.brand,
       category: req.query.category,
       minPrice: req.query.minPrice,
@@ -264,7 +264,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// Toggle car status
+// Toggle car status (visibility: active/draft)
 router.patch("/:id/toggle-status", async (req, res) => {
   try {
     const { id } = req.params;
@@ -284,6 +284,31 @@ router.patch("/:id/toggle-status", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to toggle car status",
+      error: error.message,
+    });
+  }
+});
+
+// Toggle car sold status (isSold: true/false)
+router.patch("/:id/toggle-sold", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const car = await Car.toggleSold(id);
+    if (!car) {
+      return res.status(404).json({ success: false, message: "Car not found" });
+    }
+
+    res.json({
+      success: true,
+      message: `Car sold status changed to ${car.isSold ? "sold" : "available"}`,
+      data: car,
+    });
+  } catch (error) {
+    console.error("Error in toggleSoldStatus:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to toggle sold status",
       error: error.message,
     });
   }

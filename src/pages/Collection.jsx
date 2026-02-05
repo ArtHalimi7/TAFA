@@ -75,9 +75,9 @@ export default function Collection() {
   const [isContentLoading, setIsContentLoading] = useState(true);
   const [allCars, setAllCars] = useState([]);
   const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("Të gjitha");
   const [selectedPriceRange, setSelectedPriceRange] = useState(priceRanges[0]);
-  const [selectedYear, setSelectedYear] = useState("All Years");
+  const [selectedYear, setSelectedYear] = useState("Të gjitha vitet");
   const [sortBy, setSortBy] = useState("featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filteredCars, setFilteredCars] = useState([]);
@@ -139,7 +139,7 @@ export default function Collection() {
     }
 
     // Filter by category
-    if (selectedCategory !== "All") {
+    if (selectedCategory !== "Të gjitha") {
       result = result.filter((car) => car.category === selectedCategory);
     }
 
@@ -151,7 +151,7 @@ export default function Collection() {
     );
 
     // Filter by year
-    if (selectedYear !== "All Years") {
+    if (selectedYear !== "Të gjitha vitet") {
       result = result.filter((car) => car.year === parseInt(selectedYear));
     }
 
@@ -215,18 +215,18 @@ export default function Collection() {
 
   const clearFilters = () => {
     setSelectedBrands([]);
-    setSelectedCategory("All");
+    setSelectedCategory("Të gjitha");
     setSelectedPriceRange(priceRanges[0]);
-    setSelectedYear("All Years");
+    setSelectedYear("Të gjitha vitet");
     setSortBy("featured");
     setSearchQuery("");
   };
 
   const activeFiltersCount =
     selectedBrands.length +
-    (selectedCategory !== "All" ? 1 : 0) +
-    (selectedPriceRange.label !== "All Prices" ? 1 : 0) +
-    (selectedYear !== "All Years" ? 1 : 0) +
+    (selectedCategory !== "Të gjitha" ? 1 : 0) +
+    (selectedPriceRange.label !== "Të gjitha çmimet" ? 1 : 0) +
+    (selectedYear !== "Të gjitha vitet" ? 1 : 0) +
     (searchQuery.trim() ? 1 : 0);
 
   const formatPrice = (price) => {
@@ -737,10 +737,10 @@ export default function Collection() {
                         <LazyImage
                           src={car.image}
                           alt={car.name}
-                          className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${car.status === "sold" ? "grayscale" : ""}`}
+                          className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${car.isSold ? "grayscale" : ""}`}
                         />
                         {/* Sold Overlay */}
-                        {car.status === "sold" && (
+                        {car.isSold && (
                           <>
                             <div className="absolute inset-0 bg-black/40 z-10" />
                             <div className="absolute top-3 right-3 z-20">

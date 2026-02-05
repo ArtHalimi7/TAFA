@@ -21,7 +21,7 @@ const Car = {
                c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
-               c.showcase_image, c.views, c.is_featured, c.is_showcase, c.created_at, c.updated_at,
+               c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
                GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
                GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
         FROM cars c
@@ -140,6 +140,7 @@ const Car = {
           ? parseFloat(row.discount_price)
           : null,
         acceleration: parseFloat(row.acceleration),
+        isSold: !!row.is_sold,
       }));
     } catch (error) {
       console.error("Error fetching cars:", error);
@@ -174,6 +175,7 @@ const Car = {
           ? parseFloat(car.discount_price)
           : null,
         acceleration: parseFloat(car.acceleration),
+        isSold: !!car.is_sold,
       };
     } catch (error) {
       console.error("Error fetching car by ID:", error);
@@ -208,6 +210,7 @@ const Car = {
           ? parseFloat(car.discount_price)
           : null,
         acceleration: parseFloat(car.acceleration),
+        isSold: !!car.is_sold,
       };
     } catch (error) {
       console.error("Error fetching car by slug:", error);
@@ -248,6 +251,7 @@ const Car = {
         showcaseImage,
         isFeatured,
         isShowcase,
+        isSold,
         images,
         features,
       } = carData;
@@ -264,8 +268,8 @@ const Car = {
           name, slug, tagline, category, brand, price, discount_price, year, mileage,
           exterior_color, interior_color, engine, horsepower, torque,
           acceleration, top_speed, transmission, drivetrain, fuel_type,
-          mpg, vin, description, status, showcase_image, is_featured, is_showcase
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          mpg, vin, description, status, showcase_image, is_featured, is_showcase, is_sold
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           name,
           slug,
@@ -293,6 +297,7 @@ const Car = {
           showcaseImage || 0,
           isFeatured ? 1 : 0,
           isShowcase ? 1 : 0,
+          isSold ? 1 : 0,
         ],
       );
 
@@ -380,6 +385,7 @@ const Car = {
         showcaseImage,
         isFeatured,
         isShowcase,
+        isSold,
         images,
         features,
       } = carData;
@@ -399,7 +405,7 @@ const Car = {
           interior_color = ?, engine = ?, horsepower = ?, torque = ?,
           acceleration = ?, top_speed = ?, transmission = ?, drivetrain = ?,
           fuel_type = ?, mpg = ?, vin = ?, description = ?, status = ?,
-          showcase_image = ?, is_featured = ?, is_showcase = ?
+          showcase_image = ?, is_featured = ?, is_showcase = ?, is_sold = ?
         WHERE id = ?`,
         [
           name,
@@ -428,6 +434,7 @@ const Car = {
           showcaseImage || 0,
           isFeatured ? 1 : 0,
           isShowcase ? 1 : 0,
+          isSold ? 1 : 0,
           id,
         ],
       );
@@ -595,7 +602,7 @@ const Car = {
     cache.statsExpiry = 0;
   },
 
-  // Toggle car status
+  // Toggle car status (visibility: active/draft)
   async toggleStatus(id) {
     try {
       const car = await this.getById(id);
@@ -610,6 +617,25 @@ const Car = {
       return await this.getById(id);
     } catch (error) {
       console.error("Error toggling status:", error);
+      throw error;
+    }
+  },
+
+  // Toggle car sold status (isSold: true/false)
+  async toggleSold(id) {
+    try {
+      const car = await this.getById(id);
+      if (!car) return null;
+
+      const newSoldStatus = !car.isSold;
+      await db.query("UPDATE cars SET is_sold = ? WHERE id = ?", [
+        newSoldStatus ? 1 : 0,
+        id,
+      ]);
+      this._invalidateCache();
+      return await this.getById(id);
+    } catch (error) {
+      console.error("Error toggling sold status:", error);
       throw error;
     }
   },
