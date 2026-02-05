@@ -200,7 +200,7 @@ export default function WhyCurated() {
 
         {/* Bottom Statement */}
         <div
-          className={`mt-20 lg:mt-32 pt-20 lg:pt-32 border-t border-white/15 max-w-3xl transition-all duration-1000 ${
+          className={`mt-10 lg:mt-16 pt-8 lg:pt-12 border-t border-white/15 max-w-3xl transition-all duration-1000 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
           style={{ transitionDelay: "600ms" }}
@@ -227,6 +227,8 @@ export default function WhyCurated() {
           </div>
         </div>
       </div>
+      {/* Bottom gradient to smoothly fade from #1a1a1a to black for the next section */}
+      <div className="absolute left-0 right-0 bottom-0 h-96 lg:h-144 pointer-events-none bg-linear-to-b from-[#1a1a1a] via-[#000000] to-black opacity-100" />
     </section>
   );
 }

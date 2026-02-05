@@ -314,7 +314,7 @@ export default function About() {
       </section>
 
       {/* Story Section - Refined */}
-      <section ref={storyRef} className="relative py-32 lg:py-48">
+      <section ref={storyRef} className="relative py-20 lg:py-24">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           <div className="max-w-4xl">
             {/* Section Label */}
@@ -394,7 +394,7 @@ export default function About() {
 
             {/* Signature */}
             <div
-              className={`mt-16 lg:mt-24 pt-8 border-t border-white/10 flex items-center gap-6 transition-all duration-1000 ${
+              className={`mt-8 lg:mt-12 pt-4 border-t border-white/10 flex items-center gap-6 transition-all duration-1000 ${
                 storyVisible
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-4"
@@ -413,10 +413,10 @@ export default function About() {
       </section>
 
       {/* Values Section - Three Pillars */}
-      <section className="relative py-32 lg:py-48 border-t border-white/10">
+      <section className="relative py-16 lg:py-24 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           {/* Section Header */}
-          <div className="mb-20 lg:mb-32">
+          <div className="mb-12 lg:mb-20">
             <span
               className="text-xs tracking-[0.3em] uppercase text-white/40 mb-4 block"
               style={{ fontFamily: "Montserrat, sans-serif" }}
@@ -446,8 +446,8 @@ export default function About() {
               },
               {
                 num: "03",
-                title: "Trashëgimi",
-                text: "Marrëdhënie mbi transaksionet. Ne ndërtojmë lidhje që zgjaten për brezat, jo vetëm deri në shitje.",
+                title: "Trashëgimia",
+                text: "Ne krijojmë marrëdhënie që mbeten për breza, jo thjesht për një shitje.",
               },
             ].map((value) => (
               <div
@@ -530,7 +530,7 @@ export default function About() {
               className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mb-16 text-white/60"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <span className="text-lg">Hënë — Shtunë: 9:00 – 19:00</span>
+              <span className="text-lg">E Hënë — E Shtunë: 9:00 – 18:00</span>
               <span className="hidden sm:block text-white/20">|</span>
               <span className="text-lg">+383 44 666 662</span>
             </div>

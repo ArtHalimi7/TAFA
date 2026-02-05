@@ -190,7 +190,17 @@ export default function Contact() {
     },
     {
       label: "Orari",
-      value: "E Hënë - Shtunë: 9:00 - 19:00",
+      value: (
+        <>
+          E Hënë
+          <br />
+           -
+          <br />
+          E Shtunë:
+          <br />
+          9:00 - 18:00
+        </>
+      ),
       icon: (
         <svg
           className="w-5 h-5"
@@ -332,7 +342,7 @@ export default function Contact() {
             {contactDetails.map((detail, index) => (
               <div
                 key={detail.label}
-                className={`bg-black p-10 lg:p-12 group hover:bg-white/2 transition-all duration-500 ${
+                className={`bg-black p-8 lg:p-10 group hover:bg-white/2 transition-all duration-500 flex flex-col items-center justify-center text-center h-full ${
                   infoVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
@@ -340,13 +350,13 @@ export default function Contact() {
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
                 {/* Icon */}
-                <div className="mb-6 text-white/40 group-hover:text-white/60 transition-colors duration-300">
+                <div className="mb-4 text-white/40 group-hover:text-white/60 transition-colors duration-300">
                   {detail.icon}
                 </div>
 
                 {/* Label */}
                 <p
-                  className="text-xs uppercase tracking-[0.2em] text-white/40 mb-3"
+                  className="text-xs uppercase tracking-[0.2em] text-white/40 mb-2"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {detail.label}
@@ -354,7 +364,7 @@ export default function Contact() {
 
                 {/* Value */}
                 <p
-                  className="text-lg lg:text-xl text-white font-light group-hover:text-white/90 transition-colors duration-300"
+                  className="text-lg lg:text-xl text-white font-light group-hover:text-white/90 transition-colors duration-300 wrap-break-word whitespace-normal text-center"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {detail.value}
@@ -609,48 +619,7 @@ export default function Contact() {
         </div>
       </section>
 
-      {/* Additional Info Section */}
-      <section className="relative py-24 lg:py-40 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-12">
-            {[
-              {
-                title: "Vizita në showroom",
-                description:
-                  "Përjetoni koleksionin tonë personalisht. Rezervoni një takim për vizitë në showroom.",
-              },
-              {
-                title: "Provë drejtimi",
-                description:
-                  "Rezervoni një provë drejtimi me një nga automjetet tona sot.",
-              },
-              {
-                title: "Këshillim",
-                description:
-                  "Keni nevojë për këshilla ekspertësh? Ekipi ynë është gati t'ju ndihmojë të gjeni automjetin ideal.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="group border border-white/10 p-8 lg:p-10 hover:border-white/30 hover:bg-white/2 transition-all duration-500"
-              >
-                <h3
-                  className="text-xl font-bold text-white mb-4"
-                  style={{ fontFamily: "Cera Pro, sans-serif" }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  className="text-white/60 leading-relaxed group-hover:text-white/80 transition-colors duration-300"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Additional Info Section removed */}
 
       {/* Map Section */}
       <section className="relative py-24 lg:py-40 border-t border-white/10">
@@ -673,7 +642,7 @@ export default function Contact() {
           {/* Google Maps Embed */}
           <div className="relative h-96 lg:h-125 border border-white/10 overflow-hidden rounded-lg group">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2931.2!2d21.4552112!3d42.4347833!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1706900000000"
+              src="https://www.google.com/maps?q=Auto%20Tafa%20CFM4%2BW38%2C%20Livo%C3%A7%20i%20Posht%C3%ABm%2060000&z=17&output=embed"
               width="100%"
               height="100%"
               style={{
@@ -687,7 +656,7 @@ export default function Contact() {
           </div>
 
           {/* Address Info */}
-          <div className="mt-8 p-6 border border-white/10 bg-white/2 rounded-lg">
+          <div className="mt-4 p-4 border border-white/10 bg-white/2 rounded-lg">
             <p
               className="text-white/70 text-sm"
               style={{ fontFamily: "Montserrat, sans-serif" }}

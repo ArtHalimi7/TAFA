@@ -23,7 +23,7 @@ export default function LaptopVideoSection() {
       className="relative py-12 lg:py-20 bg-black text-white overflow-hidden"
     >
       {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-black/95 to-[#1a1a1a]" />
+      <div className="absolute inset-0 bg-linear-to-b from-black via-black/95 to-[#1a1a1a]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Title */}

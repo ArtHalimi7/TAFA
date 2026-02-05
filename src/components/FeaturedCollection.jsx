@@ -80,13 +80,13 @@ export default function FeaturedCollection() {
   }, []);
 
   return (
-    <section className="relative w-full py-20 lg:py-32 bg-black overflow-hidden">
+    <section className="relative w-full py-12 lg:py-16 bg-black overflow-hidden">
       {/* Background Gradient */}
       <div className="absolute inset-0 bg-linear-to-b from-black via-black/95 to-black pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16 lg:mb-24">
+        <div className="text-center mb-12 lg:mb-16">
           <h2
             className={`text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 transition-all duration-1000 ${
               isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
