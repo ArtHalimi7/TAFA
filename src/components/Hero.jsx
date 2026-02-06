@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LazyImage } from "./LazyImage";
 import bgImage from "../assets/images/bg.jpg";
 import mercedesLogo from "../assets/images/mercedes.png";
 import bmwLogo from "../assets/images/bmw.png";
@@ -30,12 +29,20 @@ const Hero = () => {
         src={bgImage}
         alt=""
         className={`absolute inset-0 w-full h-full object-cover transition-all duration-[1.5s] ease-out ${isLoaded ? "opacity-100" : "opacity-0"}`}
+        style={{ filter: "brightness(0.85) contrast(1.05) saturate(0.9)" }}
         fetchpriority="high"
         decoding="async"
       />
 
-      {/* Subtle overlay for text readability */}
-      <div className="absolute inset-0 bg-black/60" />
+      {/* Layered overlays for better directional control and mobile boost */}
+      {/* Base darkening */}
+      <div className="absolute inset-0 bg-black/50" />
+
+      {/* Directional gradient for text side */}
+      <div className="absolute inset-0 bg-linear-to-r from-black/60 via-black/40 to-black/20" />
+
+      {/* Mobile readability boost */}
+      <div className="absolute inset-0 sm:hidden bg-black/20" />
 
       {/* Main content - Side by side layout on desktop */}
       <div className="relative z-10 flex h-[70vh] lg:min-h-screen w-full">
@@ -46,7 +53,7 @@ const Hero = () => {
             className={`mb-4 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <span
-              className="text-xs tracking-[0.3em] uppercase text-white/70"
+              className="text-xs tracking-[0.3em] uppercase text-white/60"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Koleksion Ekskluziv
@@ -59,11 +66,12 @@ const Hero = () => {
             style={{ transitionDelay: "0.1s" }}
           >
             <span
-              className="inline text-6xl sm:text-7xl lg:text-7xl xl:text-8xl font-black text-white whitespace-nowrap"
+              className="inline text-6xl sm:text-7xl lg:text-7xl xl:text-8xl font-black text-[#F5F7FA] whitespace-nowrap"
               style={{
                 fontFamily: "Cera Pro, sans-serif",
                 fontWeight: "900",
                 letterSpacing: "-0.03em",
+                textShadow: "0 2px 20px rgba(0,0,0,0.9)",
               }}
             >
               AUTO TAFA
@@ -72,7 +80,7 @@ const Hero = () => {
 
           {/* Subtitle - Tighter spacing */}
           <p
-            className={`mt-4 max-w-md text-base sm:text-lg text-white/80 font-light leading-relaxed transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+            className={`mt-4 max-w-md text-base sm:text-lg text-[#BFC5CC] font-light leading-relaxed transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             style={{
               fontFamily: "Montserrat, sans-serif",
               letterSpacing: "0.02em",
@@ -84,12 +92,12 @@ const Hero = () => {
 
           {/* CTA Button - Tighter spacing */}
           <div
-            className={`mt-16 sm:mt-8 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+            className={`mt-12 sm:mt-8 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             style={{ transitionDelay: "0.3s" }}
           >
             <Link
               to="/collection"
-              className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40"
+              className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 border border-white/30 rounded-full backdrop-blur-sm bg-black/50 text-[#F5F7FA] font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40 shadow-[0_8px_30px_rgba(0,0,0,0.6)]"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Shikoni veturat

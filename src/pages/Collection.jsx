@@ -16,6 +16,7 @@ import bugattiLogo from "../assets/images/bugatti.png";
 import alfaLogo from "../assets/images/alfa.png";
 import bentleyLogo from "../assets/images/bentley.png";
 import citroenLogo from "../assets/images/citroen.png";
+import dodgeLogo from "../assets/images/dodge.png";
 import landroverLogo from "../assets/images/landrover.png";
 import peugeotLogo from "../assets/images/peugeot.png";
 import renaultLogo from "../assets/images/renault.png";
@@ -51,6 +52,7 @@ const brandLogos = {
   Bentley: { logo: bentleyLogo },
   Bugatti: { logo: bugattiLogo },
   Citroen: { logo: citroenLogo },
+  Dodge: { logo: dodgeLogo },
   Ferrari: { logo: ferrariLogo },
   Lamborghini: { logo: lamboLogo },
   "Land Rover": { logo: landroverLogo },
@@ -74,6 +76,8 @@ const allBrands = [
   "Bentley",
   "Bugatti",
   "Citroen",
+  "Dodge",
+  "Chevrolet",
   "Cupra",
   "DS",
   "Ferrari",
@@ -152,7 +156,7 @@ const sortOptions = [
   { value: "year-old", label: "Viti: Më i vjetër" },
 ];
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 10;
 
 // Helper to get saved filters from localStorage
 const getSavedFilters = () => {
@@ -760,7 +764,7 @@ export default function Collection() {
           <div
             className={`lg:hidden overflow-hidden transition-all duration-500 ${
               isFilterOpen
-                ? "max-h-[1500px] opacity-100 mb-8"
+                ? "max-h-375 opacity-100 mb-8"
                 : "max-h-0 opacity-0"
             }`}
           >

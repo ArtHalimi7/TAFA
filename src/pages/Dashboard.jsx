@@ -259,6 +259,7 @@ export default function Dashboard() {
     tagline: "",
     category: "Performancë",
     brand: "Mercedes",
+    customBrand: "",
     price: "",
     discountPrice: "",
     year: new Date().getFullYear(),
@@ -702,6 +703,7 @@ export default function Dashboard() {
       tagline: "",
       category: "Performancë",
       brand: "Mercedes",
+      customBrand: "",
       price: "",
       discountPrice: "",
       year: new Date().getFullYear(),
@@ -735,8 +737,11 @@ export default function Dashboard() {
   const openEditModal = (car) => {
     setSelectedCar(car);
     setPendingImageFiles([]);
+    const isKnownBrand = brands.includes(car.brand);
     setFormData({
       ...car,
+      brand: isKnownBrand ? car.brand : "_custom",
+      customBrand: isKnownBrand ? "" : car.brand,
       discountPrice: car.discountPrice || "",
       features: car.features && car.features.length > 0 ? car.features : [""],
       images: car.images || [],
@@ -876,7 +881,10 @@ export default function Dashboard() {
         name: formData.name,
         tagline: formData.tagline,
         category: formData.category,
-        brand: formData.brand,
+        brand:
+          formData.brand === "_custom"
+            ? formData.customBrand || ""
+            : formData.brand,
         price: Number(formData.price),
         discountPrice: formData.discountPrice
           ? Number(formData.discountPrice)
@@ -1352,7 +1360,7 @@ export default function Dashboard() {
       >
         <div className="flex flex-col h-full">
           {/* Logo & Toggle */}
-          <div className="p-6 border-b border-white/10 flex items-center justify-between">
+          <div className="p-4 lg:p-6 border-b border-white/10 flex items-center justify-between">
             {!isSidebarCollapsed && (
               <Link to="/" className="flex items-center gap-2">
                 <span
@@ -1406,7 +1414,7 @@ export default function Dashboard() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="lg:flex-1 p-3 lg:p-4 space-y-2 overflow-y-auto">
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -1438,7 +1446,7 @@ export default function Dashboard() {
           </nav>
 
           {/* Bottom Section */}
-          <div className="p-4 border-t border-white/10 space-y-2">
+          <div className="p-3 border-t border-white/10 space-y-2">
             <Link
               to="/"
               className={`flex items-center gap-3 px-4 py-3 text-white/60 hover:text-white hover:bg-white/5 rounded-xl transition-all duration-300`}
@@ -1806,7 +1814,7 @@ export default function Dashboard() {
                         className="font-semibold mb-1"
                         style={{ fontFamily: "Cera Pro, sans-serif" }}
                       >
-                        Manage Inventory
+                        Menagjo Inventarin
                       </h3>
                       <p
                         className="text-sm text-white/50"
@@ -2500,7 +2508,23 @@ export default function Dashboard() {
                           {brand}
                         </option>
                       ))}
+                      <option value="_custom" className="bg-black">
+                        Tjera
+                      </option>
                     </select>
+
+                    {formData.brand === "_custom" && (
+                      <input
+                        type="text"
+                        name="customBrand"
+                        value={formData.customBrand || ""}
+                        onChange={handleInputChange}
+                        required
+                        placeholder="Enter brand name"
+                        className="mt-3 w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-white/30 transition-all"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      />
+                    )}
                   </div>
                   <div>
                     <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">

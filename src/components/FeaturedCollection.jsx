@@ -38,7 +38,7 @@ export default function FeaturedCollection() {
   useEffect(() => {
     const fetchFeaturedCars = async () => {
       try {
-        const response = await carsApi.getFeaturedCars();
+        const response = await carsApi.getFeaturedCars(6);
         if (response.success) {
           const formattedVehicles = response.data.map((car) => ({
             id: car.id,
