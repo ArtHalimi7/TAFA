@@ -16,7 +16,10 @@ async function send2FAEmail(toEmail, code) {
   const DEV_SMTP_HOST = process.env.SMTP_HOST;
   const DEV_SMTP_USER = process.env.SMTP_USER;
   const DEV_SMTP_PASS = process.env.SMTP_PASS;
-  if ((!DEV_SMTP_HOST || !DEV_SMTP_USER || !DEV_SMTP_PASS) && process.env.NODE_ENV !== "production") {
+  if (
+    (!DEV_SMTP_HOST || !DEV_SMTP_USER || !DEV_SMTP_PASS) &&
+    process.env.NODE_ENV !== "production"
+  ) {
     console.log(`DEV 2FA CODE for ${toEmail}: ${code}`);
     return true;
   }
@@ -54,7 +57,16 @@ async function send2FAEmail(toEmail, code) {
     return true;
   }
 
-  // Fall back to EmailJS REST if SMTP not configured
+  // If we reach here, SMTP is not configured.
+  // EmailJS does not allow REST API calls from non-browser (server) applications
+  // so in production we should fail fast and instruct to configure SMTP.
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "SMTP not configured. Configure SMTP_HOST, SMTP_USER and SMTP_PASS to send emails from the server. EmailJS REST is not allowed from server-side.",
+    );
+  }
+
+  // Fall back to EmailJS REST if SMTP not configured (allowed only for non-production/dev)
   const payload = {
     service_id: EMAILJS_SERVICE,
     template_id: EMAILJS_TEMPLATE,
@@ -99,6 +111,20 @@ router.post("/request-2fa", async (req, res) => {
       `INSERT INTO admin_2fa_requests (token, email, code_hash, expires_at, attempts, used) VALUES (?, ?, ?, ?, 0, 0)`,
       [token, adminEmail, codeHash, expiresAt],
     );
+
+    // If frontend will send the email via EmailJS, return the code to the client
+    // Enable by setting ALLOW_FRONTEND_EMAILJS=true or VITE_ALLOW_FRONTEND_EMAIL=true
+    const ALLOW_FRONTEND_EMAILJS =
+      process.env.ALLOW_FRONTEND_EMAILJS === "true" ||
+      process.env.VITE_ALLOW_FRONTEND_EMAIL === "true";
+
+    if (ALLOW_FRONTEND_EMAILJS) {
+      console.log(
+        "Frontend EmailJS enabled: returning 2FA code to client for sending",
+      );
+      connection.release();
+      return res.json({ token, code });
+    }
 
     // send email (may throw)
     await send2FAEmail(adminEmail, code);
