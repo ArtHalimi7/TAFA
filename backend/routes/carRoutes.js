@@ -42,6 +42,32 @@ router.get("/featured", async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 3;
     const cars = await Car.getFeatured(limit);
+    // Ensure images/features are deduped and trimmed before returning
+    const dedupePreserve = (arr) => {
+      if (!Array.isArray(arr)) return [];
+      const seen = new Set();
+      const out = [];
+      for (let v of arr) {
+        if (v == null) continue;
+        v = String(v).trim();
+        // normalize internal whitespace and unicode
+        v = v.replace(/\s+/g, " ").normalize
+          ? v.replace(/\s+/g, " ").normalize("NFKC")
+          : v.replace(/\s+/g, " ");
+        if (!v) continue;
+        if (!seen.has(v)) {
+          seen.add(v);
+          out.push(v);
+        }
+      }
+      return out;
+    };
+
+    cars.forEach((c) => {
+      c.images = dedupePreserve(c.images);
+      c.features = dedupePreserve(c.features);
+    });
+
     res.json({ success: true, data: cars });
   } catch (error) {
     console.error("Error in getFeaturedCars:", error);

@@ -12,6 +12,54 @@ const cache = {
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Helper: parse GROUP_CONCAT / JSON / array values, trim and dedupe preserving order
+function parseAndDedupe(val) {
+  const SEP = "|||";
+  if (!val) return [];
+  // If it's already an array, normalize entries
+  if (Array.isArray(val)) {
+    const seen = new Set();
+    const out = [];
+    for (let v of val) {
+      if (v == null) continue;
+      v = String(v).trim();
+      if (!v) continue;
+      if (!seen.has(v)) {
+        seen.add(v);
+        out.push(v);
+      }
+    }
+    return out;
+  }
+
+  // If string, try JSON parse, otherwise split by separator
+  if (typeof val === "string") {
+    // Try parse JSON array
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parseAndDedupe(parsed);
+    } catch (e) {
+      // not JSON
+    }
+
+    const parts = val.split(SEP);
+    const seen = new Set();
+    const out = [];
+    for (let p of parts) {
+      if (p == null) continue;
+      p = String(p).trim();
+      if (!p) continue;
+      if (!seen.has(p)) {
+        seen.add(p);
+        out.push(p);
+      }
+    }
+    return out;
+  }
+
+  return [];
+}
+
 const Car = {
   // Get all cars with images and features - OPTIMIZED
   async getAll(filters = {}) {
@@ -22,11 +70,9 @@ const Car = {
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
                c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
-               JSON_ARRAYAGG(ci.image_url) as images,
-               JSON_ARRAYAGG(cf.feature) as features
-        FROM cars c
-        LEFT JOIN car_images ci ON c.id = ci.car_id
-        LEFT JOIN car_features cf ON c.id = cf.car_id
+               (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
+               (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
+             FROM cars c
       `;
 
       const conditions = [];
@@ -133,32 +179,8 @@ const Car = {
 
       return rows.map((row) => ({
         ...row,
-        images: (() => {
-          const img = row.images;
-          if (!img) return [];
-          if (Array.isArray(img)) return img;
-          if (typeof img === "string") {
-            try {
-              return JSON.parse(img);
-            } catch (e) {
-              return img ? img.split(",") : [];
-            }
-          }
-          return [];
-        })(),
-        features: (() => {
-          const feat = row.features;
-          if (!feat) return [];
-          if (Array.isArray(feat)) return feat;
-          if (typeof feat === "string") {
-            try {
-              return JSON.parse(feat);
-            } catch (e) {
-              return feat ? feat.split(",") : [];
-            }
-          }
-          return [];
-        })(),
+        images: parseAndDedupe(row.images),
+        features: parseAndDedupe(row.features),
         price: parseFloat(row.price),
         discountPrice: row.discount_price
           ? parseFloat(row.discount_price)
@@ -177,11 +199,9 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                JSON_ARRAYAGG(ci.image_url) as images,
-                JSON_ARRAYAGG(cf.feature) as features
+                (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
+                (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
          FROM cars c
-         LEFT JOIN car_images ci ON c.id = ci.car_id
-         LEFT JOIN car_features cf ON c.id = cf.car_id
          WHERE c.id = ?
          GROUP BY c.id`,
         [id],
@@ -192,32 +212,8 @@ const Car = {
       const car = rows[0];
       return {
         ...car,
-        images: (() => {
-          const img = car.images;
-          if (!img) return [];
-          if (Array.isArray(img)) return img;
-          if (typeof img === "string") {
-            try {
-              return JSON.parse(img);
-            } catch (e) {
-              return img ? img.split(",") : [];
-            }
-          }
-          return [];
-        })(),
-        features: (() => {
-          const feat = car.features;
-          if (!feat) return [];
-          if (Array.isArray(feat)) return feat;
-          if (typeof feat === "string") {
-            try {
-              return JSON.parse(feat);
-            } catch (e) {
-              return feat ? feat.split(",") : [];
-            }
-          }
-          return [];
-        })(),
+        images: parseAndDedupe(car.images),
+        features: parseAndDedupe(car.features),
         price: parseFloat(car.price),
         discountPrice: car.discount_price
           ? parseFloat(car.discount_price)
@@ -236,11 +232,9 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                JSON_ARRAYAGG(ci.image_url) as images,
-                JSON_ARRAYAGG(cf.feature) as features
+                (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
+                (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
          FROM cars c
-         LEFT JOIN car_images ci ON c.id = ci.car_id
-         LEFT JOIN car_features cf ON c.id = cf.car_id
          WHERE c.slug = ?
          GROUP BY c.id`,
         [slug],
@@ -251,32 +245,8 @@ const Car = {
       const car = rows[0];
       return {
         ...car,
-        images: (() => {
-          const img = car.images;
-          if (!img) return [];
-          if (Array.isArray(img)) return img;
-          if (typeof img === "string") {
-            try {
-              return JSON.parse(img);
-            } catch (e) {
-              return img ? img.split(",") : [];
-            }
-          }
-          return [];
-        })(),
-        features: (() => {
-          const feat = car.features;
-          if (!feat) return [];
-          if (Array.isArray(feat)) return feat;
-          if (typeof feat === "string") {
-            try {
-              return JSON.parse(feat);
-            } catch (e) {
-              return feat ? feat.split(",") : [];
-            }
-          }
-          return [];
-        })(),
+        images: parseAndDedupe(car.images),
+        features: parseAndDedupe(car.features),
         price: parseFloat(car.price),
         discountPrice: car.discount_price
           ? parseFloat(car.discount_price)
