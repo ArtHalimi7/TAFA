@@ -392,80 +392,81 @@ export default function Dashboard() {
     setSending2FA(true);
     setTwoFAError("");
     try {
-        // If frontend email sending is available, generate code locally and
-        // send via EmailJS without touching the backend.
-        if (FRONTEND_EMAIL_AVAILABLE) {
-          // generate 6-digit code
-          const code = String(Math.floor(100000 + Math.random() * 900000));
-          const token = crypto.getRandomValues(new Uint8Array(16))
-            .reduce((s, b) => s + b.toString(16).padStart(2, "0"), "");
-          const codeHash = await hashText(code);
-          const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+      // If frontend email sending is available, generate code locally and
+      // send via EmailJS without touching the backend.
+      if (FRONTEND_EMAIL_AVAILABLE) {
+        // generate 6-digit code
+        const code = String(Math.floor(100000 + Math.random() * 900000));
+        const token = crypto
+          .getRandomValues(new Uint8Array(16))
+          .reduce((s, b) => s + b.toString(16).padStart(2, "0"), "");
+        const codeHash = await hashText(code);
+        const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-          // store locally (sessionStorage) for verification
-          sessionStorage.setItem("tafa_2fa_token", token);
-          sessionStorage.setItem("tafa_2fa_code_hash", codeHash);
-          sessionStorage.setItem("tafa_2fa_exp", String(expiresAt));
-          sessionStorage.setItem("tafa_2fa_email", targetEmail);
+        // store locally (sessionStorage) for verification
+        sessionStorage.setItem("tafa_2fa_token", token);
+        sessionStorage.setItem("tafa_2fa_code_hash", codeHash);
+        sessionStorage.setItem("tafa_2fa_exp", String(expiresAt));
+        sessionStorage.setItem("tafa_2fa_email", targetEmail);
 
-          // send via EmailJS
+        // send via EmailJS
+        try {
+          await emailjs.send(
+            EMAILJS_SERVICE,
+            EMAILJS_TEMPLATE,
+            { to_email: targetEmail, code },
+            EMAILJS_USER,
+          );
+        } catch (e) {
+          console.error("EmailJS send failed:", e);
+          setTwoFAError("Dërgimi i kodit dështoi. Provoni përsëri.");
+          setSending2FA(false);
+          return;
+        }
+
+        // set client state from local flow
+        setTwoFAToken(token);
+        setIs2FASent(true);
+        setAdminEmail(targetEmail);
+        localStorage.setItem("tafa_admin_email", targetEmail);
+        showNotification("Kodi 2FA u dërgua në email.");
+      } else {
+        // fallback: call backend route as before
+        const resp = await fetch(`${API_BASE_URL}/api/auth/request-2fa`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email: targetEmail }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || "Failed to request 2FA");
+
+        // Backend returns a short-lived token identifying this request
+        setTwoFAToken(data.token || null);
+        setIs2FASent(true);
+        setAdminEmail(targetEmail);
+        localStorage.setItem("tafa_admin_email", targetEmail);
+
+        // If backend returned a code (for dev) and frontend is allowed, send it
+        if (ALLOW_FRONTEND_EMAILJS && data.code) {
           try {
             await emailjs.send(
               EMAILJS_SERVICE,
               EMAILJS_TEMPLATE,
-              { to_email: targetEmail, code },
+              { to_email: targetEmail, code: data.code },
               EMAILJS_USER,
             );
+            showNotification("Kodi 2FA u dërgua në email.");
           } catch (e) {
             console.error("EmailJS send failed:", e);
             setTwoFAError("Dërgimi i kodit dështoi. Provoni përsëri.");
             setSending2FA(false);
             return;
           }
-
-          // set client state from local flow
-          setTwoFAToken(token);
-          setIs2FASent(true);
-          setAdminEmail(targetEmail);
-          localStorage.setItem("tafa_admin_email", targetEmail);
-          showNotification("Kodi 2FA u dërgua në email.");
         } else {
-          // fallback: call backend route as before
-          const resp = await fetch(`${API_BASE_URL}/api/auth/request-2fa`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email: targetEmail }),
-          });
-          const data = await resp.json();
-          if (!resp.ok) throw new Error(data.error || "Failed to request 2FA");
-
-          // Backend returns a short-lived token identifying this request
-          setTwoFAToken(data.token || null);
-          setIs2FASent(true);
-          setAdminEmail(targetEmail);
-          localStorage.setItem("tafa_admin_email", targetEmail);
-
-          // If backend returned a code (for dev) and frontend is allowed, send it
-          if (ALLOW_FRONTEND_EMAILJS && data.code) {
-            try {
-              await emailjs.send(
-                EMAILJS_SERVICE,
-                EMAILJS_TEMPLATE,
-                { to_email: targetEmail, code: data.code },
-                EMAILJS_USER,
-              );
-              showNotification("Kodi 2FA u dërgua në email.");
-            } catch (e) {
-              console.error("EmailJS send failed:", e);
-              setTwoFAError("Dërgimi i kodit dështoi. Provoni përsëri.");
-              setSending2FA(false);
-              return;
-            }
-          } else {
-            showNotification("Kodi 2FA u dërgua në email.");
-          }
+          showNotification("Kodi 2FA u dërgua në email.");
         }
+      }
       setSending2FA(false);
 
       // Start resend cooldown (60s)
@@ -501,71 +502,38 @@ export default function Dashboard() {
       return;
     }
     try {
-        // If frontend-only flow enabled, verify locally against sessionStorage
-        if (FRONTEND_EMAIL_AVAILABLE) {
-          const storedToken = sessionStorage.getItem("tafa_2fa_token");
-          const storedHash = sessionStorage.getItem("tafa_2fa_code_hash");
-          const storedExp = Number(sessionStorage.getItem("tafa_2fa_exp") || 0);
-          if (!storedToken || !storedHash) {
-            setTwoFAError("Tokeni i verifikimit mungon. Duke dërguar një kod të ri...");
-            send2FACode(adminEmail, { force: true });
-            return;
-          }
-          if (Date.now() > storedExp) {
-            setTwoFAError("Kodi ka skaduar. Duke dërguar një kod të ri...");
-            send2FACode(adminEmail, { force: true });
-            return;
-          }
-
-          const inputHash = await hashText(twoFAInput.trim());
-          if (inputHash !== storedHash) {
-            setTwoFAError("Kodi është i papërshtatshëm. Provoni përsëri.");
-            return;
-          }
-
-          // success (local): mark verified locally
-          localStorage.setItem("tafa_2fa_verified", "true");
-          sessionStorage.setItem("tafa_admin_auth", "true");
-          // clear temp session storage items
-          sessionStorage.removeItem("tafa_2fa_token");
-          sessionStorage.removeItem("tafa_2fa_code_hash");
-          sessionStorage.removeItem("tafa_2fa_exp");
-          sessionStorage.removeItem("tafa_2fa_email");
-          setTwoFAToken(null);
-          if (resendTimerRef.current) {
-            clearInterval(resendTimerRef.current);
-            resendTimerRef.current = null;
-          }
-          setResendCooldown(0);
-          setIsDashboardLoading(true);
-          setTimeout(() => {
-            setIsAuthenticated(true);
-            setIsDashboardLoading(false);
-          }, 800);
+      // If frontend-only flow enabled, verify locally against sessionStorage
+      if (FRONTEND_EMAIL_AVAILABLE) {
+        const storedToken = sessionStorage.getItem("tafa_2fa_token");
+        const storedHash = sessionStorage.getItem("tafa_2fa_code_hash");
+        const storedExp = Number(sessionStorage.getItem("tafa_2fa_exp") || 0);
+        if (!storedToken || !storedHash) {
+          setTwoFAError(
+            "Tokeni i verifikimit mungon. Duke dërguar një kod të ri...",
+          );
+          send2FACode(adminEmail, { force: true });
+          return;
+        }
+        if (Date.now() > storedExp) {
+          setTwoFAError("Kodi ka skaduar. Duke dërguar një kod të ri...");
+          send2FACode(adminEmail, { force: true });
           return;
         }
 
-        // fallback: verify via backend
-        const resp = await fetch(`${API_BASE_URL}/api/auth/verify-2fa`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ token: twoFAToken, code: twoFAInput.trim() }),
-        });
-        const data = await resp.json();
-        if (!resp.ok) {
-          // If token expired or invalid, request a new code
-          if (data && data.code === "EXPIRED") {
-            setTwoFAError("Kodi ka skaduar. Duke dërguar një kod të ri...");
-            send2FACode(adminEmail, { force: true });
-            return;
-          }
-          throw new Error(data.error || "Verification failed");
+        const inputHash = await hashText(twoFAInput.trim());
+        if (inputHash !== storedHash) {
+          setTwoFAError("Kodi është i papërshtatshëm. Provoni përsëri.");
+          return;
         }
 
-        // Verified via backend: server should set HttpOnly session cookie
+        // success (local): mark verified locally
         localStorage.setItem("tafa_2fa_verified", "true");
         sessionStorage.setItem("tafa_admin_auth", "true");
+        // clear temp session storage items
+        sessionStorage.removeItem("tafa_2fa_token");
+        sessionStorage.removeItem("tafa_2fa_code_hash");
+        sessionStorage.removeItem("tafa_2fa_exp");
+        sessionStorage.removeItem("tafa_2fa_email");
         setTwoFAToken(null);
         if (resendTimerRef.current) {
           clearInterval(resendTimerRef.current);
@@ -577,6 +545,41 @@ export default function Dashboard() {
           setIsAuthenticated(true);
           setIsDashboardLoading(false);
         }, 800);
+        return;
+      }
+
+      // fallback: verify via backend
+      const resp = await fetch(`${API_BASE_URL}/api/auth/verify-2fa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ token: twoFAToken, code: twoFAInput.trim() }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        // If token expired or invalid, request a new code
+        if (data && data.code === "EXPIRED") {
+          setTwoFAError("Kodi ka skaduar. Duke dërguar një kod të ri...");
+          send2FACode(adminEmail, { force: true });
+          return;
+        }
+        throw new Error(data.error || "Verification failed");
+      }
+
+      // Verified via backend: server should set HttpOnly session cookie
+      localStorage.setItem("tafa_2fa_verified", "true");
+      sessionStorage.setItem("tafa_admin_auth", "true");
+      setTwoFAToken(null);
+      if (resendTimerRef.current) {
+        clearInterval(resendTimerRef.current);
+        resendTimerRef.current = null;
+      }
+      setResendCooldown(0);
+      setIsDashboardLoading(true);
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        setIsDashboardLoading(false);
+      }, 800);
     } catch (err) {
       console.error("2FA verify failed:", err);
       setTwoFAError(
