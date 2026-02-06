@@ -132,7 +132,7 @@ const Navbar = () => {
 
       {/* Sidebar Overlay */}
       <div
-        className={`fixed inset-0 z-50 bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-9998 bg-black/80 backdrop-blur-sm transition-opacity duration-300 ${
           isSidebarOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -142,7 +142,7 @@ const Navbar = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 right-0 z-50 w-full h-full bg-black transition-transform duration-500 ease-out ${
+        className={`fixed top-0 right-0 z-9999 w-full h-full bg-black transition-transform duration-500 ease-out ${
           isSidebarOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >

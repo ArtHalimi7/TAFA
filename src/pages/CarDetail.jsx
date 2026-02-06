@@ -4,6 +4,24 @@ import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { carsApi } from "../services/api";
 import logo from "../assets/images/logo.png";
+import mercedesLogo from "../assets/images/mercedes.png";
+import bmwLogo from "../assets/images/bmw.png";
+import audiLogo from "../assets/images/audi.png";
+import vwLogo from "../assets/images/vw.png";
+import porscheLogo from "../assets/images/porsche.png";
+import alfaLogo from "../assets/images/alfa.png";
+import bentleyLogo from "../assets/images/bentley.png";
+import bugattiLogo from "../assets/images/bugatti.png";
+import citroenLogo from "../assets/images/citroen.png";
+import dodgeLogo from "../assets/images/dodge.png";
+import ferrariLogo from "../assets/images/ferrari.png";
+import lamboLogo from "../assets/images/lambo.png";
+import landroverLogo from "../assets/images/landrover.png";
+import peugeotLogo from "../assets/images/peugeot.png";
+import renaultLogo from "../assets/images/renault.png";
+import rollsroyceLogo from "../assets/images/rollsroyce.png";
+import teslaLogo from "../assets/images/tesla.png";
+import volvoLogo from "../assets/images/volvo.png";
 
 // API Base URL for images
 const API_BASE_URL =
@@ -42,6 +60,27 @@ export default function CarDetail() {
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
   const [featuresVisible, setFeaturesVisible] = useState(true);
+
+  const brandLogos = {
+    Mercedes: mercedesLogo,
+    BMW: bmwLogo,
+    Audi: audiLogo,
+    Volkswagen: vwLogo,
+    Porsche: porscheLogo,
+    "Alfa Romeo": alfaLogo,
+    Bentley: bentleyLogo,
+    Bugatti: bugattiLogo,
+    Citroen: citroenLogo,
+    Dodge: dodgeLogo,
+    Ferrari: ferrariLogo,
+    Lamborghini: lamboLogo,
+    "Land Rover": landroverLogo,
+    Peugeot: peugeotLogo,
+    Renault: renaultLogo,
+    "Rolls-Royce": rollsroyceLogo,
+    Tesla: teslaLogo,
+    Volvo: volvoLogo,
+  };
 
   // Fetch car data from backend
   useEffect(() => {
@@ -283,7 +322,7 @@ export default function CarDetail() {
 
   const specs = car
     ? [
-        { label: "Kuaj-fuqi", value: car.horsepower, suffix: "HP" },
+        { label: "Kuaj-fuqi", value: car.horsepower, suffix: "PS" },
         { label: "Tërheqje", value: car.torque, suffix: "Nm" },
         {
           label: "0-100 km/h",
@@ -637,11 +676,19 @@ export default function CarDetail() {
                 }`}
                 style={{ transitionDelay: "0.6s" }}
               >
-                <img
-                  src={logo}
-                  alt="TAFA Logo"
-                  className="w-full h-auto max-w-50 object-contain"
-                />
+                {car?.brand && brandLogos[car.brand] ? (
+                  <img
+                    src={brandLogos[car.brand]}
+                    alt={`${car.brand} Logo`}
+                    className="w-full h-auto max-w-48 object-contain"
+                  />
+                ) : (
+                  <img
+                    src={logo}
+                    alt="TAFA Logo"
+                    className="w-full h-auto max-w-50 object-contain"
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -688,14 +735,14 @@ export default function CarDetail() {
                   specsVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
-                }`}
+                } ${index < 3 ? "flex items-center justify-center" : ""}`}
                 style={{ transitionDelay: `${200 + index * 100}ms` }}
               >
                 {/* Background glow on hover */}
                 <div className="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="relative z-10">
-                  <div className="flex items-baseline gap-1 mb-2">
+                <div className="relative z-10 text-center">
+                  <div className="flex flex-col items-center gap-1 mb-2">
                     <span
                       className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white"
                       style={{ fontFamily: "Cera Pro, sans-serif" }}
@@ -735,9 +782,9 @@ export default function CarDetail() {
             >
               <div className="space-y-4">
                 {[
-                  { label: "Motor", value: car.engine },
-                  { label: "Transmision", value: car.transmission },
-                  { label: "Tërheqja", value: car.drivetrain },
+                  { label: "Motori", value: car.engine },
+                  { label: "Transmisioni", value: car.transmission },
+                  { label: "Sistemi i tërheqjes", value: car.drivetrain },
                   { label: "Lloji i karburantit", value: car.fuelType },
                 ].map((item) => (
                   <div
@@ -773,7 +820,10 @@ export default function CarDetail() {
                 {[
                   { label: "Ngjyra e jashtme", value: car.exteriorColor },
                   { label: "Ngjyra e interierit", value: car.interiorColor },
-                  { label: "Konsum i karburantit", value: car.mpg },
+                  {
+                    label: "Konsumi i kombinuar",
+                    value: car.mpg ? `${car.mpg} L/100KM` : "-",
+                  },
                   { label: "VIN", value: car.vin },
                 ].map((item) => (
                   <div

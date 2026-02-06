@@ -22,8 +22,8 @@ const Car = {
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
                c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
-               GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
-               GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
+               JSON_ARRAYAGG(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
+               JSON_ARRAYAGG(DISTINCT cf.feature ORDER BY cf.feature_order) as features
         FROM cars c
         LEFT JOIN car_images ci ON c.id = ci.car_id
         LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -133,8 +133,20 @@ const Car = {
 
       return rows.map((row) => ({
         ...row,
-        images: row.images ? row.images.split(",") : [],
-        features: row.features ? row.features.split(",") : [],
+        images: (() => {
+          try {
+            return row.images ? JSON.parse(row.images) : [];
+          } catch (e) {
+            return row.images ? row.images.split(",") : [];
+          }
+        })(),
+        features: (() => {
+          try {
+            return row.features ? JSON.parse(row.features) : [];
+          } catch (e) {
+            return row.features ? row.features.split(",") : [];
+          }
+        })(),
         price: parseFloat(row.price),
         discountPrice: row.discount_price
           ? parseFloat(row.discount_price)
@@ -153,8 +165,8 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
-                GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
+                JSON_ARRAYAGG(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
+                JSON_ARRAYAGG(DISTINCT cf.feature ORDER BY cf.feature_order) as features
          FROM cars c
          LEFT JOIN car_images ci ON c.id = ci.car_id
          LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -168,8 +180,20 @@ const Car = {
       const car = rows[0];
       return {
         ...car,
-        images: car.images ? car.images.split(",") : [],
-        features: car.features ? car.features.split(",") : [],
+        images: (() => {
+          try {
+            return car.images ? JSON.parse(car.images) : [];
+          } catch (e) {
+            return car.images ? car.images.split(",") : [];
+          }
+        })(),
+        features: (() => {
+          try {
+            return car.features ? JSON.parse(car.features) : [];
+          } catch (e) {
+            return car.features ? car.features.split(",") : [];
+          }
+        })(),
         price: parseFloat(car.price),
         discountPrice: car.discount_price
           ? parseFloat(car.discount_price)
@@ -188,8 +212,8 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                GROUP_CONCAT(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
-                GROUP_CONCAT(DISTINCT cf.feature ORDER BY cf.feature_order) as features
+                JSON_ARRAYAGG(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
+                JSON_ARRAYAGG(DISTINCT cf.feature ORDER BY cf.feature_order) as features
          FROM cars c
          LEFT JOIN car_images ci ON c.id = ci.car_id
          LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -203,8 +227,20 @@ const Car = {
       const car = rows[0];
       return {
         ...car,
-        images: car.images ? car.images.split(",") : [],
-        features: car.features ? car.features.split(",") : [],
+        images: (() => {
+          try {
+            return car.images ? JSON.parse(car.images) : [];
+          } catch (e) {
+            return car.images ? car.images.split(",") : [];
+          }
+        })(),
+        features: (() => {
+          try {
+            return car.features ? JSON.parse(car.features) : [];
+          } catch (e) {
+            return car.features ? car.features.split(",") : [];
+          }
+        })(),
         price: parseFloat(car.price),
         discountPrice: car.discount_price
           ? parseFloat(car.discount_price)

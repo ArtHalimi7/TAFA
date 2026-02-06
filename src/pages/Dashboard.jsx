@@ -779,17 +779,34 @@ export default function Dashboard() {
 
   // Handle image upload
   const handleImageUpload = async (e) => {
-    const files = Array.from(e.target.files);
+    const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Store file references for upload during save
-    setPendingImageFiles((prev) => [...prev, ...files]);
+    const MAX_IMAGES = 20;
+    const currentTotal = formData.images ? formData.images.length : 0;
+    const remaining = Math.max(0, MAX_IMAGES - currentTotal);
 
-    // Create preview URLs
-    const newImages = files.map((file) => URL.createObjectURL(file));
+    if (remaining === 0) {
+      showNotification(`Maksimumi është ${MAX_IMAGES} fotografi.`, "error");
+      return;
+    }
+
+    const acceptedFiles = files.slice(0, remaining);
+    if (acceptedFiles.length < files.length) {
+      showNotification(
+        `Vetëm ${remaining} fotografi u shtuan (maksimumi ${MAX_IMAGES}).`,
+        "warning",
+      );
+    }
+
+    // Store file references for upload during save (only accepted files)
+    setPendingImageFiles((prev) => [...prev, ...acceptedFiles]);
+
+    // Create preview URLs for accepted files
+    const newImages = acceptedFiles.map((file) => URL.createObjectURL(file));
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImages],
+      images: [...(prev.images || []), ...newImages],
     }));
   };
 
