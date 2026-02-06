@@ -64,11 +64,15 @@ function parseAndDedupe(val) {
 function isLikelyTruncatedImage(url) {
   if (!url || typeof url !== "string") return false;
   // Valid Cloudinary URLs will usually contain '/upload/' and a filename with an extension
-  if (url.includes("/upload/") && /\.(jpg|jpeg|png|webp|gif|avif|svg)$/i.test(url)) {
+  if (
+    url.includes("/upload/") &&
+    /\.(jpg|jpeg|png|webp|gif|avif|svg)$/i.test(url)
+  ) {
     return false;
   }
   // If it ends with the folder or is missing an extension, consider it truncated
-  if (url.endsWith("/tafa-cars") || !/\./.test(url.split('/').pop())) return true;
+  if (url.endsWith("/tafa-cars") || !/\./.test(url.split("/").pop()))
+    return true;
   return false;
 }
 const Car = {
@@ -202,7 +206,11 @@ const Car = {
               );
               images = imgRows.map((r) => r.image_url).filter(Boolean);
             } catch (err) {
-              console.warn("Failed fallback fetch images for car", row.id, err.message);
+              console.warn(
+                "Failed fallback fetch images for car",
+                row.id,
+                err.message,
+              );
             }
           }
 
@@ -211,7 +219,9 @@ const Car = {
             images: images,
             features: parseAndDedupe(row.features),
             price: parseFloat(row.price),
-            discountPrice: row.discount_price ? parseFloat(row.discount_price) : null,
+            discountPrice: row.discount_price
+              ? parseFloat(row.discount_price)
+              : null,
             acceleration: parseFloat(row.acceleration),
             isSold: !!row.is_sold,
           };
@@ -251,7 +261,11 @@ const Car = {
           );
           images = imgRows.map((r) => r.image_url).filter(Boolean);
         } catch (err) {
-          console.warn("Failed fallback fetch images for car", car.id, err.message);
+          console.warn(
+            "Failed fallback fetch images for car",
+            car.id,
+            err.message,
+          );
         }
       }
 
@@ -260,7 +274,9 @@ const Car = {
         images: images,
         features: parseAndDedupe(car.features),
         price: parseFloat(car.price),
-        discountPrice: car.discount_price ? parseFloat(car.discount_price) : null,
+        discountPrice: car.discount_price
+          ? parseFloat(car.discount_price)
+          : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
       };
@@ -296,7 +312,11 @@ const Car = {
           );
           images = imgRows.map((r) => r.image_url).filter(Boolean);
         } catch (err) {
-          console.warn("Failed fallback fetch images for car", car.id, err.message);
+          console.warn(
+            "Failed fallback fetch images for car",
+            car.id,
+            err.message,
+          );
         }
       }
 
@@ -305,7 +325,9 @@ const Car = {
         images: images,
         features: parseAndDedupe(car.features),
         price: parseFloat(car.price),
-        discountPrice: car.discount_price ? parseFloat(car.discount_price) : null,
+        discountPrice: car.discount_price
+          ? parseFloat(car.discount_price)
+          : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
       };
