@@ -156,7 +156,7 @@ const sortOptions = [
   { value: "year-old", label: "Viti: Më i vjetër" },
 ];
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 9;
 
 // Helper to get saved filters from localStorage
 const getSavedFilters = () => {
