@@ -60,6 +60,17 @@ function parseAndDedupe(val) {
   return [];
 }
 
+// Heuristic: detect if a GROUP_CONCAT result was truncated (e.g. ends up as a folder path)
+function isLikelyTruncatedImage(url) {
+  if (!url || typeof url !== "string") return false;
+  // Valid Cloudinary URLs will usually contain '/upload/' and a filename with an extension
+  if (url.includes("/upload/") && /\.(jpg|jpeg|png|webp|gif|avif|svg)$/i.test(url)) {
+    return false;
+  }
+  // If it ends with the folder or is missing an extension, consider it truncated
+  if (url.endsWith("/tafa-cars") || !/\./.test(url.split('/').pop())) return true;
+  return false;
+}
 const Car = {
   // Get all cars with images and features - OPTIMIZED
   async getAll(filters = {}) {
@@ -177,17 +188,37 @@ const Car = {
 
       const [rows] = await db.query(query, params);
 
-      return rows.map((row) => ({
-        ...row,
-        images: parseAndDedupe(row.images),
-        features: parseAndDedupe(row.features),
-        price: parseFloat(row.price),
-        discountPrice: row.discount_price
-          ? parseFloat(row.discount_price)
-          : null,
-        acceleration: parseFloat(row.acceleration),
-        isSold: !!row.is_sold,
-      }));
+      // Resolve images/features and perform fallback fetch for truncated GROUP_CONCAT results
+      const cars = await Promise.all(
+        rows.map(async (row) => {
+          let images = parseAndDedupe(row.images);
+
+          // If any image looks truncated, fetch from car_images directly
+          if (images.some(isLikelyTruncatedImage)) {
+            try {
+              const [imgRows] = await db.query(
+                "SELECT image_url FROM car_images WHERE car_id = ? ORDER BY image_order",
+                [row.id],
+              );
+              images = imgRows.map((r) => r.image_url).filter(Boolean);
+            } catch (err) {
+              console.warn("Failed fallback fetch images for car", row.id, err.message);
+            }
+          }
+
+          return {
+            ...row,
+            images: images,
+            features: parseAndDedupe(row.features),
+            price: parseFloat(row.price),
+            discountPrice: row.discount_price ? parseFloat(row.discount_price) : null,
+            acceleration: parseFloat(row.acceleration),
+            isSold: !!row.is_sold,
+          };
+        }),
+      );
+
+      return cars;
     } catch (error) {
       console.error("Error fetching cars:", error);
       throw error;
@@ -210,14 +241,26 @@ const Car = {
       if (rows.length === 0) return null;
 
       const car = rows[0];
+      // Parse images and fallback if truncated
+      let images = parseAndDedupe(car.images);
+      if (images.some(isLikelyTruncatedImage)) {
+        try {
+          const [imgRows] = await db.query(
+            "SELECT image_url FROM car_images WHERE car_id = ? ORDER BY image_order",
+            [car.id],
+          );
+          images = imgRows.map((r) => r.image_url).filter(Boolean);
+        } catch (err) {
+          console.warn("Failed fallback fetch images for car", car.id, err.message);
+        }
+      }
+
       return {
         ...car,
-        images: parseAndDedupe(car.images),
+        images: images,
         features: parseAndDedupe(car.features),
         price: parseFloat(car.price),
-        discountPrice: car.discount_price
-          ? parseFloat(car.discount_price)
-          : null,
+        discountPrice: car.discount_price ? parseFloat(car.discount_price) : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
       };
@@ -243,14 +286,26 @@ const Car = {
       if (rows.length === 0) return null;
 
       const car = rows[0];
+      // Parse images and fallback if truncated
+      let images = parseAndDedupe(car.images);
+      if (images.some(isLikelyTruncatedImage)) {
+        try {
+          const [imgRows] = await db.query(
+            "SELECT image_url FROM car_images WHERE car_id = ? ORDER BY image_order",
+            [car.id],
+          );
+          images = imgRows.map((r) => r.image_url).filter(Boolean);
+        } catch (err) {
+          console.warn("Failed fallback fetch images for car", car.id, err.message);
+        }
+      }
+
       return {
         ...car,
-        images: parseAndDedupe(car.images),
+        images: images,
         features: parseAndDedupe(car.features),
         price: parseFloat(car.price),
-        discountPrice: car.discount_price
-          ? parseFloat(car.discount_price)
-          : null,
+        discountPrice: car.discount_price ? parseFloat(car.discount_price) : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
       };
