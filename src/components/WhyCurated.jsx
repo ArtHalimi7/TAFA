@@ -158,7 +158,7 @@ export default function WhyCurated() {
               style={{ transitionDelay: `${index * 80}ms` }}
             >
               {/* Card */}
-              <div className="h-full flex flex-col items-start p-8 lg:p-10 border border-white/15 hover:border-white/35 hover:bg-white/8 transition-all duration-500 rounded-lg">
+              <div className="h-full flex flex-col items-start p-8 lg:p-10 border border-white/15 hover:border-white/35 bg-white/8 transition-all duration-500 rounded-lg">
                 {/* Top accent */}
                 <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-white/35 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 

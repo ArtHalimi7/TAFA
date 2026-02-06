@@ -40,7 +40,7 @@ const Hero = () => {
       {/* Main content - Side by side layout on desktop */}
       <div className="relative z-10 flex h-[70vh] lg:min-h-screen w-full">
         {/* Left Content */}
-        <div className="flex flex-col justify-center items-center lg:items-start text-center lg:text-left px-6 sm:px-12 lg:pl-32 xl:pl-40 w-full lg:w-1/2 pt-12 sm:pt-16 lg:pt-0">
+        <div className="flex flex-col justify-start lg:justify-center items-center lg:items-start text-center lg:text-left px-6 sm:px-12 lg:pl-32 xl:pl-40 w-full lg:w-1/2 pt-48 sm:pt-20 lg:pt-8">
           {/* Overline */}
           <div
             className={`mb-4 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
@@ -84,12 +84,12 @@ const Hero = () => {
 
           {/* CTA Button - Tighter spacing */}
           <div
-            className={`mt-8 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+            className={`mt-16 sm:mt-8 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
             style={{ transitionDelay: "0.3s" }}
           >
             <Link
               to="/collection"
-              className="group relative inline-flex items-center gap-3 px-8 py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40"
+              className="group relative inline-flex items-center gap-2 sm:gap-3 px-6 py-3 sm:px-8 sm:py-4 border border-white/20 rounded-full backdrop-blur-sm bg-black/30 text-white font-medium tracking-widest uppercase text-sm transition-all duration-300 hover:bg-white/10 hover:border-white/40"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Shikoni veturat
@@ -110,7 +110,7 @@ const Hero = () => {
           </div>
 
           {/* Mobile Brand Showcase */}
-          <div className="lg:hidden mt-24 sm:mt-32 w-full">
+          <div className="lg:hidden mt-12 sm:mt-32 w-full">
             <div
               className={`flex flex-wrap justify-center gap-6 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
               style={{ transitionDelay: "0.4s" }}
@@ -145,7 +145,7 @@ const Hero = () => {
         </div>
 
         {/* Right Side - Brand Logos (Desktop) */}
-        <div className="hidden lg:flex items-center justify-center w-1/2 pl-24 xl:pl-20 pt-16">
+        <div className="hidden lg:flex items-center justify-center w-1/2 pl-24 xl:pl-20 pt-24">
           <div
             className={`grid grid-cols-3 gap-8 xl:gap-12 transition-all duration-1000 ${isLoaded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"}`}
             style={{ transitionDelay: "0.5s" }}
