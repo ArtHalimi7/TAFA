@@ -22,8 +22,8 @@ const Car = {
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
                c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
-               JSON_ARRAYAGG(ci.image_url ORDER BY ci.image_order) as images,
-               JSON_ARRAYAGG(cf.feature ORDER BY cf.feature_order) as features
+               JSON_ARRAYAGG(ci.image_url) as images,
+               JSON_ARRAYAGG(cf.feature) as features
         FROM cars c
         LEFT JOIN car_images ci ON c.id = ci.car_id
         LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -134,18 +134,30 @@ const Car = {
       return rows.map((row) => ({
         ...row,
         images: (() => {
-          try {
-            return row.images ? JSON.parse(row.images) : [];
-          } catch (e) {
-            return row.images ? row.images.split(",") : [];
+          const img = row.images;
+          if (!img) return [];
+          if (Array.isArray(img)) return img;
+          if (typeof img === "string") {
+            try {
+              return JSON.parse(img);
+            } catch (e) {
+              return img ? img.split(",") : [];
+            }
           }
+          return [];
         })(),
         features: (() => {
-          try {
-            return row.features ? JSON.parse(row.features) : [];
-          } catch (e) {
-            return row.features ? row.features.split(",") : [];
+          const feat = row.features;
+          if (!feat) return [];
+          if (Array.isArray(feat)) return feat;
+          if (typeof feat === "string") {
+            try {
+              return JSON.parse(feat);
+            } catch (e) {
+              return feat ? feat.split(",") : [];
+            }
           }
+          return [];
         })(),
         price: parseFloat(row.price),
         discountPrice: row.discount_price
@@ -165,8 +177,8 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                JSON_ARRAYAGG(ci.image_url ORDER BY ci.image_order) as images,
-                JSON_ARRAYAGG(cf.feature ORDER BY cf.feature_order) as features
+                JSON_ARRAYAGG(ci.image_url) as images,
+                JSON_ARRAYAGG(cf.feature) as features
          FROM cars c
          LEFT JOIN car_images ci ON c.id = ci.car_id
          LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -181,18 +193,30 @@ const Car = {
       return {
         ...car,
         images: (() => {
-          try {
-            return car.images ? JSON.parse(car.images) : [];
-          } catch (e) {
-            return car.images ? car.images.split(",") : [];
+          const img = car.images;
+          if (!img) return [];
+          if (Array.isArray(img)) return img;
+          if (typeof img === "string") {
+            try {
+              return JSON.parse(img);
+            } catch (e) {
+              return img ? img.split(",") : [];
+            }
           }
+          return [];
         })(),
         features: (() => {
-          try {
-            return car.features ? JSON.parse(car.features) : [];
-          } catch (e) {
-            return car.features ? car.features.split(",") : [];
+          const feat = car.features;
+          if (!feat) return [];
+          if (Array.isArray(feat)) return feat;
+          if (typeof feat === "string") {
+            try {
+              return JSON.parse(feat);
+            } catch (e) {
+              return feat ? feat.split(",") : [];
+            }
           }
+          return [];
         })(),
         price: parseFloat(car.price),
         discountPrice: car.discount_price
@@ -212,8 +236,8 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                JSON_ARRAYAGG(ci.image_url ORDER BY ci.image_order) as images,
-                JSON_ARRAYAGG(cf.feature ORDER BY cf.feature_order) as features
+                JSON_ARRAYAGG(ci.image_url) as images,
+                JSON_ARRAYAGG(cf.feature) as features
          FROM cars c
          LEFT JOIN car_images ci ON c.id = ci.car_id
          LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -228,18 +252,30 @@ const Car = {
       return {
         ...car,
         images: (() => {
-          try {
-            return car.images ? JSON.parse(car.images) : [];
-          } catch (e) {
-            return car.images ? car.images.split(",") : [];
+          const img = car.images;
+          if (!img) return [];
+          if (Array.isArray(img)) return img;
+          if (typeof img === "string") {
+            try {
+              return JSON.parse(img);
+            } catch (e) {
+              return img ? img.split(",") : [];
+            }
           }
+          return [];
         })(),
         features: (() => {
-          try {
-            return car.features ? JSON.parse(car.features) : [];
-          } catch (e) {
-            return car.features ? car.features.split(",") : [];
+          const feat = car.features;
+          if (!feat) return [];
+          if (Array.isArray(feat)) return feat;
+          if (typeof feat === "string") {
+            try {
+              return JSON.parse(feat);
+            } catch (e) {
+              return feat ? feat.split(",") : [];
+            }
           }
+          return [];
         })(),
         price: parseFloat(car.price),
         discountPrice: car.discount_price
