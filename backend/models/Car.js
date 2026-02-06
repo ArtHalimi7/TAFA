@@ -22,8 +22,8 @@ const Car = {
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
                c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
                c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
-               JSON_ARRAYAGG(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
-               JSON_ARRAYAGG(DISTINCT cf.feature ORDER BY cf.feature_order) as features
+               JSON_ARRAYAGG(ci.image_url ORDER BY ci.image_order) as images,
+               JSON_ARRAYAGG(cf.feature ORDER BY cf.feature_order) as features
         FROM cars c
         LEFT JOIN car_images ci ON c.id = ci.car_id
         LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -165,8 +165,8 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                JSON_ARRAYAGG(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
-                JSON_ARRAYAGG(DISTINCT cf.feature ORDER BY cf.feature_order) as features
+                JSON_ARRAYAGG(ci.image_url ORDER BY ci.image_order) as images,
+                JSON_ARRAYAGG(cf.feature ORDER BY cf.feature_order) as features
          FROM cars c
          LEFT JOIN car_images ci ON c.id = ci.car_id
          LEFT JOIN car_features cf ON c.id = cf.car_id
@@ -212,8 +212,8 @@ const Car = {
     try {
       const [rows] = await db.query(
         `SELECT c.*, 
-                JSON_ARRAYAGG(DISTINCT ci.image_url ORDER BY ci.image_order) as images,
-                JSON_ARRAYAGG(DISTINCT cf.feature ORDER BY cf.feature_order) as features
+                JSON_ARRAYAGG(ci.image_url ORDER BY ci.image_order) as images,
+                JSON_ARRAYAGG(cf.feature ORDER BY cf.feature_order) as features
          FROM cars c
          LEFT JOIN car_images ci ON c.id = ci.car_id
          LEFT JOIN car_features cf ON c.id = cf.car_id
