@@ -10,6 +10,21 @@ const EMAILJS_SERVICE = process.env.EMAILJS_SERVICE_ID || "service_ftwg9v7";
 const EMAILJS_TEMPLATE = process.env.EMAILJS_TEMPLATE_ID || "template_5rzjgj7";
 const EMAILJS_USER = process.env.EMAILJS_USER_ID || "-NWp731-hJ2KBhmcB";
 
+// Admin recipients: support comma-separated list via env, fallback to two emails
+const rawAdminEmails =
+  process.env.VITE_ADMIN_EMAILS ||
+  process.env.ADMIN_EMAILS ||
+  process.env.VITE_ADMIN_EMAIL ||
+  process.env.ADMIN_EMAIL ||
+  "";
+const adminEmails = rawAdminEmails
+  ? rawAdminEmails
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  : ["arthalimi989@gmail.com", "suelaleka099@gmail.com"];
+const primaryAdminEmail = adminEmails[0];
+
 // Helper to send email: try EmailJS REST first, then SMTP via nodemailer fallback
 async function send2FAEmail(toEmail, code) {
   // If SMTP credentials are not configured, and we're in development, log the code for testing
@@ -28,7 +43,7 @@ async function send2FAEmail(toEmail, code) {
   const SMTP_PORT = process.env.SMTP_PORT;
   const SMTP_USER = process.env.SMTP_USER;
   const SMTP_PASS = process.env.SMTP_PASS;
-  const SMTP_FROM = process.env.SMTP_FROM || "no-reply@autosallontafa.com";
+  const SMTP_FROM = process.env.SMTP_FROM || "no-reply@tafaleka.com";
 
   if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
     const transporter = nodemailer.createTransport({
@@ -94,10 +109,10 @@ async function send2FAEmail(toEmail, code) {
 router.post("/request-2fa", async (req, res) => {
   try {
     const { email } = req.body;
-    const adminEmail = process.env.VITE_ADMIN_EMAIL || process.env.ADMIN_EMAIL;
-    if (!adminEmail)
+    // Use configured admin emails (allow multiple recipients)
+    if (!adminEmails || adminEmails.length === 0)
       return res.status(400).json({ error: "Admin email not configured." });
-    if (email && email !== adminEmail)
+    if (email && !adminEmails.includes(email))
       return res.status(403).json({ error: "Forbidden" });
 
     // generate 6-digit code
@@ -109,7 +124,7 @@ router.post("/request-2fa", async (req, res) => {
     const connection = await db.getConnection();
     await connection.query(
       `INSERT INTO admin_2fa_requests (token, email, code_hash, expires_at, attempts, used) VALUES (?, ?, ?, ?, 0, 0)`,
-      [token, adminEmail, codeHash, expiresAt],
+      [token, primaryAdminEmail, codeHash, expiresAt],
     );
 
     // If frontend will send the email via EmailJS, return the code to the client
@@ -126,8 +141,8 @@ router.post("/request-2fa", async (req, res) => {
       return res.json({ token, code });
     }
 
-    // send email (may throw)
-    await send2FAEmail(adminEmail, code);
+    // send email to all configured admin recipients (may throw)
+    await Promise.all(adminEmails.map((addr) => send2FAEmail(addr, code)));
 
     connection.release();
     return res.json({ token });

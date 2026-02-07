@@ -45,7 +45,7 @@ export const useSEO = ({
     updateMeta("og:type", type);
     updateMeta(
       "og:image",
-      image.startsWith("http") ? image : `https://autosallontafa.com${image}`,
+      image.startsWith("http") ? image : `https://tafaleka.com${image}`,
     );
     if (url) updateMeta("og:url", url);
 
@@ -54,7 +54,7 @@ export const useSEO = ({
     updateMeta("twitter:description", description, true);
     updateMeta(
       "twitter:image",
-      image.startsWith("http") ? image : `https://autosallontafa.com${image}`,
+      image.startsWith("http") ? image : `https://tafaleka.com${image}`,
       true,
     );
 

@@ -167,11 +167,11 @@ export default function Footer() {
                 </li>
                 <li>
                   <a
-                    href="mailto:hello@autosallontafa.com"
+                    href="mailto:hello@tafaleka.com"
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    info@autosallontafa.com
+                    info@tafaleka.com
                   </a>
                 </li>
                 <li>
@@ -400,7 +400,7 @@ export default function Footer() {
                 <p>
                   You have the right to access, correct, or delete your personal
                   information. To exercise these rights, please contact us at
-                  privacy@autosallontafa.com.
+                  privacy@tafaleka.com.
                 </p>
               </section>
 
@@ -410,8 +410,7 @@ export default function Footer() {
                 </h3>
                 <p>
                   If you have questions about this Privacy Policy, please
-                  contact us at hello@autosallontafa.com or call +1 (234)
-                  567-890.
+                  contact us at hello@tafaleka.com or call +1 (234) 567-890.
                 </p>
               </section>
 

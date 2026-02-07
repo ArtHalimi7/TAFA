@@ -36,12 +36,23 @@ app.use(
       "http://localhost:5173",
       "http://localhost:3000",
       "http://127.0.0.1:5173",
+      "http://127.0.0.1:3000",
+      "http://localhost:5174",
+      "http://localhost:5175",
+      // Allow testing via plain http on local network
+      "http://localhost",
       // Netlify frontend
       "https://autotafa.netlify.app",
       "https://www.autotafa.netlify.app",
       // Custom domain frontend
+      // legacy domains (keep for compatibility)
       "https://autosallonitafa.com",
       "https://www.autosallonitafa.com",
+      // New main frontend domain
+      "https://tafaleka.com",
+      "https://www.tafaleka.com",
+      "http://tafaleka.com",
+      "http://www.tafaleka.com",
       // Render backend (self)
       "https://tafa-sc0o.onrender.com",
     ],

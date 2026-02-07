@@ -171,7 +171,7 @@ export default function Contact() {
     },
     {
       label: "Email",
-      value: "info@autosallontafa.com",
+      value: "info@tafaleka.com",
       icon: (
         <svg
           className="w-5 h-5"
@@ -194,7 +194,7 @@ export default function Contact() {
         <>
           E Hënë
           <br />
-           -
+          -
           <br />
           E Shtunë:
           <br />
