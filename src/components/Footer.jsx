@@ -208,12 +208,21 @@ export default function Footer() {
               >
                 Designed & developed by{" "}
                 <a
-                  href="https://arthalimi.netlify.app/"
+                  href="https://arthalimi.com/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-white/80 transition-colors duration-300 font-medium"
+                  aria-label="Visit Art Halimi website (opens in new tab)"
+                  className="text-purple-400 hover:text-purple-300 transition-colors duration-300 font-semibold text-xs sm:text-sm tracking-wide inline-flex items-center gap-2"
                 >
-                  Art Halimi
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    aria-hidden="true"
+                  >
+                    <path d="M10 1l1.9 4.3L16 7l-3.7 2.7L12 14l-2-2.7L8 14l-.3-4.3L4 7l4.1-1.7L10 1z" />
+                  </svg>
+                  <span>Art Halimi</span>
                 </a>
               </p>
             </div>
