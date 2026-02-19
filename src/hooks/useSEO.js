@@ -89,32 +89,32 @@ export const JsonLd = ({ data }) => {
 export const seoContent = {
   home: {
     title:
-      "Auto TAFA | Vetura Luksoze në Shitje në Gjilan, Kosovë | Kerr në Shitje",
+      "Auto TAFA | Tafa Leka | Vetura Luksoze në Shitje në Gjilan, Kosovë",
     description:
-      "Auto TAFA - Saloni më eksklusiv i veturave në Gjilan, Kosovë. Kerr luksoze në shitje, merrjep vetura, Mercedes, BMW, Audi, Porsche. Vizitoni sallonin tonë për veturat më të mira.",
+      "Auto TAFA & Tafa Leka - Saloni më eksklusiv i veturave në Gjilan, Kosovë. Kerr luksoze në shitje, merrjep vetura, Mercedes, BMW, Audi, Porsche. Vizitoni AutoTafa sot.",
     keywords:
-      "auto tafa, kerr ne shitje, vetura ne shitje, merrjep, auto sallon gjilan, vetura luksoze kosove, mercedes gjilan, bmw kosove, audi shitje, porsche kosove, auto shtëpi gjilan, makina ne shitje, vetura gjilan",
+      "auto tafa, tafa leka, autotafa, kerr ne shitje, vetura ne shitje, merrjep, auto sallon gjilan, vetura luksoze kosove, mercedes gjilan, bmw kosove, audi shitje, porsche kosove, makina ne shitje, vetura gjilan",
   },
   collection: {
-    title: "Koleksioni i Veturave | Auto TAFA Gjilan | Kerr në Shitje Kosovë",
+    title: "Koleksioni i Veturave | Auto TAFA | Tafa Leka | Kerr në Shitje",
     description:
-      "Shfletoni koleksionin tonë ekskluziv të veturave luksoze. Mercedes-Benz, BMW, Audi, Porsche dhe më shumë. Kerr në shitje në Gjilan, Kosovë.",
+      "Shfletoni koleksionin e Auto TAFA & Tafa Leka. Veturat më të mira luksoze: Mercedes-Benz, BMW, Audi, Porsche. Kerr në shitje në Gjilan, Kosovë.",
     keywords:
-      "koleksion veturash, kerr ne shitje gjilan, mercedes shitje, bmw shitje kosove, audi ne shitje, vetura luksoze, auto pazar, makina gjilan, merrjep auto",
+      "koleksion veturash, tafa leka vetura, auto tafa kerr, mercedes shitje, bmw shitje kosove, audi ne shitje, vetura luksoze, auto pazar, merrjep auto",
   },
   about: {
-    title: "Rreth Nesh | Auto TAFA - Histori e Suksesit në Gjilan",
+    title: "Rreth Nesh | Auto TAFA & Tafa Leka | Gjilan, Kosovë",
     description:
-      "Njihuni me Auto TAFA - lideri në shitjen e veturave luksoze në Gjilan, Kosovë. Mbi 15 vjet eksperiencë, 500+ vetura të shitura, klientë të kënaqur.",
+      "Njihuni me Auto TAFA & Tafa Leka - liderët në shitjen e veturave luksoze në Gjilan. Mbi 15 vjet eksperiencë në tregun e makinave në Kosovë.",
     keywords:
-      "rreth auto tafa, auto sallon gjilan, histori auto tafa, kush jemi ne, auto dealer kosove, shitës veturash",
+      "rreth auto tafa, kush eshte tafa leka, auto sallon gjilan, histori auto tafa, auto dealer kosove, shitës veturash",
   },
   contact: {
-    title: "Na Kontaktoni | Auto TAFA Gjilan | Telefon, Email, Lokacioni",
+    title: "Na Kontaktoni | Auto TAFA | Tafa Leka | Lokacioni Gjilan",
     description:
-      "Kontaktoni Auto TAFA për të gjitha pyetjet tuaja. Vizitoni sallonin tonë në Gjilan ose na kontaktoni përmes telefonit apo emailit. Jemi këtu për ju!",
+      "Kontaktoni Auto TAFA & Tafa Leka për çdo pyetje. Vizitoni sallonin tonë në Gjilan ose na kontaktoni përmes telefonit apo emailit.",
     keywords:
-      "kontakt auto tafa, telefon auto tafa, adresa auto tafa, lokacioni gjilan, email auto tafa, auto sallon kontakt",
+      "kontakt auto tafa, telefon tafa leka, adresa auto tafa, lokacioni gjilan, auto sallon kontakt, makina ne shitje kontakt",
   },
   carDetail: (car = {}) => ({
     title: `${car.year || ""} ${car.make || ""} ${car.model || ""} | Auto TAFA Gjilan`,
