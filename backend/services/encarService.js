@@ -131,6 +131,32 @@ const MODEL_NAME_MAP = {
   "아르카나": "Arkana",
 };
 
+// Replace Korean text with English using map, keeping any suffixes/prefixes
+function translateWithMap(map, text, stripTrailingKorean = false) {
+  if (!text) return text;
+  // Exact match first
+  if (map[text]) return map[text];
+  // Substring match - replace longest matched Korean key with English value
+  let bestKey = null;
+  let bestVal = null;
+  let bestLen = 0;
+  for (const [key, val] of Object.entries(map)) {
+    if (text.includes(key) && key.length > bestLen) {
+      bestKey = key;
+      bestVal = val;
+      bestLen = key.length;
+    }
+  }
+  if (bestKey) {
+    let result = text.replace(bestKey, bestVal);
+    if (stripTrailingKorean) {
+      result = result.replace(/[\uAC00-\uD7AF()\s]+$/, "").trim();
+    }
+    return result;
+  }
+  return text;
+}
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -396,9 +422,13 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
       }
 
       // 3. Translate and map fields
-      const manufacturerName = BRAND_MAP[car.Manufacturer] || car.Manufacturer;
+      const manufacturerName = translateWithMap(BRAND_MAP, car.Manufacturer, true) || car.Manufacturer;
       const hasLatinModel = /[a-zA-Z]/.test(car.Model);
-      const modelName = hasLatinModel ? car.Model : (MODEL_NAME_MAP[car.Model] || car.Model);
+      let modelName = car.Model;
+      if (!hasLatinModel) {
+        modelName = translateWithMap(MODEL_NAME_MAP, modelName);
+        modelName = modelName.replace(/^[\s]*더\s*뉴\s*/i, "").replace(/^[\s]*올\s*뉴\s*/i, "").replace(/^[\s]*뉴\s*/i, "New ").trim();
+      }
       let name = `${manufacturerName} ${modelName}`;
       let brand = manufacturerName;
       let category = isDomestic ? "SUV" : "Sedan";
