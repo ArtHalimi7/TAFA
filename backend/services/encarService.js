@@ -67,6 +67,54 @@ const COLOR_MAP = {
   "진주": "Perla"
 };
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function callGeminiWithRetry(prompt, apiKey, maxRetries = 3) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        })
+      });
+
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => "");
+        throw new Error(`Gemini API returned ${res.status}${errBody ? `: ${errBody}` : ""}`);
+      }
+
+      const resData = await res.json();
+      let rawText = resData.candidates[0].content.parts[0].text.trim();
+
+      if (rawText.startsWith("```json")) {
+        rawText = rawText.substring(7, rawText.length - 3).trim();
+      } else if (rawText.startsWith("```")) {
+        rawText = rawText.substring(3, rawText.length - 3).trim();
+      }
+
+      return JSON.parse(rawText);
+    } catch (error) {
+      const isRateLimit = error.message.includes("429") || error.message.includes("RESOURCE_EXHAUSTED") || error.message.includes("Too Many Requests");
+      console.error(`❌ Gemini attempt ${attempt}/${maxRetries} failed: ${error.message}${isRateLimit ? " (rate limited)" : ""}`);
+
+      if (attempt === maxRetries) throw error;
+      if (isRateLimit) {
+        const backoff = Math.min(attempt * 2000, 8000);
+        console.log(`⏳ Waiting ${backoff}ms before retry...`);
+        await sleep(backoff);
+      } else {
+        await sleep(1000);
+      }
+    }
+  }
+}
+
 // Translate details using Gemini API
 async function translateCarDetails(car, spec, oneLineText, inspectionData, insuranceData) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -134,33 +182,12 @@ ${insuranceSummary ? `- Insurance History:\n${insuranceSummary}` : ''}
 `;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    });
-
-    if (!res.ok) {
-      throw new Error(`Gemini translation request failed: ${res.status}`);
-    }
-
-    const resData = await res.json();
-    let rawText = resData.candidates[0].content.parts[0].text.trim();
-    
-    // Remove markdown code block wraps if Gemini returns them
-    if (rawText.startsWith("```json")) {
-      rawText = rawText.substring(7, rawText.length - 3).trim();
-    } else if (rawText.startsWith("```")) {
-      rawText = rawText.substring(3, rawText.length - 3).trim();
-    }
-
-    const parsed = JSON.parse(rawText);
+    console.log(`🤖 Translating ${car.Manufacturer} ${car.Model}...`);
+    const parsed = await callGeminiWithRetry(prompt, apiKey);
+    console.log(`✅ Translation successful for ${car.Manufacturer} ${car.Model}`);
     return parsed;
   } catch (error) {
-    console.error("❌ Gemini translation failed:", error.message);
+    console.error(`❌ Gemini translation failed for ${car.Manufacturer} ${car.Model}:`, error.message);
     return null;
   }
 }
@@ -283,8 +310,9 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
       }
 
       // 3. Translate and map fields
-      let name = `${car.Manufacturer} ${car.Model}`;
-      let brand = BRAND_MAP[car.Manufacturer] || car.Manufacturer;
+      const manufacturerName = BRAND_MAP[car.Manufacturer] || car.Manufacturer;
+      let name = `${manufacturerName} ${car.Model}`;
+      let brand = manufacturerName;
       let category = isDomestic ? "SUV" : "Sedan";
       let transmission = TRANSMISSION_MAP[spec.transmissionName] || "Automatike";
       let fuelType = FUEL_MAP[car.FuelType] || FUEL_MAP[spec.fuelName] || "Benzin";
@@ -295,6 +323,8 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
 
       // Try Gemini translation with rich inspection and insurance details
       const translated = await translateCarDetails(car, spec, oneLineText, inspectionData, insuranceData);
+      // Delay to avoid hitting Gemini rate limits
+      await sleep(1500);
       if (translated) {
         name = translated.name || name;
         brand = translated.brand || brand;

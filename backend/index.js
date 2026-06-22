@@ -55,7 +55,7 @@ app.use(
       "http://tafaleka.com",
       "http://www.tafaleka.com",
       // Render backend (self)
-      "hthttps://tafa-66jl.onrender.com",
+      "https://tafa-66jl.onrender.com",
     ],
     credentials: true,
   }),
