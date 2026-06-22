@@ -129,7 +129,23 @@ const MODEL_NAME_MAP = {
   "SM6": "SM6",
   "SM3": "SM3",
   "아르카나": "Arkana",
+  "콜레오스": "Koleos",
+  "스파크": "Spark",
+  "제네시스": "Genesis",
 };
+
+// General Korean words that can appear alongside model names
+const GENERAL_KOREAN_WORDS = {
+  "그랜드": "Grand",
+  "더 넥스트": "The Next",
+  "넥스트": "Next",
+};
+
+const PREMIUM_BRANDS = [
+  "Audi", "BMW", "Mercedes-Benz", "Mercedes", "Porsche",
+  "Land Rover", "Jaguar", "Maserati", "Ferrari", "Lamborghini",
+  "Bentley", "Rolls-Royce", "McLaren", "Aston Martin"
+];
 
 // Replace Korean text with English using map, keeping any suffixes/prefixes
 function translateWithMap(map, text, stripTrailingKorean = false) {
@@ -423,15 +439,27 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
 
       // 3. Translate and map fields
       const manufacturerName = translateWithMap(BRAND_MAP, car.Manufacturer, true) || car.Manufacturer;
-      const hasLatinModel = /[a-zA-Z]/.test(car.Model);
+      const year = spec.year || parseInt(car.FormYear) || 0;
+      // Skip cars older than 2016
+      if (year > 0 && year < 2016) {
+        console.log(`[Encar ID ${car.Id}] Skipping car from ${year} (before 2016)`);
+        skippedCount++;
+        continue;
+      }
+
+      const hasKorean = /[\uAC00-\uD7AF]/.test(car.Model);
       let modelName = car.Model;
-      if (!hasLatinModel) {
+      if (hasKorean) {
         modelName = translateWithMap(MODEL_NAME_MAP, modelName);
+        modelName = translateWithMap(GENERAL_KOREAN_WORDS, modelName);
         modelName = modelName.replace(/^[\s]*더\s*뉴\s*/i, "").replace(/^[\s]*올\s*뉴\s*/i, "").replace(/^[\s]*뉴\s*/i, "New ").trim();
+        // Strip any remaining standalone Korean characters
+        modelName = modelName.replace(/[\uAC00-\uD7AF]+\s*/g, "").trim();
       }
       let name = `${manufacturerName} ${modelName}`;
       let brand = manufacturerName;
-      let category = isDomestic ? "SUV" : "Sedan";
+      const isPremium = PREMIUM_BRANDS.includes(brand);
+      let category = isDomestic && !isPremium ? "SUV" : "Sedan";
       let transmission = TRANSMISSION_MAP[spec.transmissionName] || "Automatike";
       let fuelType = FUEL_MAP[car.FuelType] || FUEL_MAP[spec.fuelName] || "Benzin";
       let color = COLOR_MAP[spec.colorName] || spec.colorName || "E hirtë";
@@ -526,7 +554,7 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
         inspectionData: inspectionData,
         status: "active", // Published immediately
         showcaseImage: 0,
-        isFeatured: 0,
+        isFeatured: isPremium ? 1 : 0,
         isShowcase: 0,
         isSold: 0,
         images: imageList,
