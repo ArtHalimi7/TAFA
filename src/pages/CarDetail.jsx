@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { carsApi } from "../services/api";
+import { SHOW_PRICES } from "../config";
 import logo from "../assets/images/logo.png";
 import mercedesLogo from "../assets/images/mercedes.png";
 import bmwLogo from "../assets/images/bmw.png";
@@ -825,7 +826,7 @@ export default function CarDetail() {
                     </span>
                   </div>
                   <div className="w-px h-12 bg-white/20 hidden sm:block" />
-                  <div className="flex flex-col">
+                  {SHOW_PRICES && <div className="flex flex-col">
                     {car.discountPrice ? (
                       <>
                         <span
@@ -855,7 +856,7 @@ export default function CarDetail() {
                     >
                       Çmimi
                     </span>
-                  </div>
+                  </div>}
                 </div>
               </div>
 
@@ -1543,7 +1544,7 @@ export default function CarDetail() {
                     </div>
 
                     <div className="mt-3 pt-3 border-t border-white/10">
-                      {similarCar.discountPrice ? (
+                      {SHOW_PRICES && similarCar.discountPrice ? (
                         <div className="flex items-center gap-2">
                           <span
                             className="text-xs text-red-400 line-through"
@@ -1568,7 +1569,7 @@ export default function CarDetail() {
                             }).format(similarCar.discountPrice)}
                           </span>
                         </div>
-                      ) : (
+                      ) : SHOW_PRICES ? (
                         <p
                           className="text-white font-semibold"
                           style={{ fontFamily: "Cera Pro, sans-serif" }}
@@ -1580,7 +1581,7 @@ export default function CarDetail() {
                             maximumFractionDigits: 0,
                           }).format(similarCar.price)}
                         </p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
 
@@ -1606,20 +1607,22 @@ export default function CarDetail() {
                 Çmimi i listuar
               </p>
               <div className="flex items-baseline justify-center gap-3">
-                {car.discountPrice && (
+                  {SHOW_PRICES && <>
+                  {car.discountPrice && (
+                    <span
+                      className="text-xl sm:text-2xl text-red-400 line-through"
+                      style={{ fontFamily: "Cera Pro, sans-serif" }}
+                    >
+                      {formatPrice(car.price)}
+                    </span>
+                  )}
                   <span
-                    className="text-xl sm:text-2xl text-red-400 line-through"
+                    className="text-4xl sm:text-5xl lg:text-6xl font-bold"
                     style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    {formatPrice(car.price)}
+                    {formatPrice(car.discountPrice || car.price)}
                   </span>
-                )}
-                <span
-                  className="text-4xl sm:text-5xl lg:text-6xl font-bold"
-                  style={{ fontFamily: "Cera Pro, sans-serif" }}
-                >
-                  {formatPrice(car.discountPrice || car.price)}
-                </span>
+                  </>}
               </div>
 
               {/* CTAs */}

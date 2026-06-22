@@ -4,6 +4,7 @@ import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { SkeletonCarCard } from "../components/Skeleton";
 import { carsApi } from "../services/api";
+import { SHOW_PRICES } from "../config";
 
 function CustomSelect({ value, onChange, options, placeholder, disabled }) {
   const [open, setOpen] = useState(false);
@@ -796,7 +797,7 @@ export default function Collection() {
                       {/* Price and Mileage Row */}
                       <div className="flex items-center justify-between">
                         <div>
-                          {car.discountPrice ? (
+                          {SHOW_PRICES && car.discountPrice ? (
                             <div className="flex items-center gap-2">
                               <span
                                 className="text-sm text-red-400 line-through"
@@ -811,14 +812,14 @@ export default function Collection() {
                                 {formatPrice(car.discountPrice)}
                               </span>
                             </div>
-                          ) : (
+                          ) : SHOW_PRICES ? (
                             <span
                               className="text-xl font-bold text-white"
                               style={{ fontFamily: "Cera Pro, sans-serif" }}
                             >
                               {formatPrice(car.price)}
                             </span>
-                          )}
+                          ) : null}
                           <span
                             className="text-white/40 text-sm ml-2"
                             style={{ fontFamily: "Montserrat, sans-serif" }}

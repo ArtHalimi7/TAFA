@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { LazyImageContain } from "./LazyImage";
 import { SkeletonFeaturedCard } from "./Skeleton";
 import { carsApi } from "../services/api";
+import { SHOW_PRICES } from "../config";
 
 // API Base URL for images
 const API_BASE_URL =
@@ -217,7 +218,7 @@ export default function FeaturedCollection() {
 
                       {/* Price and Arrow */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        {SHOW_PRICES && <div className="flex items-center gap-2">
                           {vehicle.formattedOriginalPrice && (
                             <span
                               className="text-sm text-red-400 line-through"
@@ -232,7 +233,7 @@ export default function FeaturedCollection() {
                           >
                             {vehicle.formattedPrice}
                           </span>
-                        </div>
+                        </div>}
                         <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white group-hover:bg-white transition-all duration-300">
                           <span className="text-white/50 group-hover:text-black transition-colors duration-300">
                             →
