@@ -397,7 +397,8 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
 
       // 3. Translate and map fields
       const manufacturerName = BRAND_MAP[car.Manufacturer] || car.Manufacturer;
-      const modelName = MODEL_NAME_MAP[car.Model] || car.Model;
+      const hasLatinModel = /[a-zA-Z]/.test(car.Model);
+      const modelName = hasLatinModel ? car.Model : (MODEL_NAME_MAP[car.Model] || car.Model);
       let name = `${manufacturerName} ${modelName}`;
       let brand = manufacturerName;
       let category = isDomestic ? "SUV" : "Sedan";
