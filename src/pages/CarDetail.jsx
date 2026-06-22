@@ -513,7 +513,7 @@ export default function CarDetail() {
           isDecimal: true,
         },
         { label: "Shpejtësia maksimale", value: car.topSpeed, suffix: "km/h" },
-      ]
+      ].filter(s => s.value != null && s.value !== "" && s.value !== 0)
     : [];
 
   const formatPrice = (price) => {
@@ -1283,7 +1283,10 @@ export default function CarDetail() {
                 <ul className="list-disc pl-5 space-y-2 text-white/70 text-sm" style={{ fontFamily: "Montserrat" }}>
                   {car.inspectionData.outers.map((o, idx) => {
                     const outerName = EXTERIOR_COORDS[o.type?.code]?.name || INTERIOR_COORDS[o.type?.code]?.name || o.type?.title || 'Pjesë e paidentifikuar';
-                    const statusesStr = o.statusTypes?.map(s => s.title).join(", ") || "";
+                    const statusesStr = o.statusTypes?.map(s => {
+                      const mapped = STATUS_MAP[s.code];
+                      return mapped ? mapped.name : s.title;
+                    }).join(", ") || "";
                     return (
                       <li key={idx}>
                         <strong className="text-white">{outerName}</strong>: {statusesStr}
