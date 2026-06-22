@@ -67,52 +67,138 @@ const COLOR_MAP = {
   "진주": "Perla"
 };
 
+// Korean-to-English model name mapping
+const MODEL_NAME_MAP = {
+  // Hyundai
+  "아반떼": "Avante",
+  "쏘나타": "Sonata",
+  "그랜저": "Grandeur",
+  "투싼": "Tucson",
+  "싼타페": "Santa Fe",
+  "팰리세이드": "Palisade",
+  "코나": "Kona",
+  "아이오닉": "Ioniq",
+  "아이오닉5": "Ioniq 5",
+  "아이오닉6": "Ioniq 6",
+  "베뉴": "Venue",
+  "스타리아": "Staria",
+  "포터": "Porter",
+  "스타렉스": "Starex",
+  "맥스크루즈": "Maxcruz",
+  "벨로스터": "Veloster",
+  "i30": "i30",
+  "i10": "i10",
+  "i20": "i20",
+  "ix35": "ix35",
+  "넥쏘": "Nexo",
+  "캐스퍼": "Casper",
+  // Kia
+  "쏘렌토": "Sorento",
+  "스포티지": "Sportage",
+  "카니발": "Carnival",
+  "모닝": "Morning",
+  "레이": "Ray",
+  "니로": "Niro",
+  "EV6": "EV6",
+  "EV9": "EV9",
+  "셀토스": "Seltos",
+  "스팅어": "Stinger",
+  "K3": "K3",
+  "K5": "K5",
+  "K7": "K7",
+  "K8": "K8",
+  "K9": "K9",
+  "포르테": "Forte",
+  "프라이드": "Pride",
+  "카덴자": "Cadenza",
+  // Genesis
+  "G70": "G70",
+  "G80": "G80",
+  "G90": "G90",
+  "GV60": "GV60",
+  "GV70": "GV70",
+  "GV80": "GV80",
+  // SsangYong / KG Mobility
+  "티볼리": "Tivoli",
+  "코란도": "Korando",
+  "렉스턴": "Rexton",
+  "토레스": "Torres",
+  // Renault Korea / Samsung
+  "QM6": "QM6",
+  "XM3": "XM3",
+  "SM6": "SM6",
+  "SM3": "SM3",
+  "아르카나": "Arkana",
+};
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function callGeminiWithRetry(prompt, apiKey, maxRetries = 3) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+const GEMINI_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+];
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
+async function callGeminiWithRetry(prompt, apiKey, maxRetries = 2) {
+  for (let modelIdx = 0; modelIdx < GEMINI_MODELS.length; modelIdx++) {
+    const model = GEMINI_MODELS[modelIdx];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-      if (!res.ok) {
-        const errBody = await res.text().catch(() => "");
-        throw new Error(`Gemini API returned ${res.status}${errBody ? `: ${errBody}` : ""}`);
-      }
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          })
+        });
 
-      const resData = await res.json();
-      let rawText = resData.candidates[0].content.parts[0].text.trim();
+        if (!res.ok) {
+          const errBody = await res.text().catch(() => "");
+          const isClientError = res.status >= 400 && res.status < 500 && res.status !== 429;
+          if (isClientError) {
+            console.warn(`⚠️ Model ${model} not available (${res.status}), trying next...`);
+            break;
+          }
+          throw new Error(`Gemini API returned ${res.status}${errBody ? `: ${errBody}` : ""}`);
+        }
 
-      if (rawText.startsWith("```json")) {
-        rawText = rawText.substring(7, rawText.length - 3).trim();
-      } else if (rawText.startsWith("```")) {
-        rawText = rawText.substring(3, rawText.length - 3).trim();
-      }
+        const resData = await res.json();
+        let rawText = resData.candidates[0].content.parts[0].text.trim();
 
-      return JSON.parse(rawText);
-    } catch (error) {
-      const isRateLimit = error.message.includes("429") || error.message.includes("RESOURCE_EXHAUSTED") || error.message.includes("Too Many Requests");
-      console.error(`❌ Gemini attempt ${attempt}/${maxRetries} failed: ${error.message}${isRateLimit ? " (rate limited)" : ""}`);
+        if (rawText.startsWith("```json")) {
+          rawText = rawText.substring(7, rawText.length - 3).trim();
+        } else if (rawText.startsWith("```")) {
+          rawText = rawText.substring(3, rawText.length - 3).trim();
+        }
 
-      if (attempt === maxRetries) throw error;
-      if (isRateLimit) {
-        const backoff = Math.min(attempt * 2000, 8000);
-        console.log(`⏳ Waiting ${backoff}ms before retry...`);
-        await sleep(backoff);
-      } else {
-        await sleep(1000);
+        return JSON.parse(rawText);
+      } catch (error) {
+        const isRateLimit = error.message.includes("429") || error.message.includes("RESOURCE_EXHAUSTED") || error.message.includes("Too Many Requests");
+        console.error(`❌ Gemini ${model} attempt ${attempt}/${maxRetries} failed: ${error.message}${isRateLimit ? " (rate limited)" : ""}`);
+
+        if (attempt === maxRetries) {
+          if (modelIdx < GEMINI_MODELS.length - 1) {
+            console.log(`🔄 Trying next model: ${GEMINI_MODELS[modelIdx + 1]}`);
+          }
+          break;
+        }
+        if (isRateLimit) {
+          const backoff = Math.min(attempt * 2000, 8000);
+          console.log(`⏳ Waiting ${backoff}ms before retry...`);
+          await sleep(backoff);
+        } else {
+          await sleep(1000);
+        }
       }
     }
   }
+
+  console.error("❌ All Gemini models exhausted, falling back to dictionary translation");
+  return null;
 }
 
 // Translate details using Gemini API
@@ -311,7 +397,8 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
 
       // 3. Translate and map fields
       const manufacturerName = BRAND_MAP[car.Manufacturer] || car.Manufacturer;
-      let name = `${manufacturerName} ${car.Model}`;
+      const modelName = MODEL_NAME_MAP[car.Model] || car.Model;
+      let name = `${manufacturerName} ${modelName}`;
       let brand = manufacturerName;
       let category = isDomestic ? "SUV" : "Sedan";
       let transmission = TRANSMISSION_MAP[spec.transmissionName] || "Automatike";
