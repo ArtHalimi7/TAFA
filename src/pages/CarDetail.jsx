@@ -22,6 +22,8 @@ import renaultLogo from "../assets/images/renault.png";
 import rollsroyceLogo from "../assets/images/rollsroyce.png";
 import teslaLogo from "../assets/images/tesla.png";
 import volvoLogo from "../assets/images/volvo.png";
+import exteriorImg from "../assets/images/exterior.png";
+import interiorImg from "../assets/images/interior.png";
 
 // API Base URL for images
 const API_BASE_URL =
@@ -49,46 +51,46 @@ const STATUS_MAP = {
 };
 
 const EXTERIOR_COORDS = {
-  'P021': { x: 80, y: 180, name: 'Parafango e parme (Majtas)' },
-  'P031': { x: 80, y: 270, name: 'Dera e parme (Majtas)' },
-  'P033': { x: 80, y: 345, name: 'Dera e pasme (Majtas)' },
-  'P061': { x: 80, y: 420, name: 'Krahu i pasmë anësor (Majtas)' },
-  'P071': { x: 45, y: 307, name: 'Pragu anësor (Majtas)' },
+  'P021': { x: 95, y: 66, name: 'Parafango e parme (Majtas)' },
+  'P031': { x: 80, y: 124, name: 'Dera e parme (Majtas)' },
+  'P033': { x: 80, y: 177, name: 'Dera e pasme (Majtas)' },
+  'P061': { x: 80, y: 252, name: 'Krahu i pasmë anësor (Majtas)' },
+  'P071': { x: 45, y: 184, name: 'Pragu anësor (Majtas)' },
   
-  'P012': { x: 200, y: 70, name: 'Suporti i radiatorit' },
-  'P011': { x: 200, y: 110, name: 'Kapotë (Motor)' },
-  'P042': { x: 200, y: 275, name: 'Tavani (Tavan)' },
-  'P041': { x: 200, y: 430, name: 'Dera e bagazhit (Trunk)' },
+  'P012': { x: 200, y: 42, name: 'Suporti i radiatorit' },
+  'P011': { x: 200, y: 52, name: 'Kapaku i motorrit' },
+  'P042': { x: 200, y: 165, name: 'Tavani (Tavan)' },
+  'P041': { x: 200, y: 258, name: 'Dera e bagazhit (Trunk)' },
   
-  'P022': { x: 320, y: 180, name: 'Parafango e parme (Djathtas)' },
-  'P032': { x: 320, y: 270, name: 'Dera e parme (Djathtas)' },
-  'P034': { x: 320, y: 345, name: 'Dera e pasme (Djathtas)' },
-  'P062': { x: 320, y: 420, name: 'Krahu i pasmë anësor (Djathtas)' },
-  'P072': { x: 355, y: 307, name: 'Pragu anësor (Djathtas)' }
+  'P022': { x: 305, y: 66, name: 'Parafango e parme (Djathtas)' },
+  'P032': { x: 320, y: 124, name: 'Dera e parme (Djathtas)' },
+  'P034': { x: 320, y: 177, name: 'Dera e pasme (Djathtas)' },
+  'P062': { x: 320, y: 252, name: 'Krahu i pasmë anësor (Djathtas)' },
+  'P072': { x: 355, y: 184, name: 'Pragu anësor (Djathtas)' }
 };
 
 const INTERIOR_COORDS = {
-  'P121': { x: 80, y: 200, name: 'Shtylla A (Majtas)' },
-  'P123': { x: 80, y: 285, name: 'Shtylla B (Majtas)' },
-  'P125': { x: 80, y: 370, name: 'Shtylla C (Majtas)' },
-  'P127': { x: 45, y: 285, name: 'Shina anësore e tavanit (Majtas)' },
+  'P121': { x: 80, y: 120, name: 'Shtylla A (Majtas)' },
+  'P123': { x: 80, y: 171, name: 'Shtylla B (Majtas)' },
+  'P125': { x: 80, y: 222, name: 'Shtylla C (Majtas)' },
+  'P127': { x: 45, y: 171, name: 'Shina anësore e tavanit (Majtas)' },
 
-  'P111': { x: 200, y: 65, name: 'Traversa e parme' },
-  'P112': { x: 165, y: 110, name: 'Këmba e parme (Majtas)' },
-  'P113': { x: 235, y: 110, name: 'Këmba e parme (Djathtas)' },
-  'P114': { x: 140, y: 160, name: 'Koshi i amortizatorit (Majtas)' },
-  'P115': { x: 260, y: 160, name: 'Koshi i amortizatorit (Djathtas)' },
-  'P116': { x: 200, y: 210, name: 'Paneli i shoferit / Tablieri' },
-  'P131': { x: 200, y: 350, name: 'Paneli i pasmë i kabinës' },
-  'P132': { x: 200, y: 460, name: 'Traversa e pasme' },
-  'P133': { x: 200, y: 420, name: 'Dyshemeja e bagazhit' },
-  'P134': { x: 165, y: 440, name: 'Këmba e pasme (Majtas)' },
-  'P135': { x: 235, y: 440, name: 'Këmba e pasme (Djathtas)' },
+  'P111': { x: 200, y: 39, name: 'Traversa e parme' },
+  'P112': { x: 165, y: 66, name: 'Këmba e parme (Majtas)' },
+  'P113': { x: 235, y: 66, name: 'Këmba e parme (Djathtas)' },
+  'P114': { x: 140, y: 96, name: 'Koshi i amortizatorit (Majtas)' },
+  'P115': { x: 260, y: 96, name: 'Koshi i amortizatorit (Djathtas)' },
+  'P116': { x: 200, y: 126, name: 'Paneli i shoferit / Tablieri' },
+  'P131': { x: 200, y: 210, name: 'Paneli i pasmë i kabinës' },
+  'P132': { x: 200, y: 276, name: 'Traversa e pasme' },
+  'P133': { x: 200, y: 252, name: 'Dyshemeja e bagazhit' },
+  'P134': { x: 165, y: 264, name: 'Këmba e pasme (Majtas)' },
+  'P135': { x: 235, y: 264, name: 'Këmba e pasme (Djathtas)' },
 
-  'P122': { x: 320, y: 200, name: 'Shtylla A (Djathtas)' },
-  'P124': { x: 320, y: 285, name: 'Shtylla B (Djathtas)' },
-  'P126': { x: 320, y: 370, name: 'Shtylla C (Djathtas)' },
-  'P128': { x: 355, y: 285, name: 'Shina anësore e tavanit (Djathtas)' }
+  'P122': { x: 320, y: 120, name: 'Shtylla A (Djathtas)' },
+  'P124': { x: 320, y: 171, name: 'Shtylla B (Djathtas)' },
+  'P126': { x: 320, y: 222, name: 'Shtylla C (Djathtas)' },
+  'P128': { x: 355, y: 171, name: 'Shina anësore e tavanit (Djathtas)' }
 };
 
 const getStatusByCode = (inners, code) => {
@@ -154,8 +156,6 @@ export default function CarDetail() {
   const [galleryVisible, setGalleryVisible] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [similarCars, setSimilarCars] = useState([]);
-  const [downPaymentPercent, setDownPaymentPercent] = useState(20);
-  const [financingMonths, setFinancingMonths] = useState(60);
   const specsRef = useRef(null);
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
@@ -1172,44 +1172,13 @@ export default function CarDetail() {
                   </h4>
                   
                   {/* Drawing Wrapper */}
-                  <div className="relative w-full max-w-[400px] aspect-[4/5] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center">
-                    <svg viewBox="0 0 400 500" className="w-full h-full text-white/20 select-none">
-                      {/* Left profile car outline */}
-                      <path d="M 85,50 C 95,50 98,70 98,110 L 98,150 L 105,170 L 105,370 L 98,390 L 98,430 C 98,460 92,470 85,470 C 78,470 72,460 72,430 L 72,390 L 65,370 L 65,170 L 72,150 L 72,110 C 72,70 75,50 85,50 Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(255, 255, 255, 0.02)" />
-                      <circle cx="72" cy="140" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
-                      <circle cx="72" cy="410" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
-                      <line x1="65" y1="200" x2="98" y2="200" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="65" y1="285" x2="98" y2="285" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="65" y1="370" x2="98" y2="370" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="82" y1="200" x2="82" y2="370" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
-
-                      {/* Top view outline */}
-                      <path d="M 200,40 C 230,40 240,60 240,100 L 246,170 L 252,175 L 252,370 L 246,375 L 240,430 C 240,460 225,465 200,465 C 175,465 160,460 160,430 L 154,375 L 148,370 L 148,175 L 154,170 L 160,100 C 160,60 170,40 200,40 Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(255, 255, 255, 0.03)" />
-                      <path d="M 160,140 L 240,140" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M 160,140 C 180,180 220,180 240,140" stroke="currentColor" strokeWidth="1.2" />
-                      <path d="M 154,170 C 180,200 220,200 246,170" stroke="currentColor" strokeWidth="1.5" />
-                      <rect x="156" y="200" width="88" height="150" rx="10" ry="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
-                      <path d="M 154,360 C 180,330 220,330 246,360" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M 160,410 L 240,410" stroke="currentColor" strokeWidth="1.5" />
-                      <path d="M 148,185 C 140,185 138,195 142,198 C 145,200 148,198 148,195" stroke="currentColor" strokeWidth="1.2" fill="#222" />
-                      <path d="M 252,185 C 260,185 262,195 258,198 C 255,200 252,198 252,195" stroke="currentColor" strokeWidth="1.2" fill="#222" />
-                      <line x1="170" y1="80" x2="230" y2="80" stroke="currentColor" strokeWidth="1.5" />
-
-                      {/* Right profile car outline */}
-                      <path d="M 315,50 C 325,50 328,70 328,110 L 328,150 L 335,170 L 335,370 L 328,390 L 328,430 C 328,460 322,470 315,470 C 308,470 302,460 302,430 L 302,390 L 295,370 L 295,170 L 302,150 L 302,110 C 302,70 305,50 315,50 Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(255, 255, 255, 0.02)" />
-                      <circle cx="328" cy="140" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
-                      <circle cx="328" cy="410" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
-                      <line x1="295" y1="200" x2="328" y2="200" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="295" y1="285" x2="328" y2="285" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="295" y1="370" x2="328" y2="370" stroke="currentColor" strokeWidth="1.5" />
-                      <line x1="312" y1="200" x2="312" y2="370" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
-
-                      {/* Labels */}
-                      <text x="85" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Jashtë (M)</text>
-                      <text x="200" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Jashtë (Q)</text>
-                      <text x="315" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Jashtë (D)</text>
-
-                      {/* Render damage pins for Exterior */}
+                  <div className="relative w-full max-w-[400px] aspect-[4/3] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={exteriorImg}
+                      alt="Jashtë"
+                      className="absolute inset-0 w-full h-full object-contain p-2"
+                    />
+                    <svg viewBox="0 0 400 300" className="relative w-full h-full select-none pointer-events-none">
                       {renderPins(false)}
                     </svg>
                   </div>
@@ -1222,39 +1191,13 @@ export default function CarDetail() {
                   </h4>
                   
                   {/* Drawing Wrapper */}
-                  <div className="relative w-full max-w-[400px] aspect-[4/5] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center">
-                    <svg viewBox="0 0 400 500" className="w-full h-full text-white/20 select-none">
-                      {/* Left profile structural outline */}
-                      <path d="M 85,50 C 95,50 98,70 98,110 L 98,150 L 105,170 L 105,370 L 98,390 L 98,430 C 98,460 92,470 85,470 C 78,470 72,460 72,430 L 72,390 L 65,370 L 65,170 L 72,150 L 72,110 C 72,70 75,50 85,50 Z" stroke="currentColor" strokeWidth="1" strokeDasharray="3,3" fill="none" />
-                      <path d="M 68,200 L 90,200" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 68,285 L 90,285" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 68,370 L 90,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 68,200 C 68,250 68,350 68,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" fill="none" />
-
-                      {/* Center chassis rails */}
-                      <path d="M 165,80 L 165,190 L 180,210 L 180,350 L 165,370 L 165,450" stroke="currentColor" strokeWidth="3" fill="none" />
-                      <path d="M 235,80 L 235,190 L 220,210 L 220,350 L 235,370 L 235,450" stroke="currentColor" strokeWidth="3" fill="none" />
-                      <line x1="160" y1="80" x2="240" y2="80" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-                      <line x1="160" y1="450" x2="240" y2="450" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
-                      <path d="M 145,130 C 135,130 135,175 145,175" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                      <path d="M 255,130 C 265,130 265,175 255,175" stroke="currentColor" strokeWidth="2.5" fill="none" />
-                      <line x1="150" y1="210" x2="250" y2="210" stroke="currentColor" strokeWidth="2.5" />
-                      <rect x="170" y="380" width="60" height="60" rx="3" stroke="currentColor" strokeWidth="1.5" fill="rgba(255,255,255,0.01)" />
-                      <line x1="160" y1="360" x2="240" y2="360" stroke="currentColor" strokeWidth="2.5" />
-
-                      {/* Right profile structural outline */}
-                      <path d="M 315,50 C 325,50 328,70 328,110 L 328,150 L 335,170 L 335,370 L 328,390 L 328,430 C 328,460 322,470 315,470 C 308,470 302,460 302,430 L 302,390 L 295,370 L 295,170 L 302,150 L 302,110 C 302,70 305,50 315,50 Z" stroke="currentColor" strokeWidth="1" strokeDasharray="3,3" fill="none" />
-                      <path d="M 332,200 L 310,200" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 332,285 L 310,285" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 332,370 L 310,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
-                      <path d="M 332,200 C 332,250 332,350 332,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" fill="none" />
-
-                      {/* Labels */}
-                      <text x="85" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Brenda (M)</text>
-                      <text x="200" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Brenda (Q)</text>
-                      <text x="315" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Brenda (D)</text>
-
-                      {/* Render damage pins for Interior */}
+                  <div className="relative w-full max-w-[400px] aspect-[4/3] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center overflow-hidden">
+                    <img
+                      src={interiorImg}
+                      alt="Brenda"
+                      className="absolute inset-0 w-full h-full object-contain p-2"
+                    />
+                    <svg viewBox="0 0 400 300" className="relative w-full h-full select-none pointer-events-none">
                       {renderPins(true)}
                     </svg>
                   </div>
@@ -1281,18 +1224,23 @@ export default function CarDetail() {
                   Defektet dhe Ndërhyrjet e Detektuara:
                 </h4>
                 <ul className="list-disc pl-5 space-y-2 text-white/70 text-sm" style={{ fontFamily: "Montserrat" }}>
-                  {car.inspectionData.outers.map((o, idx) => {
-                    const outerName = EXTERIOR_COORDS[o.type?.code]?.name || INTERIOR_COORDS[o.type?.code]?.name || o.type?.title || 'Pjesë e paidentifikuar';
-                    const statusesStr = o.statusTypes?.map(s => {
-                      const mapped = STATUS_MAP[s.code];
-                      return mapped ? mapped.name : s.title;
-                    }).join(", ") || "";
-                    return (
-                      <li key={idx}>
-                        <strong className="text-white">{outerName}</strong>: {statusesStr}
-                      </li>
-                    );
-                  })}
+                  {car.inspectionData.outers
+                    .filter(o => {
+                      const code = o.type?.code;
+                      return EXTERIOR_COORDS[code] || INTERIOR_COORDS[code];
+                    })
+                    .map((o, idx) => {
+                      const outerName = EXTERIOR_COORDS[o.type?.code]?.name || INTERIOR_COORDS[o.type?.code]?.name;
+                      const statusesStr = o.statusTypes?.map(s => {
+                        const mapped = STATUS_MAP[s.code];
+                        return mapped ? mapped.name : s.title;
+                      }).join(", ") || "";
+                      return (
+                        <li key={idx}>
+                          <strong className="text-white">{outerName}</strong>: {statusesStr}
+                        </li>
+                      );
+                    })}
                 </ul>
               </div>
             )}
@@ -1648,16 +1596,16 @@ export default function CarDetail() {
       {/* CTA Section */}
       <section className="relative min-h-screen flex items-center justify-center border-t border-white/10">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 w-full py-10 lg:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 gap-8 lg:gap-12 items-start">
             {/* Left side - Price & Info */}
-            <div>
+            <div className="text-center">
               <p
                 className="text-sm text-white/50 uppercase tracking-widest mb-2"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 Çmimi i listuar
               </p>
-              <div className="flex items-baseline gap-3">
+              <div className="flex items-baseline justify-center gap-3">
                 {car.discountPrice && (
                   <span
                     className="text-xl sm:text-2xl text-red-400 line-through"
@@ -1673,15 +1621,9 @@ export default function CarDetail() {
                   {formatPrice(car.discountPrice || car.price)}
                 </span>
               </div>
-              <p
-                className="mt-4 text-white/50 text-sm"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                Financim i disponueshëm • Pranohen këmbime
-              </p>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
                 <button
                   onClick={() =>
                     navigate("/contact", {
@@ -1735,7 +1677,7 @@ export default function CarDetail() {
               </div>
 
               {/* Logo */}
-              <div className="mt-8 ml-20 hidden sm:flex justify-start">
+              <div className="mt-8 hidden sm:flex justify-center">
                 <img
                   src={logo}
                   alt="TAFA Logo"
@@ -1744,139 +1686,7 @@ export default function CarDetail() {
               </div>
             </div>
 
-            {/* Right side - Financing Calculator */}
-            <div className="bg-white/5 border border-white/10 rounded-xl p-5 lg:p-6 backdrop-blur-sm h-fit">
-              <h3
-                className="text-xl font-bold mb-5"
-                style={{ fontFamily: "Cera Pro, sans-serif" }}
-              >
-                Plani i Financimit
-              </h3>
 
-              {/* Down Payment */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <label
-                    className="text-xs text-white/70 uppercase tracking-wider"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Pagesa Paraprakisht ({downPaymentPercent}%)
-                  </label>
-                  <span
-                    className="text-sm font-semibold text-white"
-                    style={{ fontFamily: "Cera Pro, sans-serif" }}
-                  >
-                    {formatPrice(
-                      ((car.discountPrice || car.price) * downPaymentPercent) /
-                        100,
-                    )}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="50"
-                  value={downPaymentPercent}
-                  onChange={(e) =>
-                    setDownPaymentPercent(parseInt(e.target.value))
-                  }
-                  className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-                />
-                <div className="flex justify-between text-xs text-white/40 mt-1.5">
-                  <span>5%</span>
-                  <span>50%</span>
-                </div>
-              </div>
-
-              {/* Financing Duration */}
-              <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <label
-                    className="text-xs text-white/70 uppercase tracking-wider"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Periudha Financimi
-                  </label>
-                  <span
-                    className="text-sm font-semibold text-white"
-                    style={{ fontFamily: "Cera Pro, sans-serif" }}
-                  >
-                    {financingMonths} muaj
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {[24, 36, 48, 60].map((months) => (
-                    <button
-                      key={months}
-                      onClick={() => setFinancingMonths(months)}
-                      className={`py-1.5 rounded text-xs font-medium transition-all duration-300 ${
-                        financingMonths === months
-                          ? "bg-white text-black"
-                          : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
-                      }`}
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      {months}mo
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Monthly Payment */}
-              <div className="bg-white/10 border border-white/20 rounded-lg p-3 mb-4">
-                <p
-                  className="text-xs text-white/60 uppercase tracking-wider mb-1"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Pagesa Mujore
-                </p>
-                <p
-                  className="text-2xl font-bold text-white"
-                  style={{ fontFamily: "Cera Pro, sans-serif" }}
-                >
-                  {formatPrice(
-                    ((car.discountPrice || car.price) *
-                      (1 - downPaymentPercent / 100)) /
-                      financingMonths,
-                  )}
-                </p>
-              </div>
-
-              {/* Summary */}
-              <div className="space-y-2 text-xs border-t border-white/10 pt-3">
-                <div className="flex justify-between">
-                  <span className="text-white/60">Çmimi i mjetit:</span>
-                  <span className="text-white font-medium">
-                    {formatPrice(car.discountPrice || car.price)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Pagesa paraprakisht:</span>
-                  <span className="text-white font-medium">
-                    {formatPrice(
-                      ((car.discountPrice || car.price) * downPaymentPercent) /
-                        100,
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Shuma për financim:</span>
-                  <span className="text-white font-medium">
-                    {formatPrice(
-                      (car.discountPrice || car.price) *
-                        (1 - downPaymentPercent / 100),
-                    )}
-                  </span>
-                </div>
-              </div>
-
-              <p
-                className="text-xs text-white/40 mt-3 italic"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                *Kontaktoni për detaje të sakta të financimit.
-              </p>
-            </div>
           </div>
         </div>
       </section>

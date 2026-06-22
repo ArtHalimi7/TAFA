@@ -272,6 +272,21 @@ const initializeDatabase = async () => {
     `);
     console.log("✅ admin_sessions table ready");
 
+    // Normalize brand names to match frontend filter labels
+    try {
+      const [result] = await connection.query(
+        `UPDATE cars SET brand = 'Mercedes' WHERE brand = 'Mercedes-Benz'`
+      );
+      if (result.affectedRows > 0) console.log(`🔄 Normalized ${result.affectedRows} Mercedes-Benz → Mercedes`);
+    } catch (e) { /* ignore */ }
+
+    try {
+      const [result] = await connection.query(
+        `UPDATE cars SET brand = 'Renault' WHERE brand IN ('Renault Korea', 'Renault Samsung')`
+      );
+      if (result.affectedRows > 0) console.log(`🔄 Normalized ${result.affectedRows} Renault Korea/Samsung → Renault`);
+    } catch (e) { /* ignore */ }
+
     connection.release();
     console.log("✅ All database tables initialized successfully");
     return true;

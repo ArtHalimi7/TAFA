@@ -231,10 +231,10 @@ export const healthCheck = async () => {
 // ============ SYNC API ============
 
 export const syncApi = {
-  syncEncar: async (limit, isDomestic) => {
+  syncEncar: async (limit, isDomestic, sortBy = "ModifiedDate", pages = 1) => {
     return apiCall("/sync/encar", {
       method: "POST",
-      body: JSON.stringify({ limit, isDomestic }),
+      body: JSON.stringify({ limit, isDomestic, sortBy, pages }),
     });
   },
 };

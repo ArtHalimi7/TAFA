@@ -181,7 +181,7 @@ const Car = {
       }
 
       // Pagination with default limit for performance
-      const limit = Math.min(parseInt(filters.limit) || 20, 100);
+      const limit = Math.min(parseInt(filters.limit) || 200, 500);
       query += " LIMIT ?";
       params.push(limit);
 

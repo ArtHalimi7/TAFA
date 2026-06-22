@@ -1,29 +1,69 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
 import { SkeletonCarCard } from "../components/Skeleton";
 import { carsApi } from "../services/api";
 
-// Brand logos
-import mercedesLogo from "../assets/images/mercedes.png";
-import bmwLogo from "../assets/images/bmw.png";
-import audiLogo from "../assets/images/audi.png";
-import lamboLogo from "../assets/images/lambo.png";
-import ferrariLogo from "../assets/images/ferrari.png";
-import porscheLogo from "../assets/images/porsche.png";
-import bugattiLogo from "../assets/images/bugatti.png";
-import alfaLogo from "../assets/images/alfa.png";
-import bentleyLogo from "../assets/images/bentley.png";
-import citroenLogo from "../assets/images/citroen.png";
-import dodgeLogo from "../assets/images/dodge.png";
-import landroverLogo from "../assets/images/landrover.png";
-import peugeotLogo from "../assets/images/peugeot.png";
-import renaultLogo from "../assets/images/renault.png";
-import rollsroyceLogo from "../assets/images/rollsroyce.png";
-import teslaLogo from "../assets/images/tesla.png";
-import volvoLogo from "../assets/images/volvo.png";
-import vwLogo from "../assets/images/vw.png";
+function CustomSelect({ value, onChange, options, placeholder, disabled }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen(!open)}
+        className={`w-full px-4 py-3 bg-transparent border rounded-lg text-sm text-left flex items-center justify-between transition-colors ${
+          disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+        } ${open ? "border-white/40" : "border-white/20 hover:border-white/40"}`}
+        style={{ fontFamily: "Montserrat, sans-serif" }}
+      >
+        <span className={selected ? "text-white/90" : "text-white/40"}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <svg className={`w-4 h-4 text-white/50 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute z-[9999] left-0 right-0 top-full mt-1 max-h-60 overflow-y-auto bg-black border border-white/20 rounded-xl shadow-2xl py-2">
+          <button
+            type="button"
+            onClick={() => { onChange(""); setOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${!value ? "bg-white/15 text-white border-l-2 border-white" : "text-white/60 hover:text-white hover:bg-white/8"}`}
+            style={{ fontFamily: "Montserrat, sans-serif" }}
+          >
+            {placeholder}
+          </button>
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${value === opt.value ? "bg-white/15 text-white border-l-2 border-white" : "text-white/70 hover:text-white hover:bg-white/8"}`}
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 
 // API Base URL for images
 const API_BASE_URL =
@@ -41,113 +81,6 @@ const getImageUrl = (path) => {
   return `${API_BASE_URL}${path}`;
 };
 
-// Brand logos mapping - add more logos here as they become available
-const brandLogos = {
-  Mercedes: { logo: mercedesLogo },
-  BMW: { logo: bmwLogo, filter: true },
-  Audi: { logo: audiLogo },
-  Volkswagen: { logo: vwLogo },
-  Porsche: { logo: porscheLogo },
-  "Alfa Romeo": { logo: alfaLogo },
-  Bentley: { logo: bentleyLogo },
-  Bugatti: { logo: bugattiLogo },
-  Citroen: { logo: citroenLogo },
-  Dodge: { logo: dodgeLogo },
-  Ferrari: { logo: ferrariLogo },
-  Lamborghini: { logo: lamboLogo },
-  "Land Rover": { logo: landroverLogo },
-  Peugeot: { logo: peugeotLogo },
-  Renault: { logo: renaultLogo },
-  "Rolls-Royce": { logo: rollsroyceLogo },
-  Tesla: { logo: teslaLogo },
-  Volvo: { logo: volvoLogo },
-};
-
-// All supported brands (will only show if car exists AND logo exists)
-const allBrands = [
-  "Mercedes",
-  "BMW",
-  "Audi",
-  "Volkswagen",
-  "Porsche",
-  "Alfa Romeo",
-  "Alpine",
-  "Aston Martin",
-  "Bentley",
-  "Bugatti",
-  "Citroen",
-  "Dodge",
-  "Chevrolet",
-  "Cupra",
-  "DS",
-  "Ferrari",
-  "Fiat",
-  "Jaguar",
-  "Lamborghini",
-  "Land Rover",
-  "Lotus",
-  "Maserati",
-  "McLaren",
-  "Mini",
-  "Opel",
-  "Pagani",
-  "Peugeot",
-  "Renault",
-  "Rolls-Royce",
-  "Seat",
-  "Skoda",
-  "Smart",
-  "Tesla",
-  "Volvo",
-];
-
-const categories = [
-  "Të gjitha",
-  "Performancë",
-  "Sedan",
-  "Elektrik",
-  "SUV",
-  "Kupe",
-];
-
-const priceRanges = [
-  { label: "Të gjitha çmimet", min: 0, max: Infinity },
-  { label: "Nën €25K", min: 0, max: 25000 },
-  { label: "Nën €60K", min: 0, max: 60000 },
-  { label: "Nën €100K", min: 0, max: 100000 },
-  { label: "Mbi €100K", min: 100000, max: Infinity },
-];
-
-const years = [
-  "Të gjitha vitet",
-  "2026",
-  "2025",
-  "2024",
-  "2023",
-  "2022",
-  "2021",
-  "2020",
-  "2019",
-  "2018",
-  "2017",
-  "2016",
-  "2015",
-  "2014",
-  "2013",
-  "2012",
-  "2011",
-  "2010",
-];
-
-const fuelTypes = [
-  "Të gjitha",
-  "Benzin",
-  "Diesel",
-  "Hibrid Diesel",
-  "Hibrid Benzin",
-  "Elektrik",
-];
-
 const sortOptions = [
   { value: "featured", label: "Sipas relevancës" },
   { value: "price-low", label: "Çmimi: ulët në të lartë" },
@@ -155,6 +88,83 @@ const sortOptions = [
   { value: "year-new", label: "Viti: Më i ri" },
   { value: "year-old", label: "Viti: Më i vjetër" },
 ];
+
+const yearOptions = Array.from({ length: 18 }, (_, i) => String(2026 - i));
+
+const PREMIUM_BRANDS = [
+  "Audi", "Bentley", "BMW", "Bugatti", "Ferrari", "Lamborghini",
+  "Land Rover", "Lexus", "Maserati", "McLaren", "Mercedes",
+  "Porsche", "Rolls-Royce", "Tesla", "Volvo",
+];
+
+const ALL_BRANDS = [
+  ...PREMIUM_BRANDS,
+  "Alfa Romeo", "Alpine", "Aston Martin", "Chevrolet", "Citroen", "Cupra",
+  "Daewoo", "Dodge", "DS", "Fiat", "Ford", "Genesis", "Honda", "Hyundai", "Jaguar",
+  "Jeep", "KG Mobility", "Kia", "Lotus", "Mazda", "Mini", "Mitsubishi",
+  "Nissan", "Opel", "Pagani", "Peugeot", "Polestar", "Renault",
+  "Seat", "Skoda", "Smart", "SsangYong", "Subaru", "Suzuki", "Toyota",
+  "Volkswagen",
+];
+
+const ALL_CATEGORIES = [
+  "SUV", "Sedan", "Kupe", "Kabriolet", "Haxhbek",
+  "Karavan", "Minivan", "Pickup", "Elektrik", "Performancë",
+];
+
+const MODELS_BY_BRAND = {
+  "Audi": ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "e-tron", "e-tron GT", "Q2", "Q3", "Q4 e-tron", "Q5", "Q6 e-tron", "Q7", "Q8", "R8", "RS3", "RS4", "RS5", "RS6", "RS7", "RS Q3", "RS Q8", "S3", "S4", "S5", "S6", "S7", "S8", "SQ5", "SQ7", "SQ8", "TT"],
+  "Bentley": ["Azure", "Bentayga", "Continental GT", "Flying Spur", "Mulsanne"],
+  "BMW": ["1 Series", "2 Series", "3 Series", "4 Series", "5 Series", "6 Series", "7 Series", "8 Series", "i3", "i4", "i5", "i7", "iX", "iX1", "iX3", "M2", "M3", "M4", "M5", "M8", "X1", "X2", "X3", "X3 M", "X4", "X4 M", "X5", "X5 M", "X6", "X6 M", "X7", "XM", "Z4"],
+  "Bugatti": ["Bolide", "Chiron", "Divo", "Mistral", "La Voiture Noire", "Tourbillon", "Veyron"],
+  "Ferrari": ["296 GTB", "296 GTS", "348", "360", "412", "456", "458", "488", "512", "599", "612", "812 Superfast", "812 GTS", "California", "Daytona SP3", "Enzo", "F8 Tributo", "F8 Spider", "F40", "F50", "GTC4Lusso", "LaFerrari", "Portofino", "Purosangue", "Roma", "SF90 Stradale", "SF90 Spider", "Testarossa"],
+  "Lamborghini": ["Aventador", "Countach", "Diablo", "Gallardo", "Huracán", "Murciélago", "Revuelto", "Temerario", "Urus"],
+  "Land Rover": ["Defender", "Discovery", "Discovery Sport", "Range Rover", "Range Rover Evoque", "Range Rover Sport", "Range Rover Velar"],
+  "Lexus": ["CT", "ES", "GS", "GX", "IS", "LC", "LM", "LS", "LX", "NX", "RC", "RZ", "RX", "TX", "UX"],
+  "Maserati": ["Ghibli", "GranCabrio", "GranTurismo", "Grecale", "Levante", "MC20", "Quattroporte"],
+  "McLaren": ["570S", "600LT", "650S", "720S", "765LT", "Artura", "Elva", "GT", "P1", "Senna", "Solus GT", "Speedtail"],
+  "Mercedes": ["A-Class", "AMG GT", "AMG One", "B-Class", "C-Class", "CLA", "CLE", "CLS", "E-Class", "EQA", "EQB", "EQC", "EQE", "EQS", "EQT", "EQV", "G-Class", "GL-Class", "GLA", "GLB", "GLC", "GLE", "GLS", "Maybach S-Class", "S-Class", "SL", "SLC", "V-Class"],
+  "Porsche": ["718", "911", "918 Spyder", "Boxster", "Carrera GT", "Cayenne", "Cayman", "Macan", "Panamera", "Taycan"],
+  "Rolls-Royce": ["Cullinan", "Dawn", "Ghost", "Phantom", "Silver Ghost", "Spectre", "Wraith"],
+  "Tesla": ["Cybertruck", "Model 3", "Model S", "Model X", "Model Y", "Roadster"],
+  "Volvo": ["C40", "EX30", "EX90", "S60", "S80", "S90", "V40", "V60", "V70", "V90", "XC40", "XC60", "XC70", "XC90"],
+  "Alfa Romeo": ["4C", "33 Stradale", "Giulia", "Giulietta", "Spider", "Stelvio", "Tonale"],
+  "Alpine": ["A110", "A290"],
+  "Aston Martin": ["DB11", "DB12", "DB5", "DB9", "DBS", "DBX", "Rapide", "Valhalla", "Valkyrie", "Vantage", "Vanquish", "Virgil"],
+  "Chevrolet": ["Blazer", "Bolt", "Camaro", "Captiva", "Colorado", "Corvette", "Cruze", "Equinox", "Impala", "Malibu", "Silverado", "Spark", "Suburban", "Tahoe", "TrailBlazer", "Traverse", "Trax"],
+  "Citroen": ["Ami", "Berlingo", "C1", "C2", "C3", "C3 Aircross", "C4", "C4 Cactus", "C5", "C5 Aircross", "C6", "DS", "SpaceTourer"],
+  "Cupra": ["Ateca", "Born", "Formentor", "Leon", "Tavascan", "Terramar"],
+  "Daewoo": ["Espero", "Kalos", "Lacetti", "Lanos", "Leganza", "Matiz", "Nexia", "Nubira", "Prince", "Rezzo", "Tacuma", "Tico"],
+  "Dodge": ["Challenger", "Charger", "Durango", "Grand Caravan", "Hornet", "Journey", "Viper"],
+  "DS": ["DS 3", "DS 4", "DS 7", "DS 9"],
+  "Fiat": ["124 Spider", "500", "500L", "500X", "Doblo", "Ducato", "Fullback", "Panda", "Punto", "Qubo", "Scudo", "Tipo", "Talento"],
+  "Ford": ["Bronco", "Edge", "Escape", "Explorer", "F-150", "Fiesta", "Focus", "Fusion", "Galaxy", "Grand C-MAX", "Kuga", "Maverick", "Mondeo", "Mustang", "Mustang Mach-E", "Puma", "Ranger", "S-MAX", "Tourneo", "Transit"],
+  "Genesis": ["G70", "G80", "G90", "GV60", "GV70", "GV80"],
+  "Honda": ["Accord", "Civic", "CR-V", "CR-Z", "E", "HR-V", "Insight", "Jazz", "NSX", "Odyssey", "Pilot", "Ridgeline", "S2000", "Shuttle"],
+  "Hyundai": ["Accent", "Bayon", "Elantra", "Genesis", "Grandeur", "i10", "i20", "i30", "i40", "IONIQ", "IONIQ 5", "IONIQ 6", "IONIQ 9", "Kona", "Nexo", "Palisade", "Santa Fe", "Sonata", "Staria", "Tucson", "Veloster", "Venue"],
+  "Jaguar": ["E-PACE", "F-PACE", "F-TYPE", "I-PACE", "XE", "XF", "XJ", "XK", "XJS"],
+  "Jeep": ["Avenger", "Cherokee", "Compass", "Gladiator", "Grand Cherokee", "Renegade", "Wagoneer", "Wrangler"],
+  "Kia": ["Carens", "Carnival", "Ceed", "EV6", "EV9", "K5", "K9", "Mohave", "Niro", "Optima", "Picanto", "ProCeed", "Rio", "Seltos", "Sorento", "Soul", "Sportage", "Stinger", "Stonic", "Telluride", "XCeed"],
+  "Lotus": ["Eletre", "Elise", "Emeya", "Emira", "Evija", "Evora", "Exige"],
+  "Mazda": ["2", "3", "6", "CX-3", "CX-30", "CX-5", "CX-60", "CX-70", "CX-80", "CX-90", "MX-30", "MX-5", "RX-7", "RX-8"],
+  "Mini": ["Aceman", "Clubman", "Cooper", "Cooper S", "Countryman", "Electric", "John Cooper Works", "Paceman"],
+  "Mitsubishi": ["ASX", "Colt", "Eclipse Cross", "L200", "Lancer", "Outlander", "Pajero", "Shogun", "Space Star", "Triton"],
+  "KG Mobility": ["Korando", "Rexton", "Tivoli", "Torres"],
+  "Nissan": ["370Z", "Ariya", "GT-R", "Juke", "Leaf", "Micra", "Murano", "Navara", "Note", "Pathfinder", "Patrol", "Primera", "Qashqai", "Skyline", "X-Trail", "Z"],
+  "Opel": ["Adam", "Astra", "Cascada", "Combo", "Corsa", "Crossland", "Grandland", "Insignia", "Karl", "Mokka", "Rocks-e", "Vivaro", "Zafira"],
+  "Pagani": ["Huayra", "Imola", "Utopia", "Zonda"],
+  "Peugeot": ["108", "208", "2008", "3008", "308", "4008", "408", "5008", "508", "508", "e-208", "e-2008", "e-3008", "e-308", "Partner", "Rifter", "Traveller"],
+  "Polestar": ["1", "2", "3", "4", "5"],
+  "Renault": ["Arkana", "Austral", "Captur", "Clio", "Espace", "Kadjar", "Kangoo", "Laguna", "Master", "Megane", "Rafale", "Scenic", "Talisman", "Trafic", "Twingo", "Zoe"],
+  "Seat": ["Alhambra", "Arona", "Ateca", "Ibiza", "Leon", "Mii", "Tarraco"],
+  "Skoda": ["Citigo", "Enyaq", "Fabia", "Kamiq", "Karoq", "Kodiaq", "Octavia", "Rapid", "Scala", "Superb", "Yeti"],
+  "Smart": ["#1", "#3", "Forfour", "Fortwo"],
+  "SsangYong": ["Korando", "Korando Family", "Musso", "Rexton", "Rodius", "Stavic", "Tivoli", "Tivoli XLV"],
+  "Subaru": ["Ascent", "BRZ", "Forester", "Impreza", "Legacy", "Levorg", "Outback", "Solterra", "WRX", "XV"],
+  "Suzuki": ["Across", "Alto", "Baleno", "Celerio", "Ignis", "Jimny", "S-Cross", "Swace", "Swift", "Vitara"],
+  "Toyota": ["4Runner", "Aygo", "bZ4X", "C-HR", "Camry", "Celica", "Corolla", "FJ Cruiser", "GR Yaris", "GR86", "GT86", "Hiace", "Highlander", "Hilux", "Land Cruiser", "Mirai", "MR2", "Prado", "Prius", "Proace", "RAV4", "Sequoia", "Sienna", "Supra", "Tacoma", "Tundra", "Urban Cruiser", "Yaris", "Yaris Cross"],
+  "Volkswagen": ["Amarok", "Arteon", "Beetle", "Caddy", "California", "Caravelle", "Golf", "ID.3", "ID.4", "ID.5", "ID.7", "ID.Buzz", "Jetta", "Lavida", "Nivus", "Passat", "Phaeton", "Polo", "Scirocco", "Sharan", "Taigo", "Taos", "T-Cross", "Tiguan", "Touareg", "Touran", "Transporter", "T-Roc", "Up!", "Virtus"],
+};
 
 const ITEMS_PER_PAGE = 9;
 
@@ -181,24 +191,32 @@ export default function Collection() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(true);
   const [allCars, setAllCars] = useState([]);
-  const [selectedBrands, setSelectedBrands] = useState(
-    savedFilters?.selectedBrands || [],
+  const [selectedBrand, setSelectedBrand] = useState(
+    savedFilters?.selectedBrand || "",
+  );
+  const [selectedModel, setSelectedModel] = useState(
+    savedFilters?.selectedModel || "",
   );
   const [selectedCategory, setSelectedCategory] = useState(
-    savedFilters?.selectedCategory || "Të gjitha",
-  );
-  const [selectedPriceRange, setSelectedPriceRange] = useState(
-    savedFilters?.selectedPriceRange
-      ? priceRanges.find(
-          (r) => r.label === savedFilters.selectedPriceRange.label,
-        ) || priceRanges[0]
-      : priceRanges[0],
-  );
-  const [selectedYear, setSelectedYear] = useState(
-    savedFilters?.selectedYear || "Të gjitha vitet",
+    savedFilters?.selectedCategory || "",
   );
   const [selectedFuelType, setSelectedFuelType] = useState(
-    savedFilters?.selectedFuelType || "Të gjitha",
+    savedFilters?.selectedFuelType || "",
+  );
+  const [selectedDrivetrain, setSelectedDrivetrain] = useState(
+    savedFilters?.selectedDrivetrain || "",
+  );
+  const [selectedOrigin, setSelectedOrigin] = useState(
+    savedFilters?.selectedOrigin || "",
+  );
+  const [yearFrom, setYearFrom] = useState(
+    savedFilters?.yearFrom || "",
+  );
+  const [priceUpTo, setPriceUpTo] = useState(
+    savedFilters?.priceUpTo || "",
+  );
+  const [kmUpTo, setKmUpTo] = useState(
+    savedFilters?.kmUpTo || "",
   );
   const [sortBy, setSortBy] = useState(savedFilters?.sortBy || "featured");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -212,21 +230,29 @@ export default function Collection() {
   // Save filters to localStorage whenever they change
   useEffect(() => {
     const filters = {
-      selectedBrands,
+      selectedBrand,
+      selectedModel,
       selectedCategory,
-      selectedPriceRange,
-      selectedYear,
       selectedFuelType,
+      selectedDrivetrain,
+      selectedOrigin,
+      yearFrom,
+      priceUpTo,
+      kmUpTo,
       sortBy,
       searchQuery,
     };
     localStorage.setItem("collectionFilters", JSON.stringify(filters));
   }, [
-    selectedBrands,
+    selectedBrand,
+    selectedModel,
     selectedCategory,
-    selectedPriceRange,
-    selectedYear,
     selectedFuelType,
+    selectedDrivetrain,
+    selectedOrigin,
+    yearFrom,
+    priceUpTo,
+    kmUpTo,
     sortBy,
     searchQuery,
   ]);
@@ -236,7 +262,7 @@ export default function Collection() {
     const fetchCars = async () => {
       try {
         setIsContentLoading(true);
-        const response = await carsApi.getActiveCars();
+        const response = await carsApi.getActiveCars({ limit: 200 });
         if (response.success) {
           // Transform backend data
           const transformedCars = response.data.map((car) => ({
@@ -278,30 +304,51 @@ export default function Collection() {
     }
 
     // Filter by brand
-    if (selectedBrands.length > 0) {
-      result = result.filter((car) => selectedBrands.includes(car.brand));
+    if (selectedBrand) {
+      result = result.filter((car) => car.brand === selectedBrand);
+    }
+
+    // Filter by model (partial match against car name)
+    if (selectedModel) {
+      const modelQuery = selectedModel.toLowerCase();
+      result = result.filter((car) => car.name.toLowerCase().includes(modelQuery));
     }
 
     // Filter by category
-    if (selectedCategory !== "Të gjitha") {
+    if (selectedCategory) {
       result = result.filter((car) => car.category === selectedCategory);
     }
 
-    // Filter by price range
-    result = result.filter(
-      (car) =>
-        car.price >= selectedPriceRange.min &&
-        car.price <= selectedPriceRange.max,
-    );
-
-    // Filter by year
-    if (selectedYear !== "Të gjitha vitet") {
-      result = result.filter((car) => car.year === parseInt(selectedYear));
+    // Filter by fuel type
+    if (selectedFuelType) {
+      result = result.filter((car) => car.fuel_type === selectedFuelType);
     }
 
-    // Filter by fuel type
-    if (selectedFuelType !== "Të gjitha") {
-      result = result.filter((car) => car.fuel_type === selectedFuelType);
+    // Filter by drivetrain
+    if (selectedDrivetrain) {
+      result = result.filter((car) => car.drivetrain === selectedDrivetrain);
+    }
+
+    // Filter by origin
+    if (selectedOrigin) {
+      result = result.filter((car) =>
+        selectedOrigin === "Kore e Jugut" ? car.encar_id : !car.encar_id
+      );
+    }
+
+    // Filter by year from
+    if (yearFrom) {
+      result = result.filter((car) => car.year >= parseInt(yearFrom));
+    }
+
+    // Filter by max price
+    if (priceUpTo) {
+      result = result.filter((car) => car.price <= parseInt(priceUpTo));
+    }
+
+    // Filter by max km
+    if (kmUpTo) {
+      result = result.filter((car) => car.mileage <= parseInt(kmUpTo));
     }
 
     // Sort
@@ -327,11 +374,15 @@ export default function Collection() {
     setCurrentPage(1); // Reset to first page when filters change
   }, [
     allCars,
-    selectedBrands,
+    selectedBrand,
+    selectedModel,
     selectedCategory,
-    selectedPriceRange,
-    selectedYear,
     selectedFuelType,
+    selectedDrivetrain,
+    selectedOrigin,
+    yearFrom,
+    priceUpTo,
+    kmUpTo,
     sortBy,
     searchQuery,
   ]);
@@ -354,42 +405,40 @@ export default function Collection() {
     currentPage * ITEMS_PER_PAGE,
   );
 
-  const toggleBrand = (brandName) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brandName)
-        ? prev.filter((b) => b !== brandName)
-        : [...prev, brandName],
-    );
-  };
-
   const clearFilters = () => {
-    setSelectedBrands([]);
-    setSelectedCategory("Të gjitha");
-    setSelectedPriceRange(priceRanges[0]);
-    setSelectedYear("Të gjitha vitet");
-    setSelectedFuelType("Të gjitha");
+    setSelectedBrand("");
+    setSelectedModel("");
+    setSelectedCategory("");
+    setSelectedFuelType("");
+    setSelectedDrivetrain("");
+    setSelectedOrigin("");
+    setYearFrom("");
+    setPriceUpTo("");
+    setKmUpTo("");
     setSortBy("featured");
     setSearchQuery("");
   };
 
-  // Filter brands to only show those that have cars AND have logos
-  const availableBrands = allBrands
-    .filter(
-      (brandName) =>
-        allCars.some((car) => car.brand === brandName) && brandLogos[brandName],
-    )
-    .map((brandName) => ({
-      name: brandName,
-      logo: brandLogos[brandName].logo,
-      filter: brandLogos[brandName].filter || false,
-    }));
+  // Derived: available brands, models, categories from allCars
+  const availableBrands = ALL_BRANDS;
+  const availableModels = selectedBrand
+    ? MODELS_BY_BRAND[selectedBrand] || []
+    : [];
+  const availableCategories = ALL_CATEGORIES;
+  const availableFuelTypes = [...new Set(allCars.map((c) => c.fuel_type))].sort();
+  const availableDrivetrains = [...new Set(allCars.map((c) => c.drivetrain).filter(Boolean))].sort();
+  const availableOrigins = [...new Set(allCars.map((c) => c.encar_id ? "Kore e Jugut" : "Europe"))].sort().reverse();
 
   const activeFiltersCount =
-    selectedBrands.length +
-    (selectedCategory !== "Të gjitha" ? 1 : 0) +
-    (selectedPriceRange.label !== "Të gjitha çmimet" ? 1 : 0) +
-    (selectedYear !== "Të gjitha vitet" ? 1 : 0) +
-    (selectedFuelType !== "Të gjitha" ? 1 : 0) +
+    (selectedBrand ? 1 : 0) +
+    (selectedModel ? 1 : 0) +
+    (selectedCategory ? 1 : 0) +
+    (selectedFuelType ? 1 : 0) +
+    (selectedDrivetrain ? 1 : 0) +
+    (selectedOrigin ? 1 : 0) +
+    (yearFrom ? 1 : 0) +
+    (priceUpTo ? 1 : 0) +
+    (kmUpTo ? 1 : 0) +
     (searchQuery.trim() ? 1 : 0);
 
   const formatPrice = (price) => {
@@ -431,21 +480,19 @@ export default function Collection() {
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           <div className="text-center">
             <h1
-              className={`text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 transition-all duration-1000 ${
-                isLoaded
+              className={`text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 transition-all duration-1000 ${isLoaded
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-8"
-              }`}
+                }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
               Koleksioni<span className="text-white/30">.</span>
             </h1>
             <p
-              className={`text-white/60 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-100 ${
-                isLoaded
+              className={`text-white/60 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-100 ${isLoaded
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-4"
-              }`}
+                }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Eksploroni përzgjedhjen tonë të automjeteve më prestigjioze në
@@ -458,510 +505,210 @@ export default function Collection() {
       {/* Filters & Grid Section */}
       <section className="pb-20 lg:pb-32">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-          {/* Filter Bar */}
+          {/* Filter Panel - Desktop & Mobile */}
           <div
-            className={`mb-8 lg:mb-12 transition-all duration-1000 delay-200 relative z-50 ${
-              isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
+            className={`relative z-20 mb-8 lg:mb-12 transition-all duration-1000 delay-200 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
           >
-            {/* Mobile Filter Toggle */}
+            {/* Mobile Toggle + Search row */}
             <div className="lg:hidden flex items-center justify-between mb-6">
-              {/* Mobile Search */}
               <div className="relative flex-1 mr-3">
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
-                  type="text"
-                  placeholder="Kërko makina..."
+                  type="text" placeholder="Kërko makina..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors duration-300"
+                  className="w-full pl-10 pr-4 py-2 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/40 transition-colors"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 />
               </div>
-
               <button
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
-                className="flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:border-white/40 transition-colors duration-300"
+                className="flex items-center gap-2 px-4 py-2 border border-white/20 rounded-full hover:border-white/40 transition-colors"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                  />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
                 {activeFiltersCount > 0 && (
-                  <span className="w-5 h-5 bg-white text-black text-xs font-bold rounded-full flex items-center justify-center">
-                    {activeFiltersCount}
-                  </span>
+                  <span className="w-5 h-5 bg-white text-black text-xs font-bold rounded-full flex items-center justify-center">{activeFiltersCount}</span>
                 )}
               </button>
             </div>
 
-            {/* Desktop Filter Bar */}
-            <div className="hidden lg:flex items-center justify-between gap-6 pb-6 border-b border-white/10">
-              {/* Search Box */}
-              <div className="relative w-72">
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            {/* Main filter card */}
+            <div className={`bg-white/5 border border-white/10 rounded-xl p-6 lg:p-8 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
+              <h3 className="text-lg font-bold text-white/90 mb-6 tracking-wide" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                Kërkim i detajuar
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Prodhuesi */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Prodhuesi</label>
+                  <CustomSelect
+                    value={selectedBrand}
+                    onChange={(v) => { setSelectedBrand(v); setSelectedModel(""); }}
+                    options={availableBrands.map((b) => ({ value: b, label: b }))}
+                    placeholder="Të gjithë"
                   />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Kërko me emër, markë..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-11 pr-4 py-2.5 bg-transparent border border-white/20 rounded-full text-sm text-white placeholder-white/40 focus:outline-none focus:border-white/50 transition-colors duration-300"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors duration-300"
-                  >
-                    <svg
-                      className="w-3 h-3 text-white/60"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                )}
+                </div>
+
+                {/* Modeli */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Modeli</label>
+                  <CustomSelect
+                    value={selectedModel}
+                    onChange={setSelectedModel}
+                    options={availableModels.map((m) => ({ value: m, label: m }))}
+                    placeholder="Të gjithë"
+                    disabled={!selectedBrand}
+                  />
+                </div>
+
+                {/* Karburanti */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Karburanti</label>
+                  <CustomSelect
+                    value={selectedFuelType}
+                    onChange={setSelectedFuelType}
+                    options={availableFuelTypes.map((f) => ({ value: f, label: f }))}
+                    placeholder="Të gjithë"
+                  />
+                </div>
+
+                {/* Terheqja */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Terheqja</label>
+                  <CustomSelect
+                    value={selectedDrivetrain}
+                    onChange={setSelectedDrivetrain}
+                    options={availableDrivetrains.map((d) => ({ value: d, label: d }))}
+                    placeholder="Të gjithë"
+                  />
+                </div>
+
+                {/* Prejardhja */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Prejardhja</label>
+                  <CustomSelect
+                    value={selectedOrigin}
+                    onChange={setSelectedOrigin}
+                    options={availableOrigins.map((o) => ({
+                      value: o,
+                      label: o === "Kore e Jugut" ? "🇰🇷 Kore e Jugut" : "🇪🇺 Europe",
+                    }))}
+                    placeholder="Të gjithë"
+                  />
+                </div>
+
+                {/* Tipi */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Tipi</label>
+                  <CustomSelect
+                    value={selectedCategory}
+                    onChange={setSelectedCategory}
+                    options={availableCategories.map((c) => ({ value: c, label: c }))}
+                    placeholder="Të gjithë"
+                  />
+                </div>
+
+                {/* Viti nga */}
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Viti nga</label>
+                  <CustomSelect
+                    value={yearFrom}
+                    onChange={setYearFrom}
+                    options={yearOptions.map((y) => ({ value: y, label: y }))}
+                    placeholder="Të gjithë"
+                  />
+                </div>
+
+                {/* Çmimi deri */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Çmimi deri (€)</label>
+                  <input
+                    type="number" min="0" step="1000"
+                    value={priceUpTo}
+                    onChange={(e) => setPriceUpTo(e.target.value)}
+                    placeholder="p.sh. 50000"
+                    className="w-full px-4 py-3 bg-transparent border border-white/20 rounded-lg text-white/90 text-sm focus:outline-none focus:border-white/40 transition-colors placeholder-white/30"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  />
+                </div>
+
+                {/* Km deri */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Km deri</label>
+                  <input
+                    type="number" min="0" step="5000"
+                    value={kmUpTo}
+                    onChange={(e) => setKmUpTo(e.target.value)}
+                    placeholder="p.sh. 100000"
+                    className="w-full px-4 py-3 bg-transparent border border-white/20 rounded-lg text-white/90 text-sm focus:outline-none focus:border-white/40 transition-colors placeholder-white/30"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  />
+                </div>
               </div>
 
-              {/* Brand Filters */}
-              <div className="flex items-center gap-3">
-                {availableBrands.map((brand) => (
-                  <button
-                    key={brand.name}
-                    onClick={() => toggleBrand(brand.name)}
-                    className={`group relative w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                      selectedBrands.includes(brand.name)
-                        ? "border-white bg-white/15 scale-110"
-                        : "border-white/30 hover:border-white/60 hover:bg-white/5"
-                    }`}
-                  >
-                    <img
-                      src={brand.logo}
-                      alt={brand.name}
-                      className={`w-7 h-7 object-contain transition-all duration-300 ${
-                        selectedBrands.includes(brand.name)
-                          ? "opacity-100 brightness-110"
-                          : "opacity-70 group-hover:opacity-100 group-hover:brightness-110"
-                      }`}
-                      style={
-                        brand.filter
-                          ? { filter: "brightness(0) invert(1)" }
-                          : {}
-                      }
-                    />
-                    {/* Tooltip */}
-                    <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-white/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap font-medium">
-                      {brand.name}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Right Side Controls */}
-              <div className="flex items-center gap-5">
-                <span className="text-white/50 text-sm">
+              {/* Bottom row: count + sort + clear/search */}
+              <div className="flex flex-wrap items-center justify-between gap-4 mt-6 pt-6 border-t border-white/10">
+                <span className="text-white/50 text-sm" style={{ fontFamily: "Montserrat, sans-serif" }}>
                   {filteredCars.length} automjete
                 </span>
 
-                {/* Custom Sort Dropdown */}
-                <div className="relative sort-dropdown">
-                  <button
-                    onClick={() => setIsSortOpen(!isSortOpen)}
-                    className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm transition-all duration-300 ${
-                      isSortOpen
-                        ? "border-white/60 bg-white/10"
-                        : "border-white/30 hover:border-white/50 bg-black/50"
-                    }`}
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    <span className="text-white/90 font-medium">
-                      {sortOptions.find((o) => o.value === sortBy)?.label}
-                    </span>
-                    <svg
-                      className={`w-4 h-4 text-white/70 transition-transform duration-300 ${isSortOpen ? "rotate-180" : ""}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  <div
-                    className={`absolute right-0 top-full mt-3 w-56 py-3 bg-black border border-white/20 rounded-xl shadow-2xl transition-all duration-300 z-9999 backdrop-blur-md ${
-                      isSortOpen
-                        ? "opacity-100 translate-y-0 pointer-events-auto"
-                        : "opacity-0 -translate-y-2 pointer-events-none"
-                    }`}
-                  >
-                    {sortOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => {
-                          setSortBy(option.value);
-                          setIsSortOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 text-sm transition-all duration-200 group relative ${
-                          sortBy === option.value
-                            ? "bg-white/15 text-white border-l-2 border-white"
-                            : "text-white/70 hover:text-white hover:bg-white/8"
+                <div className="flex items-center gap-4">
+                  {/* Sort */}
+                  <div className="relative sort-dropdown">
+                    <button
+                      onClick={() => setIsSortOpen(!isSortOpen)}
+                      className={`flex items-center gap-2 px-4 py-2.5 border rounded-full text-sm transition-all ${isSortOpen ? "border-white/60 bg-white/10" : "border-white/30 hover:border-white/50 bg-black/50"
                         }`}
-                        style={{ fontFamily: "Montserrat, sans-serif" }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">{option.label}</span>
-                          {sortBy === option.value && (
-                            <svg
-                              className="w-4 h-4 text-white"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      <span className="text-white/90 font-medium">{sortOptions.find((o) => o.value === sortBy)?.label}</span>
+                      <svg className={`w-4 h-4 text-white/70 transition-transform ${isSortOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div className={`absolute right-0 top-full mt-3 w-56 py-3 bg-black border border-white/20 rounded-xl shadow-2xl transition-all z-[9999] backdrop-blur-md ${isSortOpen ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-2 pointer-events-none"
+                      }`}>
+                      {sortOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => { setSortBy(option.value); setIsSortOpen(false); }}
+                          className={`w-full text-left px-4 py-3 text-sm transition-all ${sortBy === option.value ? "bg-white/15 text-white border-l-2 border-white" : "text-white/70 hover:text-white hover:bg-white/8"
+                            }`}
+                          style={{ fontFamily: "Montserrat, sans-serif" }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{option.label}</span>
+                            {sortBy === option.value && (
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
 
-                {activeFiltersCount > 0 && (
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm text-white/50 hover:text-white transition-colors duration-300 underline underline-offset-4"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    Pastro të gjitha
+                  {activeFiltersCount > 0 && (
+                    <button onClick={clearFilters} className="text-sm text-white/50 hover:text-white transition-colors underline underline-offset-4" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                      Pastro të gjitha
+                    </button>
+                  )}
+
+                  <button onClick={() => setIsFilterOpen(false)} className="px-6 py-2.5 bg-white text-black font-semibold rounded-full text-sm hover:bg-white/90 transition-colors" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                    Kërko
                   </button>
-                )}
-              </div>
-            </div>
-
-            {/* Category Pills */}
-            <div className="hidden lg:flex items-center gap-3 mt-6">
-              <span
-                className="text-xs uppercase tracking-wider text-white/50 mr-2"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                Kategoria:
-              </span>
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setSelectedCategory(category)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    selectedCategory === category
-                      ? "bg-white text-black"
-                      : "border border-white/20 text-white/70 hover:border-white/40 hover:text-white"
-                  }`}
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-
-            {/* Fuel Type Pills */}
-            <div className="hidden lg:flex items-center gap-3 mt-4">
-              <span
-                className="text-xs uppercase tracking-wider text-white/50 mr-2"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                Karburanti:
-              </span>
-              {fuelTypes.map((fuel) => (
-                <button
-                  key={fuel}
-                  onClick={() => setSelectedFuelType(fuel)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    selectedFuelType === fuel
-                      ? "bg-white text-black"
-                      : "border border-white/20 text-white/70 hover:border-white/40 hover:text-white"
-                  }`}
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  {fuel}
-                </button>
-              ))}
-            </div>
-
-            {/* Price Range Pills */}
-            <div className="hidden lg:flex items-center gap-3 mt-4">
-              <span
-                className="text-xs uppercase tracking-wider text-white/50 mr-2"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                Çmimi:
-              </span>
-              {priceRanges.map((range) => (
-                <button
-                  key={range.label}
-                  onClick={() => setSelectedPriceRange(range)}
-                  className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
-                    selectedPriceRange.label === range.label
-                      ? "bg-white text-black"
-                      : "border border-white/20 text-white/70 hover:border-white/40 hover:text-white"
-                  }`}
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  {range.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Mobile Filter Panel */}
-          <div
-            className={`lg:hidden overflow-hidden transition-all duration-500 ${
-              isFilterOpen
-                ? "max-h-375 opacity-100 mb-8"
-                : "max-h-0 opacity-0"
-            }`}
-          >
-            <div className="p-6 border border-white/10 rounded-xl space-y-6">
-              {/* Brands */}
-              <div>
-                <h3
-                  className="text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Markat
-                </h3>
-                <div className="grid grid-cols-3 gap-3">
-                  {availableBrands.map((brand) => (
-                    <button
-                      key={brand.name}
-                      onClick={() => toggleBrand(brand.name)}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-300 ${
-                        selectedBrands.includes(brand.name)
-                          ? "border-white bg-white/15 scale-105"
-                          : "border-white/20 hover:border-white/40"
-                      }`}
-                    >
-                      <img
-                        src={brand.logo}
-                        alt={brand.name}
-                        className={`w-10 h-10 object-contain transition-all duration-300 ${
-                          selectedBrands.includes(brand.name)
-                            ? "opacity-100 brightness-110"
-                            : "opacity-70"
-                        }`}
-                        style={
-                          brand.filter
-                            ? { filter: "brightness(0) invert(1)" }
-                            : {}
-                        }
-                      />
-                      <span
-                        className={`text-xs transition-colors duration-300 ${
-                          selectedBrands.includes(brand.name)
-                            ? "text-white"
-                            : "text-white/60"
-                        }`}
-                      >
-                        {brand.name}
-                      </span>
-                    </button>
-                  ))}
                 </div>
               </div>
-
-              {/* Categories */}
-              <div>
-                <h3
-                  className="text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Kategoria
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map((category) => (
-                    <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                        selectedCategory === category
-                          ? "bg-white text-black"
-                          : "border border-white/20 text-white/70"
-                      }`}
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      {category}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Fuel Type */}
-              <div>
-                <h3
-                  className="text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Karburanti
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {fuelTypes.map((fuel) => (
-                    <button
-                      key={fuel}
-                      onClick={() => setSelectedFuelType(fuel)}
-                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                        selectedFuelType === fuel
-                          ? "bg-white text-black"
-                          : "border border-white/20 text-white/70"
-                      }`}
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      {fuel}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Price Range */}
-              <div>
-                <h3
-                  className="text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Çmimi
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {priceRanges.map((range) => (
-                    <button
-                      key={range.label}
-                      onClick={() => setSelectedPriceRange(range)}
-                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                        selectedPriceRange.label === range.label
-                          ? "bg-white text-black"
-                          : "border border-white/20 text-white/70"
-                      }`}
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      {range.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Year */}
-              <div>
-                <h3
-                  className="text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Viti
-                </h3>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className="w-full px-4 py-3 bg-transparent border border-white/20 rounded-lg text-white/90 text-sm appearance-none cursor-pointer focus:outline-none focus:border-white/40 transition-all duration-300"
-                  style={{
-                    fontFamily: "Montserrat, sans-serif",
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.5)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "right 12px center",
-                    backgroundSize: "20px",
-                  }}
-                >
-                  {years.map((year) => (
-                    <option
-                      key={year}
-                      value={year}
-                      className="bg-black text-white"
-                    >
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Sort */}
-              <div>
-                <h3
-                  className="text-sm font-semibold uppercase tracking-wider mb-4"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Rendit sipas
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => setSortBy(option.value)}
-                      className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                        sortBy === option.value
-                          ? "bg-white text-black"
-                          : "border border-white/20 text-white/70"
-                      }`}
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Clear Filters */}
-              {activeFiltersCount > 0 && (
-                <button
-                  onClick={clearFilters}
-                  className="w-full py-3 border border-white/20 rounded-lg text-sm text-white/70 hover:border-white/40 hover:text-white transition-all duration-300"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Pastro të gjitha filtrat
-                </button>
-              )}
             </div>
           </div>
 
@@ -969,140 +716,139 @@ export default function Collection() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {isContentLoading
               ? // Skeleton Loading State
-                [...Array(6)].map((_, index) => <SkeletonCarCard key={index} />)
+              [...Array(6)].map((_, index) => <SkeletonCarCard key={index} />)
               : paginatedCars.map((car, index) => (
-                  <Link
-                    to={`/car/${car.slug}`}
-                    key={`${car.id}-${index}-${currentPage}`}
-                    className={`group relative transition-all duration-700 ${
-                      isLoaded
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-8"
+                <Link
+                  to={`/car/${car.slug}`}
+                  key={`${car.id}-${index}-${currentPage}`}
+                  className={`group relative transition-all duration-700 ${isLoaded
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-8"
                     }`}
-                    style={{ transitionDelay: `${100 + index * 50}ms` }}
-                  >
-                    {/* Card */}
-                    <div className="relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-500">
-                      {/* Image Container */}
-                      <div className="relative aspect-4/3 overflow-hidden">
-                        <LazyImage
-                          src={car.image}
-                          alt={car.name}
-                          className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${car.isSold ? "grayscale" : ""}`}
-                        />
-                        {/* Sold Overlay */}
-                        {car.isSold && (
-                          <>
-                            <div className="absolute inset-0 bg-black/40 z-10" />
-                            <div className="absolute top-3 right-3 z-20">
-                              <div className="px-3 py-1.5 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-full shadow-lg">
-                                <span
-                                  className="text-xs font-semibold text-red-100 tracking-wider uppercase"
-                                  style={{
-                                    fontFamily: "Montserrat, sans-serif",
-                                  }}
-                                >
-                                  I Shitur
-                                </span>
-                              </div>
+                  style={{ transitionDelay: `${100 + index * 50}ms` }}
+                >
+                  {/* Card */}
+                  <div className="relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-500">
+                    {/* Image Container */}
+                    <div className="relative aspect-4/3 overflow-hidden">
+                      <LazyImage
+                        src={car.image}
+                        alt={car.name}
+                        className={`absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105 ${car.isSold ? "grayscale" : ""}`}
+                      />
+                      {/* Sold Overlay */}
+                      {car.isSold && (
+                        <>
+                          <div className="absolute inset-0 bg-black/40 z-10" />
+                          <div className="absolute top-3 right-3 z-20">
+                            <div className="px-3 py-1.5 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-full shadow-lg">
+                              <span
+                                className="text-xs font-semibold text-red-100 tracking-wider uppercase"
+                                style={{
+                                  fontFamily: "Montserrat, sans-serif",
+                                }}
+                              >
+                                I Shitur
+                              </span>
                             </div>
-                          </>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Content Below Image */}
+                    <div className="p-5 space-y-4">
+                      {/* Top Row - Category and Year */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-white/70 tracking-wider uppercase"
+                          style={{ fontFamily: "Montserrat, sans-serif" }}
+                        >
+                          {car.category}
+                        </span>
+                        {car.encar_id && (
+                          <span
+                            className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs font-semibold text-blue-400 tracking-wider uppercase"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          >
+                            Importuar nga Korea
+                          </span>
                         )}
+                        <span
+                          className="text-sm text-white/50 ml-auto"
+                          style={{ fontFamily: "Montserrat, sans-serif" }}
+                        >
+                          {car.year}
+                        </span>
                       </div>
 
-                      {/* Content Below Image */}
-                      <div className="p-5 space-y-4">
-                        {/* Top Row - Category and Year */}
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span
-                            className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-white/70 tracking-wider uppercase"
-                            style={{ fontFamily: "Montserrat, sans-serif" }}
-                          >
-                            {car.category}
-                          </span>
-                          {car.encar_id && (
-                            <span
-                              className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs font-semibold text-blue-400 tracking-wider uppercase"
-                              style={{ fontFamily: "Montserrat, sans-serif" }}
-                            >
-                              Importuar nga Korea
-                            </span>
-                          )}
-                          <span
-                            className="text-sm text-white/50 ml-auto"
-                            style={{ fontFamily: "Montserrat, sans-serif" }}
-                          >
-                            {car.year}
-                          </span>
-                        </div>
+                      {/* Name */}
+                      <h3
+                        className="text-xl font-bold text-white"
+                        style={{ fontFamily: "Cera Pro, sans-serif" }}
+                      >
+                        {car.name}
+                      </h3>
 
-                        {/* Name */}
-                        <h3
-                          className="text-xl font-bold text-white"
-                          style={{ fontFamily: "Cera Pro, sans-serif" }}
-                        >
-                          {car.name}
-                        </h3>
+                      {/* Divider */}
+                      <div className="w-full h-px bg-white/10" />
 
-                        {/* Divider */}
-                        <div className="w-full h-px bg-white/10" />
-
-                        {/* Price and Mileage Row */}
-                        <div className="flex items-center justify-between">
-                          <div>
-                            {car.discountPrice ? (
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className="text-sm text-red-400 line-through"
-                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
-                                >
-                                  {formatPrice(car.price)}
-                                </span>
-                                <span
-                                  className="text-xl font-bold text-white"
-                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
-                                >
-                                  {formatPrice(car.discountPrice)}
-                                </span>
-                              </div>
-                            ) : (
+                      {/* Price and Mileage Row */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          {car.discountPrice ? (
+                            <div className="flex items-center gap-2">
                               <span
-                                className="text-xl font-bold text-white"
+                                className="text-sm text-red-400 line-through"
                                 style={{ fontFamily: "Cera Pro, sans-serif" }}
                               >
                                 {formatPrice(car.price)}
                               </span>
-                            )}
+                              <span
+                                className="text-xl font-bold text-white"
+                                style={{ fontFamily: "Cera Pro, sans-serif" }}
+                              >
+                                {formatPrice(car.discountPrice)}
+                              </span>
+                            </div>
+                          ) : (
                             <span
-                              className="text-white/40 text-sm ml-2"
-                              style={{ fontFamily: "Montserrat, sans-serif" }}
+                              className="text-xl font-bold text-white"
+                              style={{ fontFamily: "Cera Pro, sans-serif" }}
                             >
-                              {car.mileage.toLocaleString()} km
+                              {formatPrice(car.price)}
                             </span>
-                          </div>
-                          <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
-                            <svg
-                              className="w-4 h-4 text-white/50 group-hover:text-black transition-colors duration-300"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M17 8l4 4m0 0l-4 4m4-4H3"
-                              />
-                            </svg>
-                          </div>
+                          )}
+                          <span
+                            className="text-white/40 text-sm ml-2"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          >
+                            {car.mileage.toLocaleString()} km
+                          </span>
+                        </div>
+                        <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
+                          <svg
+                            className="w-4 h-4 text-white/50 group-hover:text-black transition-colors duration-300"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17 8l4 4m0 0l-4 4m4-4H3"
+                            />
+                          </svg>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Hover Glow */}
-                    <div className="absolute -inset-0.5 bg-linear-to-r from-white/20 via-white/5 to-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
-                  </Link>
-                ))}
+                  {/* Hover Glow */}
+                  <div className="absolute -inset-0.5 bg-linear-to-r from-white/20 via-white/5 to-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none -z-10" />
+                </Link>
+              ))}
           </div>
 
           {/* Pagination */}
@@ -1112,11 +858,10 @@ export default function Collection() {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                  currentPage === 1
+                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${currentPage === 1
                     ? "border-white/10 text-white/30 cursor-not-allowed"
                     : "border-white/30 text-white hover:border-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <svg
                   className="w-4 h-4"
@@ -1140,11 +885,10 @@ export default function Collection() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-300 ${
-                        currentPage === page
+                      className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-300 ${currentPage === page
                           ? "bg-white text-black"
                           : "text-white/70 hover:bg-white/10 hover:text-white"
-                      }`}
+                        }`}
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {page}
@@ -1159,11 +903,10 @@ export default function Collection() {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                  currentPage === totalPages
+                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${currentPage === totalPages
                     ? "border-white/10 text-white/30 cursor-not-allowed"
                     : "border-white/30 text-white hover:border-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <svg
                   className="w-4 h-4"

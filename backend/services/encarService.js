@@ -7,6 +7,7 @@ const BRAND_MAP = {
   "현대": "Hyundai",
   "기아": "Kia",
   "쌍용": "SsangYong",
+  "KG모빌리티": "KG Mobility",
   "르노코리아": "Renault Korea",
   "르노삼성": "Renault Samsung",
   "쉐보레": "Chevrolet",
@@ -146,6 +147,13 @@ const PREMIUM_BRANDS = [
   "Land Rover", "Jaguar", "Maserati", "Ferrari", "Lamborghini",
   "Bentley", "Rolls-Royce", "McLaren", "Aston Martin"
 ];
+
+// Normalize brand names to match the frontend ALL_BRANDS list
+const BRAND_NORMALIZE = {
+  "Mercedes-Benz": "Mercedes",
+  "Renault Korea": "Renault",
+  "Renault Samsung": "Renault",
+};
 
 // Replace Korean text with English using map, keeping any suffixes/prefixes
 function translateWithMap(map, text, stripTrailingKorean = false) {
@@ -330,37 +338,79 @@ function convertPrice(priceInTenThousandKrw) {
 }
 
 // Sync latest listings from Encar
-async function syncEncarListings(limit = 20, isDomestic = true) {
-  console.log(`🚀 Starting Encar Sync (Domestic: ${isDomestic}, Limit: ${limit})`);
+async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "ModifiedDate", pages = 1) {
+  console.log(`🚀 Starting Encar Sync (Domestic: ${isDomestic}, Limit: ${limit}, Sort: ${sortBy}, Pages: ${pages})`);
   const logs = [];
   let importedCount = 0;
   let skippedCount = 0;
 
   try {
-    // 1. Fetch latest listings from Encar
-    // Domestic = CarType.Y, Foreign = CarType.N
-    const queryCarType = isDomestic ? "CarType.Y" : "CarType.N";
-    const searchUrl = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.${queryCarType}.)&sr=%7CModifiedDate%7C0%7C${limit}`;
-    
-    const listRes = await fetch(searchUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Referer": "https://www.encar.com/",
-        "Accept": "application/json, text/plain, */*",
-        "Accept-Language": "ko-KR,ko;q=0.9"
+    // 1. Fetch latest listings from Encar — both domestic AND foreign pools
+    // Domestic (CarType.Y) = Korean brands (Hyundai, Kia, Genesis, etc.)
+    // Foreign (CarType.N) = Imported brands (BMW, Mercedes, Audi, Porsche, etc.)
+    const fetchPool = async (carType) => {
+      const allPageResults = [];
+      for (let page = 0; page < pages; page++) {
+        const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.${carType}.)&sr=%7C${sortBy}%7C${page * limit}%7C${limit}`;
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Referer": "https://www.encar.com/",
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "ko-KR,ko;q=0.9"
+          }
+        });
+        if (!res.ok) throw new Error(`Encar ${carType} page ${page + 1} failed with status ${res.status}`);
+        const data = await res.json();
+        const results = data.SearchResults || [];
+        allPageResults.push(...results);
+        console.log(`  ${carType} page ${page + 1}/${pages}: ${results.length} cars`);
+        if (results.length < limit) break; // No more results
       }
-    });
+      return allPageResults;
+    };
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Referer": "https://www.encar.com/",
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "ko-KR,ko;q=0.9"
+        }
+      });
+      if (!res.ok) throw new Error(`Encar ${carType} request failed with status ${res.status}`);
+      const data = await res.json();
+      return data.SearchResults || [];
+    };
 
-    if (!listRes.ok) {
-      throw new Error(`Encar search list request failed with status ${listRes.status}`);
+    const pools = isDomestic
+      ? ["CarType.Y", "CarType.N"]
+      : ["CarType.N", "CarType.Y"];
+
+    const [firstResults, secondResults] = await Promise.allSettled(
+      pools.map(p => fetchPool(p))
+    );
+
+    const first = firstResults.status === "fulfilled" ? firstResults.value : [];
+    const second = secondResults.status === "fulfilled" ? secondResults.value : [];
+
+    const [domesticResults, foreignResults] = isDomestic
+      ? [first, second]
+      : [second, first];
+
+    // Merge and deduplicate by car Id (prefer domestic first)
+    const seenIds = new Set();
+    const allSearchResults = [];
+    for (const car of [...domesticResults, ...foreignResults]) {
+      if (!seenIds.has(car.Id)) {
+        seenIds.add(car.Id);
+        allSearchResults.push(car);
+      }
     }
 
-    const listData = await listRes.json();
-    const searchResults = listData.SearchResults || [];
-    console.log(`Found ${searchResults.length} listings on Encar`);
+    console.log(`Found ${domesticResults.length} domestic + ${foreignResults.length} foreign = ${allSearchResults.length} unique listings`);
 
     // 2. Process each listing
-    for (const car of searchResults) {
+    for (const car of allSearchResults) {
       const encarId = `encar_${car.Id}`;
 
       // Check if car already exists
@@ -458,6 +508,7 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
       }
       let name = `${manufacturerName} ${modelName}`;
       let brand = manufacturerName;
+      brand = BRAND_NORMALIZE[brand] || brand;
       const isPremium = PREMIUM_BRANDS.includes(brand);
       let category = isDomestic && !isPremium ? "SUV" : "Sedan";
       let transmission = TRANSMISSION_MAP[spec.transmissionName] || "Automatike";
@@ -474,6 +525,7 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
       if (translated) {
         name = translated.name || name;
         brand = translated.brand || brand;
+        brand = BRAND_NORMALIZE[brand] || brand;
         category = translated.category || category;
         transmission = translated.transmission || transmission;
         fuelType = translated.fuelType || fuelType;
@@ -484,6 +536,16 @@ async function syncEncarListings(limit = 20, isDomestic = true) {
           features = translated.features;
         }
       }
+
+      // Normalize fuel type variants that Gemini sometimes returns in English
+      const FUEL_NORMALIZE = {
+        diesel: "Dizell", dizell: "Dizell",
+        benzin: "Benzin", benzine: "Benzin", gasoline: "Benzin",
+        hibrid: "Hibrid", hybrid: "Hibrid",
+        elektrik: "Elektrik", electric: "Elektrik",
+        lpg: "LPG", gas: "LPG",
+      };
+      fuelType = FUEL_NORMALIZE[fuelType.toLowerCase()] || fuelType;
 
       // Parse photos - Get all high-resolution photos from details API
       const imageList = [];
