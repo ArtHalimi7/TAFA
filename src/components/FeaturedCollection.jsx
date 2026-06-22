@@ -42,6 +42,7 @@ export default function FeaturedCollection() {
         if (response.success) {
           const formattedVehicles = response.data.map((car) => ({
             id: car.id,
+            encar_id: car.encar_id,
             name: car.name,
             slug: car.slug,
             category: car.category,
@@ -179,14 +180,28 @@ export default function FeaturedCollection() {
 
                     {/* Content Below Image */}
                     <div className="p-5 space-y-4">
-                      {/* Category Badge */}
-                      <div className="inline-block px-3 py-1 bg-white/10 rounded-full">
-                        <span
-                          className="text-xs font-medium text-white/70 tracking-widest uppercase"
-                          style={{ fontFamily: "Montserrat, sans-serif" }}
-                        >
-                          {vehicle.category}
-                        </span>
+                      {/* Badges */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Category Badge */}
+                        <div className="inline-block px-3 py-1 bg-white/10 rounded-full">
+                          <span
+                            className="text-xs font-medium text-white/70 tracking-widest uppercase"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          >
+                            {vehicle.category}
+                          </span>
+                        </div>
+                        {/* Korea Import Badge */}
+                        {vehicle.encar_id && (
+                          <div className="inline-block px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full">
+                            <span
+                              className="text-xs font-semibold text-blue-400 tracking-wider uppercase"
+                              style={{ fontFamily: "Montserrat, sans-serif" }}
+                            >
+                              Importuar nga Korea
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Name */}

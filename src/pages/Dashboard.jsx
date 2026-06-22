@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/images/logo.png";
 import { useSEO } from "../hooks/useSEO";
-import { carsApi, uploadApi } from "../services/api";
+import { carsApi, uploadApi, syncApi } from "../services/api";
 import emailjs from "@emailjs/browser";
 
 // Admin PIN Code - Retrieved from environment variable for security
@@ -252,6 +252,36 @@ export default function Dashboard() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Encar Sync States
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncLimit, setSyncLimit] = useState(10);
+  const [syncDomestic, setSyncDomestic] = useState(true);
+  const [syncResult, setSyncResult] = useState(null);
+  const [syncError, setSyncError] = useState("");
+
+  const handleEncarSync = async (e) => {
+    e.preventDefault();
+    setIsSyncing(true);
+    setSyncError("");
+    setSyncResult(null);
+    try {
+      const response = await syncApi.syncEncar(syncLimit, syncDomestic);
+      if (response.success) {
+        setSyncResult(response.data);
+        showNotification("Sinkronizimi me Encar u krye me sukses!");
+        await fetchCars();
+        await fetchStats();
+      } else {
+        setSyncError(response.message || "Sinkronizimi dështoi.");
+      }
+    } catch (err) {
+      console.error("Encar Sync error:", err);
+      setSyncError(err.message || "Ndodhi një gabim gjatë sinkronizimit.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Form state
   const [formData, setFormData] = useState({
@@ -1095,6 +1125,25 @@ export default function Dashboard() {
             strokeLinejoin="round"
             strokeWidth={1.5}
             d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+          />
+        </svg>
+      ),
+    },
+    {
+      id: "sync",
+      label: "Sinkronizo Encar",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1.5}
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"
           />
         </svg>
       ),
@@ -2455,6 +2504,117 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Sync Tab */}
+          {activeTab === "sync" && (
+            <div className="space-y-6 max-w-3xl">
+              <div>
+                <h2
+                  className="text-2xl font-bold"
+                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                >
+                  Sinkronizimi me Encar (Korea)
+                </h2>
+                <p
+                  className="text-sm text-white/50 mt-1"
+                  style={{ fontFamily: "Montserrat, sans-serif" }}
+                >
+                  Importo dhe përkthe automatikisht veturat e fundit direkt nga tregu Korean.
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
+                <form onSubmit={handleEncarSync} className="space-y-6">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
+                      Lloji i Veturave
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setSyncDomestic(true)}
+                        className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
+                          syncDomestic
+                            ? "bg-white text-black border-white"
+                            : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                        }`}
+                      >
+                        Koreane (제네시스, 현대, 기아)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSyncDomestic(false)}
+                        className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
+                          !syncDomestic
+                            ? "bg-white text-black border-white"
+                            : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                        }`}
+                      >
+                        Të Importuara (BMW, Benz, Audi, etj.)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
+                      Sasia e Veturave për Import (Max 30)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="30"
+                      value={syncLimit}
+                      onChange={(e) => setSyncLimit(parseInt(e.target.value) || 10)}
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/30"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSyncing}
+                    className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/40 disabled:text-white/40 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    {isSyncing ? (
+                      <>
+                        <div className="w-5 h-5 border border-white/20 border-t-white rounded-full animate-spin" />
+                        Duke sinkronizuar dhe përkthyer me Inteligjencë Artificiale...
+                      </>
+                    ) : (
+                      "Nis Sinkronizimin me Encar"
+                    )}
+                  </button>
+                </form>
+
+                {syncError && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm">
+                    {syncError}
+                  </div>
+                )}
+
+                {syncResult && (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-sm">
+                      Sinkronizimi përfundoi! U importuan <strong>{syncResult.importedCount}</strong> vetura të reja, ndërsa <strong>{syncResult.skippedCount}</strong> ekzistonin më parë.
+                    </div>
+                    {syncResult.logs && syncResult.logs.length > 0 && (
+                      <div className="space-y-2">
+                        <h4 className="text-xs uppercase tracking-wider text-white/40 font-semibold">
+                          Logu i Sinkronizimit:
+                        </h4>
+                        <div className="bg-black/50 border border-white/5 rounded-xl p-4 max-h-60 overflow-y-auto space-y-1.5 font-mono text-xs text-white/70">
+                          {syncResult.logs.map((log, idx) => (
+                            <div key={idx}>{log}</div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

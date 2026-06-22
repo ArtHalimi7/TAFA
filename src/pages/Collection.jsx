@@ -1013,15 +1013,23 @@ export default function Collection() {
                       {/* Content Below Image */}
                       <div className="p-5 space-y-4">
                         {/* Top Row - Category and Year */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span
                             className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-white/70 tracking-wider uppercase"
                             style={{ fontFamily: "Montserrat, sans-serif" }}
                           >
                             {car.category}
                           </span>
+                          {car.encar_id && (
+                            <span
+                              className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs font-semibold text-blue-400 tracking-wider uppercase"
+                              style={{ fontFamily: "Montserrat, sans-serif" }}
+                            >
+                              Importuar nga Korea
+                            </span>
+                          )}
                           <span
-                            className="text-sm text-white/50"
+                            className="text-sm text-white/50 ml-auto"
                             style={{ fontFamily: "Montserrat, sans-serif" }}
                           >
                             {car.year}

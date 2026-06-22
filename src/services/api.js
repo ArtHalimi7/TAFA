@@ -228,11 +228,23 @@ export const healthCheck = async () => {
   return apiCall("/health");
 };
 
+// ============ SYNC API ============
+
+export const syncApi = {
+  syncEncar: async (limit, isDomestic) => {
+    return apiCall("/sync/encar", {
+      method: "POST",
+      body: JSON.stringify({ limit, isDomestic }),
+    });
+  },
+};
+
 // Default export with all APIs
 const api = {
   cars: carsApi,
   contact: contactApi,
   upload: uploadApi,
+  sync: syncApi,
   healthCheck,
 };
 

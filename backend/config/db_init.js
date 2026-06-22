@@ -9,6 +9,7 @@ const initializeDatabase = async () => {
     await connection.query(`
       CREATE TABLE IF NOT EXISTS cars (
         id INT AUTO_INCREMENT PRIMARY KEY,
+        encar_id VARCHAR(50) UNIQUE DEFAULT NULL,
         name VARCHAR(255) NOT NULL,
         slug VARCHAR(255) NOT NULL UNIQUE,
         tagline VARCHAR(255),
@@ -30,6 +31,7 @@ const initializeDatabase = async () => {
         mpg VARCHAR(50),
         vin VARCHAR(50) UNIQUE,
         description TEXT,
+        inspection_data MEDIUMTEXT DEFAULT NULL,
         status ENUM('active', 'draft', 'sold') DEFAULT 'draft',
         showcase_image INT DEFAULT 0,
         views INT DEFAULT 0,
@@ -44,6 +46,40 @@ const initializeDatabase = async () => {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
     console.log("✅ Cars table ready");
+
+    // Add encar_id column if it doesn't exist (migration for existing tables)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN encar_id VARCHAR(50) UNIQUE DEFAULT NULL
+      `);
+      console.log("✅ Added encar_id column to cars table");
+    } catch (err) {
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ encar_id column already exists");
+      }
+    }
+
+    // Add or upgrade inspection_data column (TEXT -> MEDIUMTEXT for large payloads)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN inspection_data MEDIUMTEXT DEFAULT NULL
+      `);
+      console.log("✅ Added inspection_data column to cars table");
+    } catch (err) {
+      if (err.code === "ER_DUP_FIELDNAME") {
+        // Column exists — upgrade to MEDIUMTEXT if still TEXT
+        try {
+          await connection.query(`
+            ALTER TABLE cars MODIFY COLUMN inspection_data MEDIUMTEXT DEFAULT NULL
+          `);
+          console.log("✅ Upgraded inspection_data column to MEDIUMTEXT");
+        } catch (modErr) {
+          console.log("ℹ️ inspection_data column upgrade skipped:", modErr.message);
+        }
+      }
+    }
 
     // Add status column if it doesn't exist (migration for existing tables)
     try {

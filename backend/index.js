@@ -16,6 +16,7 @@ const carRoutes = require("./routes/carRoutes");
 const contactRoutes = require("./routes/contactRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const authRoutes = require("./routes/authRoutes");
+const syncRoutes = require("./routes/syncRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -120,6 +121,7 @@ app.use("/api/cars", carRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/sync", syncRoutes);
 
 // 404 handler
 app.use((req, res) => {

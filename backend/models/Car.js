@@ -80,10 +80,10 @@ const Car = {
   async getAll(filters = {}) {
     try {
       let query = `
-        SELECT c.id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
+        SELECT c.id, c.encar_id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
                c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
-               c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.status,
+               c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.inspection_data, c.status,
                c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
                (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
                (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
@@ -224,6 +224,7 @@ const Car = {
               : null,
             acceleration: parseFloat(row.acceleration),
             isSold: !!row.is_sold,
+            inspectionData: row.inspection_data ? JSON.parse(row.inspection_data) : null,
           };
         }),
       );
@@ -279,6 +280,7 @@ const Car = {
           : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
+        inspectionData: car.inspection_data ? JSON.parse(car.inspection_data) : null,
       };
     } catch (error) {
       console.error("Error fetching car by ID:", error);
@@ -330,6 +332,7 @@ const Car = {
           : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
+        inspectionData: car.inspection_data ? JSON.parse(car.inspection_data) : null,
       };
     } catch (error) {
       console.error("Error fetching car by slug:", error);
@@ -344,6 +347,7 @@ const Car = {
       await connection.beginTransaction();
 
       const {
+        encar_id,
         name,
         slug,
         tagline,
@@ -366,6 +370,7 @@ const Car = {
         mpg,
         vin,
         description,
+        inspectionData,
         status,
         showcaseImage,
         isFeatured,
@@ -384,12 +389,13 @@ const Car = {
 
       const [result] = await connection.query(
         `INSERT INTO cars (
-          name, slug, tagline, category, brand, price, discount_price, year, mileage,
+          encar_id, name, slug, tagline, category, brand, price, discount_price, year, mileage,
           exterior_color, interior_color, engine, horsepower, torque,
           acceleration, top_speed, transmission, drivetrain, fuel_type,
-          mpg, vin, description, status, showcase_image, is_featured, is_showcase, is_sold
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          mpg, vin, description, inspection_data, status, showcase_image, is_featured, is_showcase, is_sold
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
+          encar_id || null,
           name,
           slug,
           tagline,
@@ -412,6 +418,7 @@ const Car = {
           mpg,
           vin,
           description,
+          inspectionData ? JSON.stringify(inspectionData) : null,
           status || "draft",
           showcaseImage || 0,
           isFeatured ? 1 : 0,
@@ -478,6 +485,7 @@ const Car = {
       await connection.beginTransaction();
 
       const {
+        encar_id,
         name,
         slug,
         tagline,
@@ -500,6 +508,7 @@ const Car = {
         mpg,
         vin,
         description,
+        inspectionData,
         status,
         showcaseImage,
         isFeatured,
@@ -519,14 +528,15 @@ const Car = {
 
       await connection.query(
         `UPDATE cars SET
-          name = ?, slug = ?, tagline = ?, category = ?, brand = ?,
+          encar_id = ?, name = ?, slug = ?, tagline = ?, category = ?, brand = ?,
           price = ?, discount_price = ?, year = ?, mileage = ?, exterior_color = ?,
           interior_color = ?, engine = ?, horsepower = ?, torque = ?,
           acceleration = ?, top_speed = ?, transmission = ?, drivetrain = ?,
-          fuel_type = ?, mpg = ?, vin = ?, description = ?, status = ?,
+          fuel_type = ?, mpg = ?, vin = ?, description = ?, inspection_data = ?, status = ?,
           showcase_image = ?, is_featured = ?, is_showcase = ?, is_sold = ?
         WHERE id = ?`,
         [
+          encar_id || null,
           name,
           slug,
           tagline,
@@ -549,6 +559,7 @@ const Car = {
           mpg,
           vin,
           description,
+          inspectionData ? JSON.stringify(inspectionData) : null,
           status,
           showcaseImage || 0,
           isFeatured ? 1 : 0,

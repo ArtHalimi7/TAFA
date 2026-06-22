@@ -39,6 +39,106 @@ const getImageUrl = (path) => {
   return `${API_BASE_URL}${path}`;
 };
 
+const STATUS_MAP = {
+  'X': { label: 'N', name: 'Nderrim (Zëvendësim)', color: 'bg-red-500 text-white' },
+  'W': { label: 'R', name: 'Riparim (Panelim/saldim)', color: 'bg-blue-500 text-white' },
+  'C': { label: 'K', name: 'Korrozion', color: 'bg-amber-600 text-white' },
+  'A': { label: 'G', name: 'Gervishtje', color: 'bg-slate-600 text-white' },
+  'U': { label: 'P', name: 'Parregullsi (Dent)', color: 'bg-green-600 text-white' },
+  'T': { label: 'D', name: 'Demtim (Sipërfaqësor)', color: 'bg-amber-800 text-white' }
+};
+
+const EXTERIOR_COORDS = {
+  'P021': { x: 80, y: 180, name: 'Parafango e parme (Majtas)' },
+  'P031': { x: 80, y: 270, name: 'Dera e parme (Majtas)' },
+  'P033': { x: 80, y: 345, name: 'Dera e pasme (Majtas)' },
+  'P061': { x: 80, y: 420, name: 'Krahu i pasmë anësor (Majtas)' },
+  'P071': { x: 45, y: 307, name: 'Pragu anësor (Majtas)' },
+  
+  'P012': { x: 200, y: 70, name: 'Suporti i radiatorit' },
+  'P011': { x: 200, y: 110, name: 'Kapotë (Motor)' },
+  'P042': { x: 200, y: 275, name: 'Tavani (Tavan)' },
+  'P041': { x: 200, y: 430, name: 'Dera e bagazhit (Trunk)' },
+  
+  'P022': { x: 320, y: 180, name: 'Parafango e parme (Djathtas)' },
+  'P032': { x: 320, y: 270, name: 'Dera e parme (Djathtas)' },
+  'P034': { x: 320, y: 345, name: 'Dera e pasme (Djathtas)' },
+  'P062': { x: 320, y: 420, name: 'Krahu i pasmë anësor (Djathtas)' },
+  'P072': { x: 355, y: 307, name: 'Pragu anësor (Djathtas)' }
+};
+
+const INTERIOR_COORDS = {
+  'P121': { x: 80, y: 200, name: 'Shtylla A (Majtas)' },
+  'P123': { x: 80, y: 285, name: 'Shtylla B (Majtas)' },
+  'P125': { x: 80, y: 370, name: 'Shtylla C (Majtas)' },
+  'P127': { x: 45, y: 285, name: 'Shina anësore e tavanit (Majtas)' },
+
+  'P111': { x: 200, y: 65, name: 'Traversa e parme' },
+  'P112': { x: 165, y: 110, name: 'Këmba e parme (Majtas)' },
+  'P113': { x: 235, y: 110, name: 'Këmba e parme (Djathtas)' },
+  'P114': { x: 140, y: 160, name: 'Koshi i amortizatorit (Majtas)' },
+  'P115': { x: 260, y: 160, name: 'Koshi i amortizatorit (Djathtas)' },
+  'P116': { x: 200, y: 210, name: 'Paneli i shoferit / Tablieri' },
+  'P131': { x: 200, y: 350, name: 'Paneli i pasmë i kabinës' },
+  'P132': { x: 200, y: 460, name: 'Traversa e pasme' },
+  'P133': { x: 200, y: 420, name: 'Dyshemeja e bagazhit' },
+  'P134': { x: 165, y: 440, name: 'Këmba e pasme (Majtas)' },
+  'P135': { x: 235, y: 440, name: 'Këmba e pasme (Djathtas)' },
+
+  'P122': { x: 320, y: 200, name: 'Shtylla A (Djathtas)' },
+  'P124': { x: 320, y: 285, name: 'Shtylla B (Djathtas)' },
+  'P126': { x: 320, y: 370, name: 'Shtylla C (Djathtas)' },
+  'P128': { x: 355, y: 285, name: 'Shina anësore e tavanit (Djathtas)' }
+};
+
+const getStatusByCode = (inners, code) => {
+  if (!inners) return null;
+  const findNode = (nodes, targetCode) => {
+    for (const node of nodes) {
+      if (node.type && node.type.code === targetCode) {
+        return node;
+      }
+      if (node.children && node.children.length > 0) {
+        const found = findNode(node.children, targetCode);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  const node = findNode(inners, code);
+  return node && node.statusType ? node.statusType.title : null;
+};
+
+const translateStatus = (krStatus, isLeakCheck = false) => {
+  if (!krStatus) return { text: 'Në rregull', color: 'text-emerald-500' };
+  const val = krStatus.trim();
+  if (val === '양호' || val === '정상' || val === '적정') {
+    return { text: 'Në rregull', color: 'text-emerald-500' };
+  }
+  if (val === '없음') {
+    return { text: isLeakCheck ? 'Nuk ka rrjedhje' : 'Në rregull', color: 'text-emerald-500' };
+  }
+  if (val === '미세누유' || val === '미세누수') {
+    return { text: 'Rrjedhje e lehtë', color: 'text-amber-500 font-medium' };
+  }
+  if (val === '누유' || val === '누수') {
+    return { text: 'Rrjedhje', color: 'text-red-500 font-semibold' };
+  }
+  if (val === '부족') {
+    return { text: 'Nivel i ulët', color: 'text-amber-500 font-medium' };
+  }
+  if (val === '과다') {
+    return { text: 'Nivel i lartë', color: 'text-amber-500 font-medium' };
+  }
+  if (val === '불량') {
+    return { text: 'Me defekt', color: 'text-red-500 font-semibold' };
+  }
+  if (val === '있음') {
+    return { text: 'Ka rrjedhje', color: 'text-red-500 font-semibold' };
+  }
+  return { text: krStatus, color: 'text-white' };
+};
+
 export default function CarDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -60,6 +160,88 @@ export default function CarDetail() {
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
   const [featuresVisible, setFeaturesVisible] = useState(true);
+
+  const motorChecks = [
+    { label: 'Gjendja e funksionimit (në punë boshe)', code: 's003', isLeak: false },
+    { label: 'Rrjedhja e vajit rreth kapakut të kokës së motorit', code: 's004', isLeak: true },
+    { label: 'Rrjedhja e vajit në kokën e motorit', code: 's005', isLeak: true },
+    { label: 'Rrjedhja e vajit rreth bllokut dhe karterit të vajit', code: 's006', isLeak: true },
+    { label: 'Qarkullimi i vajit', code: 's007', isLeak: false },
+    { label: 'Rrjedhja e ujit ftohës nga izoluesi i kokës së motorit', code: 's008', isLeak: true },
+    { label: 'Rrjedhja e ujit ftohës nga pompa e ujit', code: 's009', isLeak: true },
+    { label: 'Rrjedhja e ujit ftohës nga radiatori', code: 's010', isLeak: true },
+    { label: 'Sasia e ujit ftohës (antifreeze)', code: 's011', isLeak: false }
+  ];
+
+  const transChecks = [
+    { label: 'Rrjedhja e vajit nga transmisioni', code: 's013', isLeak: true, fallbackCode: 's016' },
+    { label: 'Qarkullimi i vajit të transmisionit', code: 's014', isLeak: false, fallbackCode: 's018' },
+    { label: 'Gjendja e funksionimit (në punë boshe)', code: 's015', isLeak: false, fallbackCode: 's019' }
+  ];
+
+  const steerChecks = [
+    { label: 'Rrjedhja e vajit nga koka e timonit', code: 's023', isLeak: true },
+    { label: 'Pompa e vajit të timonit', code: 's025', isLeak: false },
+    { label: 'Ingranazhet drejtuese dhe sistemi elektrik', code: 's024', isLeak: false },
+    { label: 'Nyja e drejtimit', code: 's038', isLeak: false },
+    { label: 'Koka e shufrës së drejtimit dhe nyja sferike', code: 's026', isLeak: false },
+    { label: 'Tubi i presionit të lartë të drejtimit', code: 's039', isLeak: false }
+  ];
+
+  const renderPins = (isInterior) => {
+    if (!car || !car.inspectionData || !car.inspectionData.outers) return null;
+
+    const coordsMap = isInterior ? INTERIOR_COORDS : EXTERIOR_COORDS;
+
+    return car.inspectionData.outers
+      .filter((o) => o.type && o.type.code && coordsMap[o.type.code])
+      .map((o, idx) => {
+        const coord = coordsMap[o.type.code];
+        const mainStatus = o.statusTypes && o.statusTypes[0]
+          ? o.statusTypes[0]
+          : { code: "X", title: "Nderrim" };
+        const statusInfo = STATUS_MAP[mainStatus.code] || {
+          label: "D",
+          name: "Demtim",
+          color: "bg-amber-800 text-white",
+        };
+
+        return (
+          <g key={idx} className="group cursor-pointer">
+            <circle
+              cx={coord.x}
+              cy={coord.y}
+              r="10"
+              className="stroke-white stroke-2 animate-pulse"
+              style={{
+                fill:
+                  statusInfo.label === "N"
+                    ? "#E53E3E"
+                    : statusInfo.label === "R"
+                      ? "#3182CE"
+                      : statusInfo.label === "K"
+                        ? "#D69E2E"
+                        : statusInfo.label === "G"
+                          ? "#4A5568"
+                          : statusInfo.label === "P"
+                            ? "#38A169"
+                            : "#A0522D",
+              }}
+            />
+            <text
+              x={coord.x}
+              y={coord.y + 3.5}
+              textAnchor="middle"
+              className="text-[9px] font-bold fill-white pointer-events-none"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              {statusInfo.label}
+            </text>
+            <title>{`${coord.name}: ${statusInfo.name} (${mainStatus.title})`}</title>
+          </g>
+        );
+      });
+  };
 
   const brandLogos = {
     Mercedes: mercedesLogo,
@@ -549,6 +731,16 @@ export default function CarDetail() {
                   >
                     {car.category}
                   </span>
+                  {car.encar_id && (
+                    <div className="px-4 py-1.5 bg-blue-500/20 border border-blue-500/30 rounded-full shadow-lg">
+                      <span
+                        className="text-xs font-semibold text-blue-400 tracking-wider uppercase"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        Importuar nga Korea
+                      </span>
+                    </div>
+                  )}
                   {/* Sold Badge */}
                   {car.isSold && (
                     <div className="px-4 py-1.5 bg-red-500/20 backdrop-blur-md border border-red-400/30 rounded-full shadow-lg">
@@ -946,6 +1138,263 @@ export default function CarDetail() {
           </div>
         </div>
       </section>
+
+      {/* Visual Condition Report Section (Encar Cars Only) */}
+      {car && car.inspectionData && (
+        <section className="relative py-20 lg:py-32 bg-neutral-950/40 border-t border-white/10">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
+            
+            {/* Header */}
+            <div className="text-center mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                Raporti i gjendjes<span className="text-white/30">.</span>
+              </h2>
+              <p className="text-white/60 max-w-xl mx-auto" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                Raporti teknik i detajuar i aksidenteve dhe gjendjes mekanike, i certifikuar nga inspektimi zyrtar në Korenë e Jugut.
+              </p>
+            </div>
+
+            {/* Accident Report Card */}
+            <div className="bg-neutral-900/50 border border-white/10 rounded-xl overflow-hidden mb-16 shadow-2xl">
+              {/* Header inside card */}
+              <div className="bg-white/5 border-b border-white/10 px-6 py-4 text-center">
+                <h3 className="text-sm font-semibold tracking-widest uppercase text-white/95" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                  Raporti i Aksidenteve
+                </h3>
+              </div>
+              
+              {/* Card Body - Side by side vehicle drawings */}
+              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10 p-6 md:p-10 gap-8">
+                {/* Column 1: Jashte */}
+                <div className="flex flex-col items-center">
+                  <h4 className="text-xl font-bold mb-8 text-white/90" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                    Jashtë
+                  </h4>
+                  
+                  {/* Drawing Wrapper */}
+                  <div className="relative w-full max-w-[400px] aspect-[4/5] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center">
+                    <svg viewBox="0 0 400 500" className="w-full h-full text-white/20 select-none">
+                      {/* Left profile car outline */}
+                      <path d="M 85,50 C 95,50 98,70 98,110 L 98,150 L 105,170 L 105,370 L 98,390 L 98,430 C 98,460 92,470 85,470 C 78,470 72,460 72,430 L 72,390 L 65,370 L 65,170 L 72,150 L 72,110 C 72,70 75,50 85,50 Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(255, 255, 255, 0.02)" />
+                      <circle cx="72" cy="140" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
+                      <circle cx="72" cy="410" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
+                      <line x1="65" y1="200" x2="98" y2="200" stroke="currentColor" strokeWidth="1.5" />
+                      <line x1="65" y1="285" x2="98" y2="285" stroke="currentColor" strokeWidth="1.5" />
+                      <line x1="65" y1="370" x2="98" y2="370" stroke="currentColor" strokeWidth="1.5" />
+                      <line x1="82" y1="200" x2="82" y2="370" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
+
+                      {/* Top view outline */}
+                      <path d="M 200,40 C 230,40 240,60 240,100 L 246,170 L 252,175 L 252,370 L 246,375 L 240,430 C 240,460 225,465 200,465 C 175,465 160,460 160,430 L 154,375 L 148,370 L 148,175 L 154,170 L 160,100 C 160,60 170,40 200,40 Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(255, 255, 255, 0.03)" />
+                      <path d="M 160,140 L 240,140" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M 160,140 C 180,180 220,180 240,140" stroke="currentColor" strokeWidth="1.2" />
+                      <path d="M 154,170 C 180,200 220,200 246,170" stroke="currentColor" strokeWidth="1.5" />
+                      <rect x="156" y="200" width="88" height="150" rx="10" ry="10" stroke="currentColor" strokeWidth="1.5" fill="none" />
+                      <path d="M 154,360 C 180,330 220,330 246,360" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M 160,410 L 240,410" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M 148,185 C 140,185 138,195 142,198 C 145,200 148,198 148,195" stroke="currentColor" strokeWidth="1.2" fill="#222" />
+                      <path d="M 252,185 C 260,185 262,195 258,198 C 255,200 252,198 252,195" stroke="currentColor" strokeWidth="1.2" fill="#222" />
+                      <line x1="170" y1="80" x2="230" y2="80" stroke="currentColor" strokeWidth="1.5" />
+
+                      {/* Right profile car outline */}
+                      <path d="M 315,50 C 325,50 328,70 328,110 L 328,150 L 335,170 L 335,370 L 328,390 L 328,430 C 328,460 322,470 315,470 C 308,470 302,460 302,430 L 302,390 L 295,370 L 295,170 L 302,150 L 302,110 C 302,70 305,50 315,50 Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(255, 255, 255, 0.02)" />
+                      <circle cx="328" cy="140" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
+                      <circle cx="328" cy="410" r="16" stroke="currentColor" strokeWidth="1.5" fill="#111" />
+                      <line x1="295" y1="200" x2="328" y2="200" stroke="currentColor" strokeWidth="1.5" />
+                      <line x1="295" y1="285" x2="328" y2="285" stroke="currentColor" strokeWidth="1.5" />
+                      <line x1="295" y1="370" x2="328" y2="370" stroke="currentColor" strokeWidth="1.5" />
+                      <line x1="312" y1="200" x2="312" y2="370" stroke="currentColor" strokeWidth="1" strokeDasharray="2,2" />
+
+                      {/* Labels */}
+                      <text x="85" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Jashtë (M)</text>
+                      <text x="200" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Jashtë (Q)</text>
+                      <text x="315" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Jashtë (D)</text>
+
+                      {/* Render damage pins for Exterior */}
+                      {renderPins(false)}
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Column 2: Brenda */}
+                <div className="flex flex-col items-center">
+                  <h4 className="text-xl font-bold mb-8 text-white/90" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                    Brenda
+                  </h4>
+                  
+                  {/* Drawing Wrapper */}
+                  <div className="relative w-full max-w-[400px] aspect-[4/5] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center">
+                    <svg viewBox="0 0 400 500" className="w-full h-full text-white/20 select-none">
+                      {/* Left profile structural outline */}
+                      <path d="M 85,50 C 95,50 98,70 98,110 L 98,150 L 105,170 L 105,370 L 98,390 L 98,430 C 98,460 92,470 85,470 C 78,470 72,460 72,430 L 72,390 L 65,370 L 65,170 L 72,150 L 72,110 C 72,70 75,50 85,50 Z" stroke="currentColor" strokeWidth="1" strokeDasharray="3,3" fill="none" />
+                      <path d="M 68,200 L 90,200" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M 68,285 L 90,285" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M 68,370 L 90,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M 68,200 C 68,250 68,350 68,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" fill="none" />
+
+                      {/* Center chassis rails */}
+                      <path d="M 165,80 L 165,190 L 180,210 L 180,350 L 165,370 L 165,450" stroke="currentColor" strokeWidth="3" fill="none" />
+                      <path d="M 235,80 L 235,190 L 220,210 L 220,350 L 235,370 L 235,450" stroke="currentColor" strokeWidth="3" fill="none" />
+                      <line x1="160" y1="80" x2="240" y2="80" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                      <line x1="160" y1="450" x2="240" y2="450" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" />
+                      <path d="M 145,130 C 135,130 135,175 145,175" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                      <path d="M 255,130 C 265,130 265,175 255,175" stroke="currentColor" strokeWidth="2.5" fill="none" />
+                      <line x1="150" y1="210" x2="250" y2="210" stroke="currentColor" strokeWidth="2.5" />
+                      <rect x="170" y="380" width="60" height="60" rx="3" stroke="currentColor" strokeWidth="1.5" fill="rgba(255,255,255,0.01)" />
+                      <line x1="160" y1="360" x2="240" y2="360" stroke="currentColor" strokeWidth="2.5" />
+
+                      {/* Right profile structural outline */}
+                      <path d="M 315,50 C 325,50 328,70 328,110 L 328,150 L 335,170 L 335,370 L 328,390 L 328,430 C 328,460 322,470 315,470 C 308,470 302,460 302,430 L 302,390 L 295,370 L 295,170 L 302,150 L 302,110 C 302,70 305,50 315,50 Z" stroke="currentColor" strokeWidth="1" strokeDasharray="3,3" fill="none" />
+                      <path d="M 332,200 L 310,200" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M 332,285 L 310,285" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M 332,370 L 310,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" />
+                      <path d="M 332,200 C 332,250 332,350 332,370" stroke="#4A5568" strokeWidth="3" strokeLinecap="round" fill="none" />
+
+                      {/* Labels */}
+                      <text x="85" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Brenda (M)</text>
+                      <text x="200" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Brenda (Q)</text>
+                      <text x="315" y="490" textAnchor="middle" fill="#718096" className="text-[10px] font-medium" style={{ fontFamily: "Montserrat" }}>Brenda (D)</text>
+
+                      {/* Render damage pins for Interior */}
+                      {renderPins(true)}
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Legend Footer */}
+              <div className="bg-white/5 border-t border-white/10 px-6 py-4 flex flex-wrap gap-6 justify-center text-xs">
+                {Object.entries(STATUS_MAP).map(([code, info]) => (
+                  <div key={code} className="flex items-center gap-2">
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${info.color}`}>
+                      {info.label}
+                    </span>
+                    <span className="text-white/70" style={{ fontFamily: "Montserrat" }}>{info.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Render detected repairs description list */}
+            {car.inspectionData.outers && car.inspectionData.outers.length > 0 && (
+              <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-16">
+                <h4 className="text-md font-bold mb-4 uppercase tracking-wider text-red-400" style={{ fontFamily: "Montserrat" }}>
+                  Defektet dhe Ndërhyrjet e Detektuara:
+                </h4>
+                <ul className="list-disc pl-5 space-y-2 text-white/70 text-sm" style={{ fontFamily: "Montserrat" }}>
+                  {car.inspectionData.outers.map((o, idx) => {
+                    const outerName = EXTERIOR_COORDS[o.type?.code]?.name || INTERIOR_COORDS[o.type?.code]?.name || o.type?.title || 'Pjesë e paidentifikuar';
+                    const statusesStr = o.statusTypes?.map(s => s.title).join(", ") || "";
+                    return (
+                      <li key={idx}>
+                        <strong className="text-white">{outerName}</strong>: {statusesStr}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+
+            {/* Mechanical Status Table */}
+            {car.inspectionData.inners && (
+              <div className="bg-neutral-900/50 border border-white/10 rounded-xl overflow-hidden mb-16 shadow-2xl">
+                <div className="bg-white/5 border-b border-white/10 px-6 py-4 text-center">
+                  <h3 className="text-sm font-semibold tracking-widest uppercase text-white/95" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                    Gjendja Mekanike & Pajisjet
+                  </h3>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-sm" style={{ fontFamily: "Montserrat" }}>
+                    <thead>
+                      <tr className="bg-white/5 border-b border-white/10 text-white/50 uppercase tracking-wider text-xs">
+                        <th className="px-6 py-4 font-semibold">Grupi</th>
+                        <th className="px-6 py-4 font-semibold">Pjesa</th>
+                        <th className="px-6 py-4 font-semibold">Gjendja</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5 text-white/80">
+                      {/* Motor Group */}
+                      {motorChecks.map((check, idx) => {
+                        const raw = getStatusByCode(car.inspectionData.inners, check.code);
+                        const status = translateStatus(raw, check.isLeak);
+                        return (
+                          <tr key={check.code} className="hover:bg-white/2 transition-colors">
+                            {idx === 0 && (
+                              <td rowSpan={motorChecks.length} className="px-6 py-4 font-bold border-r border-white/5 bg-white/2 align-middle text-white uppercase tracking-wider text-xs w-32">
+                                Motori
+                              </td>
+                            )}
+                            <td className="px-6 py-3.5 border-r border-white/5 text-white/90">{check.label}</td>
+                            <td className={`px-6 py-3.5 ${status.color}`}>{status.text}</td>
+                          </tr>
+                        );
+                      })}
+                      
+                      {/* Transmission Group */}
+                      {transChecks.map((check, idx) => {
+                        const raw = getStatusByCode(car.inspectionData.inners, check.code) || 
+                                    (check.fallbackCode ? getStatusByCode(car.inspectionData.inners, check.fallbackCode) : null);
+                        const status = translateStatus(raw, check.isLeak);
+                        return (
+                          <tr key={check.code} className="hover:bg-white/2 transition-colors">
+                            {idx === 0 && (
+                              <td rowSpan={transChecks.length} className="px-6 py-4 font-bold border-r border-white/5 bg-white/2 align-middle text-white uppercase tracking-wider text-xs w-32">
+                                Transmisioni
+                              </td>
+                            )}
+                            <td className="px-6 py-3.5 border-r border-white/5 text-white/90">{check.label}</td>
+                            <td className={`px-6 py-3.5 ${status.color}`}>{status.text}</td>
+                          </tr>
+                        );
+                      })}
+
+                      {/* Steering Group */}
+                      {steerChecks.map((check, idx) => {
+                        const raw = getStatusByCode(car.inspectionData.inners, check.code);
+                        const status = translateStatus(raw, check.isLeak);
+                        return (
+                          <tr key={check.code} className="hover:bg-white/2 transition-colors">
+                            {idx === 0 && (
+                              <td rowSpan={steerChecks.length} className="px-6 py-4 font-bold border-r border-white/5 bg-white/2 align-middle text-white uppercase tracking-wider text-xs w-32">
+                                Drejtimi
+                              </td>
+                            )}
+                            <td className="px-6 py-3.5 border-r border-white/5 text-white/90">{check.label}</td>
+                            <td className={`px-6 py-3.5 ${status.color}`}>{status.text}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Explanatory notes */}
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 lg:p-8 mt-16 text-white/70 text-xs sm:text-sm space-y-4">
+              <h4 className="text-md font-bold uppercase tracking-wider text-white mb-6" style={{ fontFamily: "Montserrat" }}>
+                Sqarime / Shënime / Informacion shpjegues
+              </h4>
+              <ol className="list-decimal pl-5 space-y-3.5 leading-relaxed" style={{ fontFamily: "Montserrat" }}>
+                <li>Një automjet konsiderohet i aksidentuar vetëm nëse ka pasur riparime me saldim ose zëvendësim në pjesët kryesore të strukturës.</li>
+                <li>Për panelet si Paneli i pasmë anësor (quarter panel), Paneli i kulmit (roof panel) dhe Pragu anësor (side sill panel), vetëm në rast prerjeje dhe saldimi do të regjistrohen si aksident.</li>
+                <li>Riparimet në pjesë të jashtme si Kapotë (hood), Parafango (fender), dyer, Dera e bagazhit (trunk lid), si dhe parakolp dhe prapakolp (bumpers) nuk konsiderohen aksident, por riparime të thjeshta.</li>
+                <li>Gjurmët e vajit ose gjurmët e ujit ftohës (antifreeze) shfaqen si pasojë e konsumimit normal të pjesëve.</li>
+                <li>Rrjedhja e vajit ose e ujit ftohës është gjendja kur lëngu grumbullohet dhe bie nga pjesa përkatëse.</li>
+                <li>Korrozioni nënkupton shkatërrimin e sipërfaqes metalike nga reagimet kimike dhe nuk përfshin vetëm ndryshkun sipërfaqësor.</li>
+                <li>Përmbytja konsiderohet kur motori, transmisioni ose pajisje të tjera kryesore kanë shenja të qarta që kanë qenë të fundosura nën ujë.</li>
+                <li>Ky inspektim nuk është bërë nga kompania jonë burimore por nga pala koreane para se vetura të dalë në shitje. Inspektimi nga kompania jonë bëhet para se klienti ta bëjë blerjen e veturës.</li>
+                <li>Nuk ju rekomandojmë blerje të veturës që i mungon raporti i inspektimit paraprak, e veçanërisht kur mungon raporti i sigurimit.</li>
+                <li>Të gjitha të dhënat dhe informacionet e paraqitura në këtë raport janë marrë nga encar.com dhe kompania jonë i prezanton vetëm për qëllime informuese.</li>
+                <li>Kompania jonë nuk mban përgjegjësi për saktësinë, plotësinë ose gabimet e mundshme në përmbajtjen e raportit. Burimet e raporteve janë në encar.com.</li>
+                <li>Raporti pasqyron gjendjen e automjetit vetëm në momentin e inspektimit dhe nuk përbën garanci për gjendjen e ardhshme të tij.</li>
+                <li>Raportet dhe të dhënat e publikuara mund të ndryshojnë ose përditësohen nga burimi origjinal (encar.com) pa paralajmërim paraprak.</li>
+              </ol>
+            </div>
+
+          </div>
+        </section>
+      )}
 
       {/* Gallery Section */}
       <section
