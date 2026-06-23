@@ -51,6 +51,39 @@ const STATUS_MAP = {
   'T': { label: 'D', name: 'Demtim (Sipërfaqësor)', color: 'bg-amber-800 text-white' }
 };
 
+const getPinHexColor = (label) => {
+  switch (label) {
+    case "N": return "#EF4444";
+    case "R": return "#3B82F6";
+    case "K": return "#D97706";
+    case "G": return "#6B7280";
+    case "P": return "#10B981";
+    default: return "#D97706";
+  }
+};
+
+const getDotBgColor = (label) => {
+  switch (label) {
+    case "N": return "bg-red-500";
+    case "R": return "bg-blue-500";
+    case "K": return "bg-amber-500";
+    case "G": return "bg-slate-400";
+    case "P": return "bg-emerald-500";
+    default: return "bg-amber-700";
+  }
+};
+
+const getStatusBadgeStyle = (label) => {
+  switch (label) {
+    case "N": return "border border-red-500/30 bg-red-500/10 text-red-400";
+    case "R": return "border border-blue-500/30 bg-blue-500/10 text-blue-400";
+    case "K": return "border border-amber-600/30 bg-amber-600/10 text-amber-500";
+    case "G": return "border border-slate-500/30 bg-slate-500/10 text-slate-400";
+    case "P": return "border border-emerald-500/30 bg-emerald-500/10 text-emerald-400";
+    default: return "border border-amber-800/30 bg-amber-800/10 text-amber-700";
+  }
+};
+
 const EXTERIOR_COORDS = {
   'P021': { x: 95, y: 66, name: 'Parafango e parme (Majtas)' },
   'P031': { x: 80, y: 124, name: 'Dera e parme (Majtas)' },
@@ -192,6 +225,9 @@ const translateStatus = (krStatus, isLeakCheck = false) => {
   if (val === '부족') {
     return { text: 'Nivel i ulët', color: 'text-amber-500 font-medium' };
   }
+  if (val === '과da') { // Note: original code had '과다' but handled case-insensitive
+    return { text: 'Nivel i lartë', color: 'text-amber-500 font-medium' };
+  }
   if (val === '과다') {
     return { text: 'Nivel i lartë', color: 'text-amber-500 font-medium' };
   }
@@ -202,6 +238,83 @@ const translateStatus = (krStatus, isLeakCheck = false) => {
     return { text: 'Ka rrjedhje', color: 'text-red-500 font-semibold' };
   }
   return { text: krStatus, color: 'text-white' };
+};
+
+const extractCC = (engineStr) => {
+  if (!engineStr) return 1995;
+  const str = String(engineStr).toLowerCase();
+  
+  const ccMatch = str.match(/(\d{1,3}[\s,.]?\d{3})\s*cc/);
+  if (ccMatch) {
+    return parseInt(ccMatch[1].replace(/[\s,.]/g, ""), 10);
+  }
+
+  const standaloneMatch = str.match(/\b(1\d{3}|2\d{3}|3\d{3})\b/);
+  if (standaloneMatch) {
+    return parseInt(standaloneMatch[1], 10);
+  }
+
+  const literMatch = str.match(/\b([1-5]\.\d)\s*l?\b/);
+  if (literMatch) {
+    const liters = parseFloat(literMatch[1]);
+    if (liters === 2.0) return 1995;
+    if (liters === 3.0) return 2995;
+    if (liters === 2.5) return 2495;
+    return Math.round(liters * 1000);
+  }
+
+  return 1995;
+};
+
+const calculateCustoms = (price, cc, year) => {
+  const currentYear = new Date().getFullYear();
+  const age = Math.max(0, currentYear - year);
+
+  let category = 0;
+  if (cc >= 2000 && cc <= 2999) {
+    category = 1;
+  } else if (cc >= 3000) {
+    category = 2;
+  }
+
+  let excise = 0;
+  if (age <= 1) {
+    excise = 0;
+  } else if (age <= 2) {
+    excise = category === 0 ? 100 : category === 1 ? 150 : 300;
+  } else if (age <= 3) {
+    excise = category === 0 ? 200 : category === 1 ? 300 : 500;
+  } else if (age <= 4) {
+    excise = category === 0 ? 300 : category === 1 ? 400 : 700;
+  } else if (age <= 5) {
+    excise = category === 0 ? 400 : category === 1 ? 500 : 900;
+  } else if (age <= 6) {
+    excise = category === 0 ? 400 : category === 1 ? 500 : 1000;
+  } else if (age <= 8) {
+    excise = category === 0 ? 450 : category === 1 ? 550 : 1100;
+  } else if (age <= 9) {
+    excise = category === 0 ? 600 : category === 1 ? 600 : 1500;
+  } else if (age <= 10) {
+    excise = category === 0 ? 700 : category === 1 ? 800 : 1800;
+  } else if (age <= 12) {
+    excise = category === 0 ? 900 : category === 1 ? 1200 : 2400;
+  } else if (age <= 15) {
+    excise = category === 0 ? 1200 : category === 1 ? 1700 : 3100;
+  } else {
+    excise = category === 0 ? 1500 : category === 1 ? 2200 : 3900;
+  }
+
+  const importTax = price * 0.10;
+  const vat = (price + excise + importTax) * 0.18;
+  const total = excise + importTax + vat;
+
+  return {
+    excise,
+    importTax,
+    vat,
+    total,
+    isProhibited: age > 10
+  };
 };
 
 export default function CarDetail() {
@@ -223,6 +336,11 @@ export default function CarDetail() {
   const featuresRef = useRef(null);
   const galleryRef = useRef(null);
   const [featuresVisible, setFeaturesVisible] = useState(true);
+
+  // Customs Calculator State
+  const [priceInput, setPriceInput] = useState(0);
+  const [ccInput, setCcInput] = useState(1995);
+  const [yearInput, setYearInput] = useState(new Date().getFullYear());
 
   const motorChecks = [
     { label: 'Gjendja e funksionimit (në punë boshe)', code: 's003', isLeak: false },
@@ -268,34 +386,32 @@ export default function CarDetail() {
           name: "Demtim",
           color: "bg-amber-800 text-white",
         };
+        const pinColor = getPinHexColor(statusInfo.label);
 
         return (
-          <g key={idx} className="group cursor-pointer">
+          <g key={idx} className="group cursor-pointer pointer-events-auto transition-transform duration-200 hover:scale-110 origin-center">
+            {/* Pulsing glow ring */}
             <circle
               cx={coord.x}
               cy={coord.y}
-              r="10"
-              className="stroke-white stroke-2 animate-pulse"
-              style={{
-                fill:
-                  statusInfo.label === "N"
-                    ? "#E53E3E"
-                    : statusInfo.label === "R"
-                      ? "#3182CE"
-                      : statusInfo.label === "K"
-                        ? "#D69E2E"
-                        : statusInfo.label === "G"
-                          ? "#4A5568"
-                          : statusInfo.label === "P"
-                            ? "#38A169"
-                            : "#A0522D",
-              }}
+              r="13"
+              className="animate-pulse opacity-25 fill-current"
+              style={{ color: pinColor }}
             />
+            {/* Outer border & Fill */}
+            <circle
+              cx={coord.x}
+              cy={coord.y}
+              r="9.5"
+              className="stroke-white/80 stroke-[1.5]"
+              style={{ fill: pinColor }}
+            />
+            {/* Centered label */}
             <text
               x={coord.x}
-              y={coord.y + 3.5}
+              y={coord.y + 3}
               textAnchor="middle"
-              className="text-[9px] font-bold fill-white pointer-events-none"
+              className="text-[9px] font-extrabold fill-white pointer-events-none select-none"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               {statusInfo.label}
@@ -394,6 +510,15 @@ export default function CarDetail() {
       fetchSimilarCars();
     }
   }, [car, slug]);
+
+  // Initialize customs calculator values when car loads
+  useEffect(() => {
+    if (car) {
+      setPriceInput(car.discountPrice || car.price || 0);
+      setYearInput(Number(car.year) || new Date().getFullYear());
+      setCcInput(extractCC(car.engine));
+    }
+  }, [car]);
 
   // Dynamic SEO for car detail page
   useSEO(
@@ -586,6 +711,8 @@ export default function CarDetail() {
       maximumFractionDigits: 0,
     }).format(price);
   };
+
+  const customsData = calculateCustoms(priceInput, ccInput, yearInput);
 
   // Loading state
   if (isLoading) {
@@ -1104,10 +1231,10 @@ export default function CarDetail() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Options & Features Section */}
       <section
         ref={featuresRef}
-        className="relative py-20 lg:py-32 bg-linear-to-b from-black via-neutral-950 to-black"
+        className="relative py-20 lg:py-32 bg-linear-to-b from-black via-neutral-950 to-black border-t border-white/10"
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           {/* Section Header */}
@@ -1120,7 +1247,7 @@ export default function CarDetail() {
               }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
-              Veçoritë<span className="text-white/30">.</span>
+              Opsionet e veturës<span className="text-white/30">.</span>
             </h2>
             <div
               className={`w-16 h-1 bg-white mx-auto mb-6 transition-all duration-1000 delay-100 ${
@@ -1138,27 +1265,41 @@ export default function CarDetail() {
               }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              I pajisur me teknologjinë dhe mjeshtërinë më të mirë
+              {car.options
+                ? "Lista e detajuar e pajisjeve dhe opsioneve të integruara në këtë automjet, e ndarë sipas kategorive."
+                : "I pajisur me teknologjinë dhe mjeshtërinë më të mirë"}
             </p>
           </div>
 
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-            {car.features.map((feature, index) => (
-              <div
-                key={feature}
-                className={`group relative p-5 lg:p-6 border border-white/10 rounded-lg hover:border-white/30 hover:bg-white/5 transition-all duration-500 cursor-default min-h-18 flex items-center ${
-                  featuresVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
-                style={{ transitionDelay: `${300 + index * 50}ms` }}
-              >
-                <div className="flex items-center gap-3 w-full">
-                  {/* Check icon */}
-                  <div className="shrink-0 w-5 h-5 rounded-full border border-white/30 flex items-center justify-center group-hover:border-white/60 group-hover:bg-white/10 transition-all duration-300">
+          {/* Conditional rendering based on options presence */}
+          {car.options ? (
+            /* Options Grid */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+              {optionCategories.map((cat) => {
+                const activeItems = cat.items.filter((item) =>
+                  item.codes.some((code) => {
+                    const standard = car.options.standard || [];
+                    const choice = car.options.choice || [];
+                    const etc = car.options.etc || [];
+                    return (
+                      standard.includes(code) ||
+                      choice.includes(code) ||
+                      etc.includes(code)
+                    );
+                  })
+                );
+
+                if (activeItems.length === 0) return null;
+
+                // Sleek monochromatic styling variables
+                const catColor = "text-white/80 border-white/10 bg-white/5";
+                const glowColor = "from-white/5";
+                let catIcon = null;
+
+                if (cat.title === "Siguri") {
+                  catIcon = (
                     <svg
-                      className="w-3 h-3 text-white/60 group-hover:text-white transition-colors duration-300"
+                      className="w-5 h-5 text-white/70"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1167,86 +1308,80 @@ export default function CarDetail() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M5 13l4 4L19 7"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                       />
                     </svg>
-                  </div>
-                  <span
-                    className="text-sm lg:text-base text-white/80 group-hover:text-white transition-colors duration-300"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    {feature}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Description */}
-          <div
-            className={`mt-16 lg:mt-24 max-w-3xl mx-auto text-center transition-all duration-1000 ${
-              featuresVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
-            }`}
-            style={{ transitionDelay: "800ms" }}
-          >
-            <p
-              className="text-lg lg:text-xl text-white/70 leading-relaxed"
-              style={{ fontFamily: "Montserrat, sans-serif", fontWeight: 300 }}
-            >
-              {car.description}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Detailed Options Section (Encar Cars Only) */}
-      {car && car.options && (
-        <section className="relative py-20 lg:py-32 border-t border-white/10 bg-black">
-          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-            {/* Section Header */}
-            <div className="mb-12 lg:mb-16">
-              <h2
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4"
-                style={{ fontFamily: "Cera Pro, sans-serif" }}
-              >
-                Opsionet e veturës<span className="text-white/30">.</span>
-              </h2>
-              <p
-                className="text-white/60 max-w-2xl"
-                style={{ fontFamily: "Montserrat, sans-serif" }}
-              >
-                Lista e detajuar e pajisjeve dhe opsioneve të integruara në këtë automjet, e ndarë sipas kategorive.
-              </p>
-            </div>
-
-            {/* Options Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-              {optionCategories.map((cat) => {
-                const activeItems = cat.items.filter((item) =>
-                  item.codes.some((code) => {
-                    const standard = car.options.standard || [];
-                    const choice = car.options.choice || [];
-                    const etc = car.options.etc || [];
-                    return standard.includes(code) || choice.includes(code) || etc.includes(code);
-                  })
-                );
-
-                if (activeItems.length === 0) return null;
+                  );
+                } else if (cat.title === "Jashte/Brenda") {
+                  catIcon = (
+                    <svg
+                      className="w-5 h-5 text-white/70"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  );
+                } else if (cat.title === "Uleset") {
+                  catIcon = (
+                    <svg
+                      className="w-5 h-5 text-white/70"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v3a2 2 0 002 2H3a2 2 0 002-2V5zM3 13h18M5 17h14M8 21h8"
+                      />
+                    </svg>
+                  );
+                } else {
+                  catIcon = (
+                    <svg
+                      className="w-5 h-5 text-white/70"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
+                      />
+                    </svg>
+                  );
+                }
 
                 return (
                   <div
                     key={cat.title}
-                    className="relative group p-6 lg:p-8 bg-neutral-900/30 border border-white/10 rounded-xl hover:border-white/20 hover:bg-neutral-900/50 transition-all duration-500 shadow-2xl"
+                    className="relative group p-6 lg:p-8 bg-neutral-900/30 border border-white/10 rounded-xl hover:border-white/20 hover:bg-neutral-900/50 transition-all duration-500 shadow-2xl overflow-hidden"
                   >
-                    <div className="absolute inset-0 bg-linear-to-r from-white/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    
+                    {/* Glowing color gradient on hover */}
+                    <div
+                      className="absolute inset-0 bg-linear-to-r from-white/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    />
+
                     <h3
-                      className="text-xl font-bold mb-6 text-white tracking-wide border-b border-white/15 pb-3 flex items-center justify-between"
+                      className="text-xl font-bold mb-6 tracking-wide border-b border-white/15 pb-3 flex items-center justify-between z-10 relative"
                       style={{ fontFamily: "Cera Pro, sans-serif" }}
                     >
-                      <span>{cat.title}</span>
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg border ${catColor}`}>
+                          {catIcon}
+                        </div>
+                        <span className="text-white">{cat.title}</span>
+                      </div>
                       <span className="text-xs font-normal text-white/40 font-mono">
                         {activeItems.length} pajisje
                       </span>
@@ -1255,9 +1390,10 @@ export default function CarDetail() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 relative z-10">
                       {activeItems.map((item) => (
                         <div key={item.name} className="flex items-center gap-3">
-                          <div className="shrink-0 w-4 h-4 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                          {/* Active check icon */}
+                          <div className="shrink-0 w-4 h-4 rounded-full bg-white/10 border border-white/20 flex items-center justify-center">
                             <svg
-                              className="w-2.5 h-2.5 text-emerald-400"
+                              className="w-2.5 h-2.5 text-white/80"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -1283,9 +1419,71 @@ export default function CarDetail() {
                 );
               })}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            /* Fallback Features Grid */
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {car.features &&
+                car.features.map((feature, index) => (
+                  <div
+                    key={feature}
+                    className={`group relative p-5 lg:p-6 bg-neutral-900/30 border border-white/10 rounded-xl hover:border-white/20 hover:bg-neutral-900/50 transition-all duration-500 shadow-xl overflow-hidden cursor-default min-h-18 flex items-center ${
+                      featuresVisible
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-8"
+                    }`}
+                    style={{ transitionDelay: `${300 + index * 50}ms` }}
+                  >
+                    {/* Glowing background on hover */}
+                    <div className="absolute inset-0 bg-linear-to-r from-white/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="flex items-center gap-3 w-full relative z-10">
+                      {/* Check icon */}
+                      <div className="shrink-0 w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center group-hover:border-white/40 group-hover:bg-white/15 transition-all duration-300">
+                        <svg
+                          className="w-3 h-3 text-white/80 group-hover:text-white transition-colors duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={3}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </div>
+                      <span
+                        className="text-sm lg:text-base text-white/80 group-hover:text-white transition-colors duration-300"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        {feature}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* Description */}
+          {car.description && (
+            <div
+              className={`mt-16 lg:mt-24 max-w-3xl mx-auto text-center transition-all duration-1000 ${
+                featuresVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+              }`}
+              style={{ transitionDelay: "800ms" }}
+            >
+              <p
+                className="text-lg lg:text-xl text-white/70 leading-relaxed font-light"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                {car.description}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Visual Condition Report Section (Encar Cars Only) */}
       {car && car.inspectionData && (
@@ -1302,169 +1500,274 @@ export default function CarDetail() {
               </p>
             </div>
 
-            {/* Accident Report Card */}
-            <div className="bg-neutral-900/50 border border-white/10 rounded-xl overflow-hidden mb-16 shadow-2xl">
-              {/* Header inside card */}
-              <div className="bg-white/5 border-b border-white/10 px-6 py-4 text-center">
-                <h3 className="text-sm font-semibold tracking-widest uppercase text-white/95" style={{ fontFamily: "Montserrat, sans-serif" }}>
-                  Raporti i Aksidenteve
-                </h3>
-              </div>
+            {/* Accident Report Panels */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto mb-10">
               
-              {/* Card Body - Side by side vehicle drawings */}
-              <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-white/10 p-6 md:p-10 gap-8">
-                {/* Column 1: Jashte */}
-                <div className="flex flex-col items-center">
-                  <h4 className="text-xl font-bold mb-8 text-white/90" style={{ fontFamily: "Cera Pro, sans-serif" }}>
-                    Jashtë
-                  </h4>
-                  
-                  {/* Drawing Wrapper */}
-                  <div className="relative w-full max-w-[400px] aspect-[4/3] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center overflow-hidden">
-                    <img
-                      src={exteriorImg}
-                      alt="Jashtë"
-                      className="absolute inset-0 w-full h-full object-contain p-2"
-                    />
-                    <svg viewBox="0 0 400 300" className="relative w-full h-full select-none pointer-events-none">
-                      {renderPins(false)}
-                    </svg>
+              {/* Panel 1: Jashtë (Exterior) */}
+              <div className="group relative flex flex-col bg-neutral-900/30 rounded-3xl p-6 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.03)]">
+                {/* Title & Info Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest" style={{ fontFamily: "Montserrat" }}>
+                      Inspektimi i Jashtëm
+                    </span>
+                    <h3 className="text-lg font-bold text-white tracking-wide mt-0.5" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                      Raporti i Aksidenteve
+                    </h3>
                   </div>
+                  <span className="text-[9px] font-mono px-2 py-0.5 bg-white/5 rounded text-white/40 uppercase">
+                    Exterior
+                  </span>
                 </div>
-
-                {/* Column 2: Brenda */}
-                <div className="flex flex-col items-center">
-                  <h4 className="text-xl font-bold mb-8 text-white/90" style={{ fontFamily: "Cera Pro, sans-serif" }}>
-                    Brenda
-                  </h4>
+                
+                {/* Drawing Container */}
+                <div className="relative w-full max-w-[400px] aspect-[4/3] bg-neutral-950/60 rounded-2xl p-4 flex items-center justify-center mx-auto shadow-inner overflow-hidden">
                   
-                  {/* Drawing Wrapper */}
-                  <div className="relative w-full max-w-[400px] aspect-[4/3] bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-center overflow-hidden">
-                    <img
-                      src={interiorImg}
-                      alt="Brenda"
-                      className="absolute inset-0 w-full h-full object-contain p-2"
-                    />
-                    <svg viewBox="0 0 400 300" className="relative w-full h-full select-none pointer-events-none">
-                      {renderPins(true)}
-                    </svg>
-                  </div>
+                  {/* Tech corners */}
+                  <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-white/20 rounded-tl" />
+                  <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-white/20 rounded-tr" />
+                  <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/20 rounded-bl" />
+                  <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/20 rounded-br" />
+                  
+                  {/* Scanning line effect */}
+                  <div className="absolute inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent animate-scan pointer-events-none" />
+
+                  <img
+                    src={exteriorImg}
+                    alt="Jashtë"
+                    className="absolute inset-0 w-full h-full object-contain p-2 opacity-80 group-hover:opacity-90 transition-opacity duration-500"
+                  />
+                  <svg viewBox="0 0 400 300" className="relative w-full h-full select-none pointer-events-none">
+                    {renderPins(false)}
+                  </svg>
                 </div>
               </div>
 
-              {/* Legend Footer */}
-              <div className="bg-white/5 border-t border-white/10 px-6 py-4 flex flex-wrap gap-6 justify-center text-xs">
-                {Object.entries(STATUS_MAP).map(([code, info]) => (
-                  <div key={code} className="flex items-center gap-2">
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${info.color}`}>
-                      {info.label}
+              {/* Panel 2: Brenda (Interior) */}
+              <div className="group relative flex flex-col bg-neutral-900/30 rounded-3xl p-6 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.03)]">
+                {/* Title & Info Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest" style={{ fontFamily: "Montserrat" }}>
+                      Inspektimi i Brendshëm
                     </span>
-                    <span className="text-white/70" style={{ fontFamily: "Montserrat" }}>{info.name}</span>
+                    <h3 className="text-lg font-bold text-white tracking-wide mt-0.5" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                      Korniza & Struktura
+                    </h3>
                   </div>
-                ))}
+                  <span className="text-[9px] font-mono px-2 py-0.5 bg-white/5 rounded text-white/40 uppercase">
+                    Interior
+                  </span>
+                </div>
+                
+                {/* Drawing Container */}
+                <div className="relative w-full max-w-[400px] aspect-[4/3] bg-neutral-950/60 rounded-2xl p-4 flex items-center justify-center mx-auto shadow-inner overflow-hidden">
+                  
+                  {/* Tech corners */}
+                  <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-white/20 rounded-tl" />
+                  <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-white/20 rounded-tr" />
+                  <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/20 rounded-bl" />
+                  <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/20 rounded-br" />
+                  
+                  {/* Scanning line effect */}
+                  <div className="absolute inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent animate-scan pointer-events-none" />
+
+                  <img
+                    src={interiorImg}
+                    alt="Brenda"
+                    className="absolute inset-0 w-full h-full object-contain p-2 opacity-80 group-hover:opacity-90 transition-opacity duration-500"
+                  />
+                  <svg viewBox="0 0 400 300" className="relative w-full h-full select-none pointer-events-none">
+                    {renderPins(true)}
+                  </svg>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Local scanning animation styles */}
+            <style>{`
+              @keyframes scanline {
+                0% { top: 0%; opacity: 0; }
+                10% { opacity: 0.5; }
+                90% { opacity: 0.5; }
+                100% { top: 100%; opacity: 0; }
+              }
+              .animate-scan {
+                animation: scanline 6s linear infinite;
+              }
+            `}</style>
+
+            {/* Legend Row */}
+            <div className="max-w-5xl mx-auto my-12">
+              <div className="bg-neutral-900/40 rounded-2xl p-6 shadow-lg">
+                <div className="text-[10px] uppercase tracking-widest text-white/40 text-center mb-4 font-bold" style={{ fontFamily: "Montserrat" }}>
+                  Legjenda e Inspektimit
+                </div>
+                <div className="flex flex-wrap gap-x-6 gap-y-3.5 justify-center text-[11px] lg:text-xs">
+                  {Object.entries(STATUS_MAP).map(([code, info]) => {
+                    const labelColor = info.label === "N"
+                      ? "bg-red-500/10 text-red-400"
+                      : info.label === "R"
+                        ? "bg-blue-500/10 text-blue-400"
+                        : info.label === "K"
+                          ? "bg-amber-600/10 text-amber-500"
+                          : info.label === "G"
+                            ? "bg-slate-500/10 text-slate-400"
+                            : info.label === "P"
+                              ? "bg-emerald-500/10 text-emerald-400"
+                              : "bg-amber-800/10 text-amber-700";
+
+                    const dotBg = info.label === "N"
+                      ? "bg-red-500"
+                      : info.label === "R"
+                        ? "bg-blue-500"
+                        : info.label === "K"
+                          ? "bg-amber-500"
+                          : info.label === "G"
+                            ? "bg-slate-400"
+                            : info.label === "P"
+                              ? "bg-emerald-500"
+                              : "bg-amber-700";
+
+                    return (
+                      <div key={code} className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full ${labelColor} transition-all duration-300 hover:scale-105 hover:bg-white/5`}>
+                        <span className="relative flex h-2 w-2">
+                          <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${dotBg} opacity-75`}></span>
+                          <span className={`relative inline-flex rounded-full h-2 w-2 ${dotBg}`}></span>
+                        </span>
+                        <span className="font-semibold">{info.label}</span>
+                        <span className="text-white/60 font-light" style={{ fontFamily: "Montserrat" }}>{info.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
             {/* Render detected repairs description list */}
             {car.inspectionData.outers && car.inspectionData.outers.length > 0 && (
-              <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-16">
-                <h4 className="text-md font-bold mb-4 uppercase tracking-wider text-red-400" style={{ fontFamily: "Montserrat" }}>
-                  Defektet dhe Ndërhyrjet e Detektuara:
-                </h4>
-                <ul className="list-disc pl-5 space-y-2 text-white/70 text-sm" style={{ fontFamily: "Montserrat" }}>
-                  {car.inspectionData.outers
-                    .filter(o => {
-                      const code = o.type?.code;
-                      return EXTERIOR_COORDS[code] || INTERIOR_COORDS[code];
-                    })
-                    .map((o, idx) => {
-                      const outerName = EXTERIOR_COORDS[o.type?.code]?.name || INTERIOR_COORDS[o.type?.code]?.name;
-                      const statusesStr = o.statusTypes?.map(s => {
-                        const mapped = STATUS_MAP[s.code];
-                        return mapped ? mapped.name : s.title;
-                      }).join(", ") || "";
-                      return (
-                        <li key={idx}>
-                          <strong className="text-white">{outerName}</strong>: {statusesStr}
-                        </li>
-                      );
-                    })}
-                </ul>
+              <div className="max-w-2xl mx-auto mb-16">
+                <div className="bg-neutral-900/20 rounded-3xl p-6 lg:p-8 backdrop-blur-md">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                    <h4 className="text-xs font-bold text-white/40 uppercase tracking-widest" style={{ fontFamily: "Montserrat" }}>
+                      Defektet dhe Ndërhyrjet e Detektuara
+                    </h4>
+                  </div>
+                  <div style={{ fontFamily: "Montserrat" }}>
+                    {car.inspectionData.outers
+                      .filter(o => {
+                        const code = o.type?.code;
+                        return EXTERIOR_COORDS[code] || INTERIOR_COORDS[code];
+                      })
+                      .map((o, idx) => {
+                        const outerName = EXTERIOR_COORDS[o.type?.code]?.name || INTERIOR_COORDS[o.type?.code]?.name;
+                        const firstStatusCode = o.statusTypes?.[0]?.code;
+                        const mappedStatus = STATUS_MAP[firstStatusCode];
+                        const badgeStyle = mappedStatus ? getStatusBadgeStyle(mappedStatus.label) : "border border-white/10 bg-white/5 text-white/70";
+                        const statusesStr = o.statusTypes?.map(s => {
+                          const mapped = STATUS_MAP[s.code];
+                          return mapped ? mapped.name : s.title;
+                        }).join(", ") || "";
+                        return (
+                          <div key={idx} className="flex justify-between items-center py-4 hover:bg-white/[0.02] -mx-4 px-4 rounded-xl transition-all duration-300 text-sm">
+                            <div className="flex items-center gap-3">
+                              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${mappedStatus ? getDotBgColor(mappedStatus.label) : "bg-white"} opacity-75`}></span>
+                                <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${mappedStatus ? getDotBgColor(mappedStatus.label) : "bg-white"}`}></span>
+                              </span>
+                              <span className="text-white/80 font-light">{outerName}</span>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${badgeStyle}`}>
+                              {statusesStr}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Mechanical Status Table */}
+            {/* Mechanical Status Checklist (Sleek & Monochromatic) */}
             {car.inspectionData.inners && (
-              <div className="bg-neutral-900/50 border border-white/10 rounded-xl overflow-hidden mb-16 shadow-2xl">
-                <div className="bg-white/5 border-b border-white/10 px-6 py-4 text-center">
-                  <h3 className="text-sm font-semibold tracking-widest uppercase text-white/95" style={{ fontFamily: "Montserrat, sans-serif" }}>
-                    Gjendja Mekanike & Pajisjet
+              <div className="mb-16">
+                {/* Section Header */}
+                <div className="mb-10 text-center md:text-left">
+                  <h3 className="text-2xl font-bold tracking-wide text-white uppercase" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                    Gjendja Mekanike & Pajisjet<span className="text-white/30">.</span>
                   </h3>
+                  <div className="w-16 h-0.5 bg-white/20 mt-3 mx-auto md:mx-0" />
                 </div>
-                
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-sm" style={{ fontFamily: "Montserrat" }}>
-                    <thead>
-                      <tr className="bg-white/5 border-b border-white/10 text-white/50 uppercase tracking-wider text-xs">
-                        <th className="px-6 py-4 font-semibold">Grupi</th>
-                        <th className="px-6 py-4 font-semibold">Pjesa</th>
-                        <th className="px-6 py-4 font-semibold">Gjendja</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5 text-white/80">
-                      {/* Motor Group */}
-                      {motorChecks.map((check, idx) => {
-                        const raw = getStatusByCode(car.inspectionData.inners, check.code);
-                        const status = translateStatus(raw, check.isLeak);
-                        return (
-                          <tr key={check.code} className="hover:bg-white/2 transition-colors">
-                            {idx === 0 && (
-                              <td rowSpan={motorChecks.length} className="px-6 py-4 font-bold border-r border-white/5 bg-white/2 align-middle text-white uppercase tracking-wider text-xs w-32">
-                                Motori
-                              </td>
-                            )}
-                            <td className="px-6 py-3.5 border-r border-white/5 text-white/90">{check.label}</td>
-                            <td className={`px-6 py-3.5 ${status.color}`}>{status.text}</td>
-                          </tr>
-                        );
-                      })}
-                      
-                      {/* Transmission Group */}
-                      {transChecks.map((check, idx) => {
-                        const raw = getStatusByCode(car.inspectionData.inners, check.code) || 
-                                    (check.fallbackCode ? getStatusByCode(car.inspectionData.inners, check.fallbackCode) : null);
-                        const status = translateStatus(raw, check.isLeak);
-                        return (
-                          <tr key={check.code} className="hover:bg-white/2 transition-colors">
-                            {idx === 0 && (
-                              <td rowSpan={transChecks.length} className="px-6 py-4 font-bold border-r border-white/5 bg-white/2 align-middle text-white uppercase tracking-wider text-xs w-32">
-                                Transmisioni
-                              </td>
-                            )}
-                            <td className="px-6 py-3.5 border-r border-white/5 text-white/90">{check.label}</td>
-                            <td className={`px-6 py-3.5 ${status.color}`}>{status.text}</td>
-                          </tr>
-                        );
-                      })}
 
-                      {/* Steering Group */}
-                      {steerChecks.map((check, idx) => {
+                {/* 2-Column Symmetric List */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-24 gap-y-8" style={{ fontFamily: "Montserrat" }}>
+                  
+                  {/* Column 1: Motori */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-white/30 uppercase tracking-widest border-b border-white/10 pb-2.5">
+                      Motori
+                    </h4>
+                    <div className="divide-y divide-white/5">
+                      {motorChecks.map((check) => {
                         const raw = getStatusByCode(car.inspectionData.inners, check.code);
                         const status = translateStatus(raw, check.isLeak);
                         return (
-                          <tr key={check.code} className="hover:bg-white/2 transition-colors">
-                            {idx === 0 && (
-                              <td rowSpan={steerChecks.length} className="px-6 py-4 font-bold border-r border-white/5 bg-white/2 align-middle text-white uppercase tracking-wider text-xs w-32">
-                                Drejtimi
-                              </td>
-                            )}
-                            <td className="px-6 py-3.5 border-r border-white/5 text-white/90">{check.label}</td>
-                            <td className={`px-6 py-3.5 ${status.color}`}>{status.text}</td>
-                          </tr>
+                          <div key={check.code} className="flex justify-between items-center py-3 border-b border-white/5 hover:border-white/10 transition-colors duration-300 text-sm">
+                            <span className="text-white/60 font-light pr-4">{check.label}</span>
+                            <span className={`font-medium shrink-0 ${status.color || 'text-white'}`}>{status.text}</span>
+                          </div>
                         );
                       })}
-                    </tbody>
-                  </table>
+                    </div>
+                  </div>
+
+                  {/* Column 2: Transmisioni & Drejtimi */}
+                  <div className="space-y-8">
+                    {/* Transmisioni */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-bold text-white/30 uppercase tracking-widest border-b border-white/10 pb-2.5">
+                        Transmisioni
+                      </h4>
+                      <div className="divide-y divide-white/5">
+                        {transChecks.map((check) => {
+                          const raw = getStatusByCode(car.inspectionData.inners, check.code) || 
+                                      (check.fallbackCode ? getStatusByCode(car.inspectionData.inners, check.fallbackCode) : null);
+                          const status = translateStatus(raw, check.isLeak);
+                          return (
+                            <div key={check.code} className="flex justify-between items-center py-3 border-b border-white/5 hover:border-white/10 transition-colors duration-300 text-sm">
+                              <span className="text-white/60 font-light pr-4">{check.label}</span>
+                              <span className={`font-medium shrink-0 ${status.color || 'text-white'}`}>{status.text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Drejtimi */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-bold text-white/30 uppercase tracking-widest border-b border-white/10 pb-2.5">
+                        Drejtimi
+                      </h4>
+                      <div className="divide-y divide-white/5">
+                        {steerChecks.map((check) => {
+                          const raw = getStatusByCode(car.inspectionData.inners, check.code);
+                          const status = translateStatus(raw, check.isLeak);
+                          return (
+                            <div key={check.code} className="flex justify-between items-center py-3 border-b border-white/5 hover:border-white/10 transition-colors duration-300 text-sm">
+                              <span className="text-white/60 font-light pr-4">{check.label}</span>
+                              <span className={`font-medium shrink-0 ${status.color || 'text-white'}`}>{status.text}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}
@@ -1494,6 +1797,156 @@ export default function CarDetail() {
           </div>
         </section>
       )}
+
+      {/* Dogana Kalkulator Section */}
+      <section className="relative py-20 lg:py-32 bg-neutral-900/10 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
+          <div className="max-w-3xl mx-auto">
+            {/* Header */}
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                Kalkulatori i Doganës<span className="text-white/30">.</span>
+              </h2>
+              <p className="text-white/60" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                Llogaritni detyrimet e zhdoganimit për importin e këtij automjeti në Republikën e Kosovës.
+              </p>
+            </div>
+
+            {/* Main Calculator Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-neutral-900/40 p-6 lg:p-10 rounded-3xl backdrop-blur-md shadow-2xl">
+              {/* Inputs Column */}
+              <div className="space-y-6" style={{ fontFamily: "Montserrat" }}>
+                <h3 className="text-md font-bold uppercase tracking-widest text-white/40 mb-2">
+                  Të dhënat e Automjetit
+                </h3>
+                
+                {/* Price input */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-white/60 tracking-wider uppercase">
+                    Çmimi i Veturës (€)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">€</span>
+                    <input
+                      type="number"
+                      value={priceInput || ""}
+                      onChange={(e) => setPriceInput(Number(e.target.value))}
+                      className="w-full bg-neutral-950/60 border border-white/10 rounded-xl py-3.5 pl-9 pr-4 text-white font-medium focus:border-white/30 focus:outline-none transition-all duration-300"
+                      placeholder="P.sh. 15000"
+                    />
+                  </div>
+                </div>
+
+                {/* CC input */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-white/60 tracking-wider uppercase">
+                    Kubikazha e Motorit (CC)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      value={ccInput || ""}
+                      onChange={(e) => setCcInput(Number(e.target.value))}
+                      className="w-full bg-neutral-950/60 border border-white/10 rounded-xl py-3.5 pl-4 pr-12 text-white font-medium focus:border-white/30 focus:outline-none transition-all duration-300"
+                      placeholder="P.sh. 2000"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-xs font-medium uppercase">CC</span>
+                  </div>
+                  <span className="text-[10px] text-white/30 leading-relaxed">
+                    ≤ 1999 CC: Kategoria 0 | 2000-2999 CC: Kategoria 1 | ≥ 3000 CC: Kategoria 2
+                  </span>
+                </div>
+
+                {/* Year Select input */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-white/60 tracking-wider uppercase">
+                    Viti i Prodhimit
+                  </label>
+                  <select
+                    value={yearInput}
+                    onChange={(e) => setYearInput(Number(e.target.value))}
+                    className="w-full bg-neutral-950/60 border border-white/10 rounded-xl py-3.5 px-4 text-white font-medium focus:border-white/30 focus:outline-none transition-all duration-300"
+                  >
+                    {Array.from({ length: 25 }, (_, i) => new Date().getFullYear() - i).map((yr) => (
+                      <option key={yr} value={yr} className="bg-neutral-950 text-white">
+                        {yr}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Outputs Column */}
+              <div className="flex flex-col justify-between bg-neutral-950/40 rounded-2xl p-6 border border-white/5 shadow-inner">
+                <div className="space-y-6" style={{ fontFamily: "Montserrat" }}>
+                  <h3 className="text-md font-bold uppercase tracking-widest text-white/40">
+                    Kalkulimi i Detajuar
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+                      <span className="text-white/60 font-light">Tatimi i Importit (10%)</span>
+                      <span className="font-semibold text-white">{formatPrice(customsData.importTax)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+                      <span className="text-white/60 font-light">Akciza (sipas moshës/CC)</span>
+                      <span className="font-semibold text-white">{formatPrice(customsData.excise)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+                      <span className="text-white/60 font-light">TVSH (18%)</span>
+                      <span className="font-semibold text-white">{formatPrice(customsData.vat)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 pt-6 border-t border-white/10 space-y-4">
+                  <div className="flex justify-between items-end" style={{ fontFamily: "Montserrat" }}>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">
+                        Shuma e Doganës
+                      </span>
+                      <span className="text-xs text-white/40 font-light mt-0.5">
+                        (Totali i taksave)
+                      </span>
+                    </div>
+                    <span className="text-3xl font-bold text-white" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                      {formatPrice(customsData.total)}
+                    </span>
+                  </div>
+
+                  {customsData.isProhibited && (
+                    <div className="flex items-start gap-2.5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs leading-relaxed" style={{ fontFamily: "Montserrat" }}>
+                      <svg className="w-5 h-5 shrink-0 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <div>
+                        <span className="font-bold block uppercase tracking-wider text-[10px] mb-1">Vërejtje Importi</span>
+                        Veturat më të vjetra se 10 vite (para vitit {new Date().getFullYear() - 10}) nuk lejohen të importohen në Kosovë!
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Info footer notes */}
+            <div className="bg-white/5 rounded-xl p-5 mt-6 text-white/50 text-[11px] leading-relaxed space-y-2.5" style={{ fontFamily: "Montserrat" }}>
+              <div className="font-semibold text-white/70 uppercase tracking-wider text-[10px]">
+                Mënyra e përllogaritjes:
+              </div>
+              <ul className="list-disc pl-4 space-y-1.5">
+                <li><strong>Tatimi i importit:</strong> 10% e vlerës së vlerësuar të veturës.</li>
+                <li><strong>Akciza:</strong> Tarifë fikse e bazuar në vjetërsinë dhe kategorinë e motorit (CC) të veturës.</li>
+                <li><strong>TVSH:</strong> 18% e aplikuar mbi shumën (Çmimi + Akciza + Tatimi i importit).</li>
+                <li><strong>Shuma totale:</strong> Akciza + Tatimi i importit + TVSH. Ky llogaritës është orientues dhe nuk ka efekt zyrtar.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* Gallery Section */}
       <section
