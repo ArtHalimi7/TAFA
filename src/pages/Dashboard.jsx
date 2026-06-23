@@ -2509,111 +2509,209 @@ export default function Dashboard() {
 
           {/* Sync Tab */}
           {activeTab === "sync" && (
-            <div className="space-y-6 max-w-3xl">
-              <div>
-                <h2
-                  className="text-2xl font-bold"
-                  style={{ fontFamily: "Cera Pro, sans-serif" }}
-                >
-                  Sinkronizimi me Encar (Korea)
-                </h2>
-                <p
-                  className="text-sm text-white/50 mt-1"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  Importo dhe përkthe automatikisht veturat e fundit direkt nga tregu Korean.
-                </p>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-6">
-                <form onSubmit={handleEncarSync} className="space-y-6">
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Lloji i Veturave
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        type="button"
-                        onClick={() => setSyncDomestic(true)}
-                        className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
-                          syncDomestic
-                            ? "bg-white text-black border-white"
-                            : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
-                        }`}
-                      >
-                        Koreane (제네시스, 현대, 기아)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSyncDomestic(false)}
-                        className={`py-3 px-4 rounded-xl border text-sm font-medium transition-all ${
-                          !syncDomestic
-                            ? "bg-white text-black border-white"
-                            : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
-                        }`}
-                      >
-                        Të Importuara (BMW, Benz, Audi, etj.)
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.15em] text-white/50 mb-2">
-                      Sasia e Veturave për Import (Max 30)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="30"
-                      value={syncLimit}
-                      onChange={(e) => setSyncLimit(parseInt(e.target.value) || 10)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/30"
-                      style={{ fontFamily: "Montserrat, sans-serif" }}
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSyncing}
-                    className="w-full py-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/40 disabled:text-white/40 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-3 cursor-pointer"
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2
+                    className="text-2xl font-bold flex items-center gap-2"
+                    style={{ fontFamily: "Cera Pro, sans-serif" }}
+                  >
+                    <svg className="w-7 h-7 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4" />
+                    </svg>
+                    Sinkronizimi me Encar (Korea)
+                  </h2>
+                  <p
+                    className="text-sm text-white/50 mt-1"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    {isSyncing ? (
-                      <>
-                        <div className="w-5 h-5 border border-white/20 border-t-white rounded-full animate-spin" />
-                        Duke sinkronizuar dhe përkthyer me Inteligjencë Artificiale...
-                      </>
-                    ) : (
-                      "Nis Sinkronizimin me Encar"
-                    )}
-                  </button>
-                </form>
+                    Importo dhe përkthe automatikisht veturat e fundit direkt nga tregu Korean me Inteligjencë Artificiale.
+                  </p>
+                </div>
+              </div>
 
-                {syncError && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm">
-                    {syncError}
-                  </div>
-                )}
-
-                {syncResult && (
-                  <div className="space-y-4">
-                    <div className="p-4 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl text-sm">
-                      Sinkronizimi përfundoi! U importuan <strong>{syncResult.importedCount}</strong> vetura të reja, ndërsa <strong>{syncResult.skippedCount}</strong> ekzistonin më parë.
+              {/* Grid Layout to align with standard page layouts */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Configuration Card (takes 2 cols on desktop) */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="bg-neutral-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 space-y-6">
+                    <div className="flex items-center justify-between pb-4 border-b border-white/5">
+                      <h3 className="font-semibold text-white/90" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                        Nis Sinkronizim Manual
+                      </h3>
+                      <span className="text-[10px] uppercase tracking-widest px-2.5 py-1 bg-white/5 border border-white/10 text-white/60 rounded-full" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                        Encar API v1.0
+                      </span>
                     </div>
-                    {syncResult.logs && syncResult.logs.length > 0 && (
-                      <div className="space-y-2">
-                        <h4 className="text-xs uppercase tracking-wider text-white/40 font-semibold">
-                          Logu i Sinkronizimit:
-                        </h4>
-                        <div className="bg-black/50 border border-white/5 rounded-xl p-4 max-h-60 overflow-y-auto space-y-1.5 font-mono text-xs text-white/70">
-                          {syncResult.logs.map((log, idx) => (
-                            <div key={idx}>{log}</div>
-                          ))}
+
+                    <form onSubmit={handleEncarSync} className="space-y-6">
+                      {/* Select car origin category */}
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-white/50 mb-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                          Lloji i Veturave
+                        </label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setSyncDomestic(true)}
+                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
+                              syncDomestic
+                                ? "bg-white text-black border-white shadow-xl shadow-white/5"
+                                : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                            }`}
+                          >
+                            <span className="text-xs uppercase tracking-widest font-semibold opacity-70 mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>Pool A</span>
+                            <span className="text-sm font-bold" style={{ fontFamily: "Cera Pro, sans-serif" }}>Koreane</span>
+                            <span className={`text-[10px] mt-2 opacity-60 ${syncDomestic ? 'text-black/70' : 'text-white/40'}`}>제네시스, 현대, 기아</span>
+                          </button>
+                          
+                          <button
+                            type="button"
+                            onClick={() => setSyncDomestic(false)}
+                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
+                              !syncDomestic
+                                ? "bg-white text-black border-white shadow-xl shadow-white/5"
+                                : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                            }`}
+                          >
+                            <span className="text-xs uppercase tracking-widest font-semibold opacity-70 mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>Pool B</span>
+                            <span className="text-sm font-bold" style={{ fontFamily: "Cera Pro, sans-serif" }}>Të Importuara</span>
+                            <span className={`text-[10px] mt-2 opacity-60 ${!syncDomestic ? 'text-black/70' : 'text-white/40'}`}>BMW, Benz, Audi, Porsche</span>
+                          </button>
                         </div>
+                      </div>
+
+                      {/* Quantity input */}
+                      <div>
+                        <div className="flex justify-between items-center mb-2">
+                          <label className="block text-xs font-semibold uppercase tracking-wider text-white/50" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                            Sasia e Veturave për Import
+                          </label>
+                          <span className="text-xs font-mono text-blue-400">{syncLimit} vetura</span>
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="number"
+                            min="1"
+                            max="30"
+                            value={syncLimit}
+                            onChange={(e) => setSyncLimit(parseInt(e.target.value) || 10)}
+                            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-blue-500/50 transition-all font-mono"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30 font-medium">Max 30</span>
+                        </div>
+                      </div>
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={isSyncing}
+                        className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 cursor-pointer duration-300 ${
+                          isSyncing 
+                            ? "bg-blue-600/30 text-blue-300 border border-blue-500/20 cursor-not-allowed" 
+                            : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 hover:scale-[1.01]"
+                        }`}
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        {isSyncing ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-blue-400/20 border-t-blue-400 rounded-full animate-spin" />
+                            <span>Duke sinkronizuar dhe përkthyer me AI...</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <span>Nis Sinkronizimin me Encar</span>
+                          </>
+                        )}
+                      </button>
+                    </form>
+
+                    {/* Errors */}
+                    {syncError && (
+                      <div className="flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm leading-relaxed" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                        <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span>{syncError}</span>
+                      </div>
+                    )}
+
+                    {/* Sync Results & Logs */}
+                    {syncResult && (
+                      <div className="space-y-4 pt-4 border-t border-white/5">
+                        <div className="flex items-start gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-sm leading-relaxed" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                          <svg className="w-5 h-5 shrink-0 mt-0.5 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div>
+                            <span className="font-bold">Sinkronizimi përfundoi!</span>
+                            <div className="mt-1 text-xs opacity-90">
+                              U importuan <strong className="text-white">{syncResult.importedCount}</strong> vetura të reja. <strong className="text-white">{syncResult.skippedCount}</strong> vetura ekzistonin më parë dhe u anashkaluan.
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {syncResult.logs && syncResult.logs.length > 0 && (
+                          <div className="space-y-2">
+                            <h4 className="text-xs uppercase tracking-widest text-white/40 font-bold" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                              Logu i Sinkronizimit:
+                            </h4>
+                            <div className="bg-[#050505] border border-white/5 rounded-xl p-4 max-h-60 overflow-y-auto space-y-1.5 font-mono text-xs text-white/70 shadow-inner scrollbar-thin">
+                              {syncResult.logs.map((log, idx) => (
+                                <div key={idx} className="flex gap-2 hover:bg-white/5 p-0.5 rounded transition-all">
+                                  <span className="text-blue-500/70 select-none">›</span>
+                                  <span className={log.includes("Dështoi") || log.includes("failed") ? "text-red-400" : log.includes("sukses") || log.includes("Successfully") ? "text-emerald-400" : "text-white/80"}>
+                                    {log}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
-                )}
+                </div>
+
+                {/* Sidebar Info Card (takes 1 col on desktop) */}
+                <div className="space-y-6">
+                  {/* Auto-Sync Status Card */}
+                  <div className="relative overflow-hidden bg-linear-to-br from-white/5 to-white/0 border border-white/10 rounded-2xl p-6">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
+                    <div className="flex items-start gap-4">
+                      <div className="relative flex h-3 w-3 mt-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="font-semibold text-white/90 text-sm tracking-wide" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                          Auto-Sync i Planifikuar është Aktiv
+                        </h3>
+                        <p className="text-xs text-white/40 leading-relaxed mt-1.5" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                          Sistemi do të sinkronizojë automatikisht deri në <strong className="text-emerald-400 font-medium">30 veturat më të reja</strong> në orën <strong className="text-white/80 font-medium">06:00 AM</strong> çdo ditë pa ndërprerë punën tuaj.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sync Settings Info Card */}
+                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+                    <h4 className="text-xs uppercase tracking-widest text-white/40 font-bold" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                      Si funksionon?
+                    </h4>
+                    <ul className="space-y-3 text-xs text-white/60 list-disc list-inside leading-relaxed" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                      <li>Sinkronizimi lidhet direkt me API-në zyrtare të Encar në Kore.</li>
+                      <li>Veturat e reja importohen me të dhëna të plota (viti, kilometrat, ngjyrat, aksidentet).</li>
+                      <li>Gemini AI përkthen dhe përshtat automatikisht përshkrimet dhe specifikimet në shqip.</li>
+                      <li>Veturat e importuara nuk shënohen automatikisht si të veçuara (pa yll).</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           )}

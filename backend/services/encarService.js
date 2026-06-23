@@ -417,8 +417,8 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         }
       }
 
-      // Fetch detail page data with PHOTOS include
-      const detailUrl = `https://api.encar.com/v1/readside/vehicle/${car.Id}?include=MANAGE,SPEC,CONDITION,ADVERTISEMENT,PHOTOS`;
+      // Fetch detail page data with PHOTOS and OPTIONS include
+      const detailUrl = `https://api.encar.com/v1/readside/vehicle/${car.Id}?include=MANAGE,SPEC,CONDITION,ADVERTISEMENT,PHOTOS,OPTIONS`;
       const detailHeaders = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         "Referer": "https://fem.encar.com/",
@@ -436,6 +436,7 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
       const detailData = await detailRes.json();
       const spec = detailData.spec || {};
       const ad = detailData.advertisement || {};
+      const options = detailData.options || null;
       
       const priceKrw = ad.price || car.Price || 0;
       const priceEur = convertPrice(priceKrw);
@@ -603,11 +604,12 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         inspectionData: inspectionData,
         status: "active", // Published immediately
         showcaseImage: 0,
-        isFeatured: isPremium ? 1 : 0,
+        isFeatured: 0,
         isShowcase: 0,
         isSold: 0,
         images: imageList,
-        features: features
+        features: features,
+        options: options
       };
 
       try {

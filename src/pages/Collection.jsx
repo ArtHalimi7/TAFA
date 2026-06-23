@@ -182,6 +182,43 @@ const getSavedFilters = () => {
   return null;
 };
 
+// Helper to generate pagination numbers with ellipses to prevent layout breaking
+const getPageNumbers = (currentPage, totalPages) => {
+  const maxButtons = 7;
+  if (totalPages <= maxButtons) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  // If near the beginning
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+
+  // If near the end
+  if (currentPage >= totalPages - 3) {
+    return [
+      1,
+      "...",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
+
+  // If in the middle
+  return [
+    1,
+    "...",
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    "...",
+    totalPages,
+  ];
+};
+
 export default function Collection() {
   // SEO optimization for collection page
   useSEO(seoContent.collection);
@@ -854,18 +891,19 @@ export default function Collection() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-12">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-12">
               {/* Previous Button */}
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${currentPage === 1
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                  currentPage === 1
                     ? "border-white/10 text-white/30 cursor-not-allowed"
                     : "border-white/30 text-white hover:border-white hover:bg-white/10"
-                  }`}
+                }`}
               >
                 <svg
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -881,21 +919,33 @@ export default function Collection() {
 
               {/* Page Numbers */}
               <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
+                {getPageNumbers(currentPage, totalPages).map((page, index) => {
+                  if (page === "...") {
+                    return (
+                      <span
+                        key={`ellipsis-${index}`}
+                        className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-white/40 text-xs sm:text-sm font-medium"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        ...
+                      </span>
+                    );
+                  }
+                  return (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-full text-sm font-medium transition-all duration-300 ${currentPage === page
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
+                        currentPage === page
                           ? "bg-white text-black"
                           : "text-white/70 hover:bg-white/10 hover:text-white"
-                        }`}
+                      }`}
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {page}
                     </button>
-                  ),
-                )}
+                  );
+                })}
               </div>
 
               {/* Next Button */}
@@ -904,13 +954,14 @@ export default function Collection() {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${currentPage === totalPages
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                  currentPage === totalPages
                     ? "border-white/10 text-white/30 cursor-not-allowed"
                     : "border-white/30 text-white hover:border-white hover:bg-white/10"
-                  }`}
+                }`}
               >
                 <svg
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

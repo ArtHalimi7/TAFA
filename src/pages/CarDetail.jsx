@@ -94,6 +94,68 @@ const INTERIOR_COORDS = {
   'P128': { x: 355, y: 171, name: 'Shina anësore e tavanit (Djathtas)' }
 };
 
+const optionCategories = [
+  {
+    title: "Siguri",
+    items: [
+      { name: "Mbrojtja e bllokimit të frenave (ABS)", codes: ["001"] },
+      { name: "Anti-rrëshqitje (TCS)", codes: ["019"] },
+      { name: "Airbag (anësor)", codes: ["020"] },
+      { name: "Airbag (Ulëse Shoferi)", codes: ["026", "027"] },
+      { name: "Airbag (perde)", codes: ["056"] },
+      { name: "Pajisje Kontrolli e Stabilitetit (ESC)", codes: ["055"] },
+      { name: "Senzorë Parkimi (Përpara, Prapa)", codes: ["032", "085"] },
+      { name: "Senzor Presioni Gomash (TPMS)", codes: ["033"] },
+      { name: "Kamera pasme", codes: ["058"] },
+      { name: "Pamje 360 Gradë", codes: ["087"] },
+      { name: "Sistem Paralajmërimi Largimi nga Korsia (LDWS)", codes: ["088"] },
+      { name: "Sistem Alarmi", codes: ["021"] },
+      { name: "Frenë Elektronike e Parkimit (EPB)", codes: ["094"] }
+    ]
+  },
+  {
+    title: "Jashte/Brenda",
+    items: [
+      { name: "Rrota alumini", codes: ["017"] },
+      { name: "Tavan panoramik", codes: ["010"] },
+      { name: "Pasqyrë anësore e palosshme elektrike", codes: ["024"] },
+      { name: "Pasqyrë ECM", codes: ["030"] },
+      { name: "Dritë Përpara (HID, LED)", codes: ["075"] },
+      { name: "Bagazh elektrik", codes: ["059"] },
+      { name: "Drita Automatike", codes: ["097"] },
+      { name: "Senzorë Shiu", codes: ["081"] }
+    ]
+  },
+  {
+    title: "Uleset",
+    items: [
+      { name: "Ulëse me Lëkurë", codes: ["014"] },
+      { name: "Ulëse me Ngrohje (Përpara, Prapa)", codes: ["022", "063"] }
+    ]
+  },
+  {
+    title: "Komoditet/Media",
+    items: [
+      { name: "Monitor AV për Ulëset e Përparme", codes: ["004"] },
+      { name: "Navigacion", codes: ["005"] },
+      { name: "Kyçje elektrike e dyerve", codes: ["006"] },
+      { name: "Dritare elektrike", codes: ["007"] },
+      { name: "Drejtëkll elektrik", codes: ["008"] },
+      { name: "Kyçje pa tela e dyerve", codes: ["015"] },
+      { name: "Kondicionim automatik", codes: ["023"] },
+      { name: "Kontroll i largët i timonit", codes: ["031"] },
+      { name: "Çelës inteligjent", codes: ["057"] },
+      { name: "Terminal USB", codes: ["072"] },
+      { name: "Kontroll Automatik i Shpejtësisë (Adaptiv)", codes: ["079"] },
+      { name: "Timon i Ngrohur", codes: ["082"] },
+      { name: "Timon i rregullueshëm elektrik", codes: ["083"] },
+      { name: "Shifte me Panele", codes: ["084"] },
+      { name: "Ekran i Projektuar në Xham (HUD)", codes: ["095"] },
+      { name: "Bluetooth", codes: ["096"] }
+    ]
+  }
+];
+
 const getStatusByCode = (inners, code) => {
   if (!inners) return null;
   const findNode = (nodes, targetCode) => {
@@ -513,8 +575,7 @@ export default function CarDetail() {
           suffix: "s",
           isDecimal: true,
         },
-        { label: "Shpejtësia maksimale", value: car.topSpeed, suffix: "km/h" },
-      ].filter(s => s.value != null && s.value !== "" && s.value !== 0)
+      ].filter(s => s.value != null && s.value !== "" && Number(s.value) !== 0)
     : [];
 
   const formatPrice = (price) => {
@@ -928,7 +989,7 @@ export default function CarDetail() {
                   specsVisible
                     ? "opacity-100 translate-y-0"
                     : "opacity-0 translate-y-8"
-                } ${index < 3 ? "flex items-center justify-center" : ""}`}
+                } flex items-center justify-center`}
                 style={{ transitionDelay: `${200 + index * 100}ms` }}
               >
                 {/* Background glow on hover */}
@@ -1139,6 +1200,92 @@ export default function CarDetail() {
           </div>
         </div>
       </section>
+
+      {/* Detailed Options Section (Encar Cars Only) */}
+      {car && car.options && (
+        <section className="relative py-20 lg:py-32 border-t border-white/10 bg-black">
+          <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
+            {/* Section Header */}
+            <div className="mb-12 lg:mb-16">
+              <h2
+                className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4"
+                style={{ fontFamily: "Cera Pro, sans-serif" }}
+              >
+                Opsionet e veturës<span className="text-white/30">.</span>
+              </h2>
+              <p
+                className="text-white/60 max-w-2xl"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Lista e detajuar e pajisjeve dhe opsioneve të integruara në këtë automjet, e ndarë sipas kategorive.
+              </p>
+            </div>
+
+            {/* Options Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+              {optionCategories.map((cat) => {
+                const activeItems = cat.items.filter((item) =>
+                  item.codes.some((code) => {
+                    const standard = car.options.standard || [];
+                    const choice = car.options.choice || [];
+                    const etc = car.options.etc || [];
+                    return standard.includes(code) || choice.includes(code) || etc.includes(code);
+                  })
+                );
+
+                if (activeItems.length === 0) return null;
+
+                return (
+                  <div
+                    key={cat.title}
+                    className="relative group p-6 lg:p-8 bg-neutral-900/30 border border-white/10 rounded-xl hover:border-white/20 hover:bg-neutral-900/50 transition-all duration-500 shadow-2xl"
+                  >
+                    <div className="absolute inset-0 bg-linear-to-r from-white/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <h3
+                      className="text-xl font-bold mb-6 text-white tracking-wide border-b border-white/15 pb-3 flex items-center justify-between"
+                      style={{ fontFamily: "Cera Pro, sans-serif" }}
+                    >
+                      <span>{cat.title}</span>
+                      <span className="text-xs font-normal text-white/40 font-mono">
+                        {activeItems.length} pajisje
+                      </span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 relative z-10">
+                      {activeItems.map((item) => (
+                        <div key={item.name} className="flex items-center gap-3">
+                          <div className="shrink-0 w-4 h-4 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                            <svg
+                              className="w-2.5 h-2.5 text-emerald-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={3}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          </div>
+                          <span
+                            className="text-sm text-white/80"
+                            style={{ fontFamily: "Montserrat, sans-serif" }}
+                          >
+                            {item.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Visual Condition Report Section (Encar Cars Only) */}
       {car && car.inspectionData && (

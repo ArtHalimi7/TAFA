@@ -35,6 +35,7 @@ const initializeDatabase = async () => {
         status ENUM('active', 'draft', 'sold') DEFAULT 'draft',
         showcase_image INT DEFAULT 0,
         views INT DEFAULT 0,
+        options TEXT DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_slug (slug),
@@ -176,6 +177,19 @@ const initializeDatabase = async () => {
       // Column already exists, ignore error
       if (err.code !== "ER_DUP_FIELDNAME") {
         console.log("ℹ️ is_sold column already exists");
+      }
+    }
+
+    // Add options column if it doesn't exist
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN options TEXT DEFAULT NULL
+      `);
+      console.log("✅ Added options column to cars table");
+    } catch (err) {
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ options column already exists");
       }
     }
 

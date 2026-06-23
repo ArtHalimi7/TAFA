@@ -17,6 +17,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const authRoutes = require("./routes/authRoutes");
 const syncRoutes = require("./routes/syncRoutes");
+const { initScheduler } = require("./services/scheduler");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -187,6 +188,9 @@ async function startServer() {
 ╚═══════════════════════════════════════════════════╝
       `);
     });
+
+    // Start daily scheduler (runs daily at 6:00 AM)
+    initScheduler();
 
     // Keep-alive: prevent server from shutting down on Render
     // Ping health endpoint every 1 minute to keep the service active
