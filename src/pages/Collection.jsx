@@ -835,30 +835,40 @@ export default function Collection() {
                       <div className="flex items-center justify-between">
                         <div>
                           {SHOW_PRICES && car.discountPrice ? (
-                            <div className="flex items-center gap-2">
-                              <span
-                                className="text-sm text-red-400 line-through"
-                                style={{ fontFamily: "Cera Pro, sans-serif" }}
-                              >
-                                {formatPrice(car.price)}
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className="text-sm text-red-400 line-through"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.price)}
+                                </span>
+                                <span
+                                  className="text-xl font-bold text-white"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {formatPrice(car.discountPrice)}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-white/40 block mt-0.5" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                                Deri në Durrës
                               </span>
+                            </div>
+                          ) : SHOW_PRICES ? (
+                            <div>
                               <span
                                 className="text-xl font-bold text-white"
                                 style={{ fontFamily: "Cera Pro, sans-serif" }}
                               >
-                                {formatPrice(car.discountPrice)}
+                                {formatPrice(car.price)}
+                              </span>
+                              <span className="text-[10px] text-white/40 block mt-0.5" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                                Deri në Durrës
                               </span>
                             </div>
-                          ) : SHOW_PRICES ? (
-                            <span
-                              className="text-xl font-bold text-white"
-                              style={{ fontFamily: "Cera Pro, sans-serif" }}
-                            >
-                              {formatPrice(car.price)}
-                            </span>
                           ) : null}
                           <span
-                            className="text-white/40 text-sm ml-2"
+                            className="text-white/40 text-sm block mt-1"
                             style={{ fontFamily: "Montserrat, sans-serif" }}
                           >
                             {car.mileage.toLocaleString()} km

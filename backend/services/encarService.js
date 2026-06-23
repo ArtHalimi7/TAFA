@@ -328,13 +328,15 @@ ${insuranceSummary ? `- Insurance History:\n${insuranceSummary}` : ''}
   }
 }
 
-// Convert KRW (in 10,000s) to EUR
+// Convert KRW (in 10,000s) to EUR (Durrës Price)
 function convertPrice(priceInTenThousandKrw) {
-  // Exchange rate: 1 EUR = 1,500 KRW
-  // E.g., 3790 만원 = 37,900,000 KRW
-  // 37,900,000 / 1500 = 25266.66 -> 25267 EUR
+  // Exchange rate: 1 KRW = 0.00057 EUR
+  // Logistics markup (Korea to Durrës port + dealer handling/profit): 2,000 EUR
+  // Always round up to the next hundred (e.g. 17233 -> 17300)
   const krw = priceInTenThousandKrw * 10000;
-  return Math.round(krw / 1500);
+  const baseEur = krw * 0.00057;
+  const withMarkup = baseEur + 2000;
+  return Math.ceil(withMarkup / 100) * 100;
 }
 
 // Sync latest listings from Encar

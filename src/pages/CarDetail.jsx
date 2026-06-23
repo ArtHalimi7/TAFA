@@ -90,12 +90,12 @@ const EXTERIOR_COORDS = {
   'P033': { x: 80, y: 177, name: 'Dera e pasme (Majtas)' },
   'P061': { x: 80, y: 252, name: 'Krahu i pasmë anësor (Majtas)' },
   'P071': { x: 45, y: 184, name: 'Pragu anësor (Majtas)' },
-  
+
   'P012': { x: 200, y: 42, name: 'Suporti i radiatorit' },
   'P011': { x: 200, y: 52, name: 'Kapaku i motorrit' },
   'P042': { x: 200, y: 165, name: 'Tavani (Tavan)' },
   'P041': { x: 200, y: 258, name: 'Dera e bagazhit (Trunk)' },
-  
+
   'P022': { x: 305, y: 66, name: 'Parafango e parme (Djathtas)' },
   'P032': { x: 320, y: 124, name: 'Dera e parme (Djathtas)' },
   'P034': { x: 320, y: 177, name: 'Dera e pasme (Djathtas)' },
@@ -243,7 +243,7 @@ const translateStatus = (krStatus, isLeakCheck = false) => {
 const extractCC = (engineStr) => {
   if (!engineStr) return 1995;
   const str = String(engineStr).toLowerCase();
-  
+
   const ccMatch = str.match(/(\d{1,3}[\s,.]?\d{3})\s*cc/);
   if (ccMatch) {
     return parseInt(ccMatch[1].replace(/[\s,.]/g, ""), 10);
@@ -304,8 +304,10 @@ const calculateCustoms = (price, cc, year) => {
     excise = category === 0 ? 1500 : category === 1 ? 2200 : 3900;
   }
 
-  const importTax = price * 0.10;
-  const vat = (price + excise + importTax) * 0.18;
+  // Vlera bazë doganore = Çmimi deri në Durrës + 350 € transporti tokësor
+  const baseValue = price + 350;
+  const importTax = baseValue * 0.10;
+  const vat = (baseValue + excise + importTax) * 0.18;
   const total = excise + importTax + vat;
 
   return {
@@ -692,15 +694,15 @@ export default function CarDetail() {
 
   const specs = car
     ? [
-        { label: "Kuaj-fuqi", value: car.horsepower, suffix: "PS" },
-        { label: "Tërheqje", value: car.torque, suffix: "Nm" },
-        {
-          label: "0-100 km/h",
-          value: car.acceleration,
-          suffix: "s",
-          isDecimal: true,
-        },
-      ].filter(s => s.value != null && s.value !== "" && Number(s.value) !== 0)
+      { label: "Kuaj-fuqi", value: car.horsepower, suffix: "PS" },
+      { label: "Tërheqje", value: car.torque, suffix: "Nm" },
+      {
+        label: "0-100 km/h",
+        value: car.acceleration,
+        suffix: "s",
+        isDecimal: true,
+      },
+    ].filter(s => s.value != null && s.value !== "" && Number(s.value) !== 0)
     : [];
 
   const formatPrice = (price) => {
@@ -713,6 +715,10 @@ export default function CarDetail() {
   };
 
   const customsData = calculateCustoms(priceInput, ccInput, yearInput);
+  const baseValue = (priceInput || 0) + 350;
+  const rawTotalRKS = baseValue + customsData.total;
+  const roundedTotalRKS = Math.ceil(rawTotalRKS / 100) * 100;
+  const roundedCustomsTotal = Math.max(0, roundedTotalRKS - (priceInput || 0) - 350);
 
   // Loading state
   if (isLoading) {
@@ -803,9 +809,8 @@ export default function CarDetail() {
               car.images.map((image, index) => (
                 <div
                   key={index}
-                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                    activeImageIndex === index ? "opacity-100" : "opacity-0"
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeImageIndex === index ? "opacity-100" : "opacity-0"
+                    }`}
                 >
                   <img
                     src={image}
@@ -857,22 +862,20 @@ export default function CarDetail() {
 
             {/* Image Navigation Dots */}
             <div
-              className={`absolute bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20 transition-all duration-1000 ${
-                isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-4"
-              }`}
+              className={`absolute bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-20 transition-all duration-1000 ${isLoaded
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+                }`}
               style={{ transitionDelay: "0.8s" }}
             >
               {car.images.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setActiveImageIndex(index)}
-                  className={`relative w-6 sm:w-12 h-0.5 sm:h-1 rounded-full transition-all duration-500 overflow-hidden ${
-                    activeImageIndex === index
-                      ? "bg-white"
-                      : "bg-white/30 hover:bg-white/50"
-                  }`}
+                  className={`relative w-6 sm:w-12 h-0.5 sm:h-1 rounded-full transition-all duration-500 overflow-hidden ${activeImageIndex === index
+                    ? "bg-white"
+                    : "bg-white/30 hover:bg-white/50"
+                    }`}
                 >
                   {activeImageIndex === index && (
                     <div
@@ -907,11 +910,10 @@ export default function CarDetail() {
               <div className="lg:col-span-2 text-center sm:text-left">
                 {/* Category Badge */}
                 <div
-                  className={`inline-flex items-center gap-3 mb-4 transition-all duration-1000 ${
-                    isLoaded
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-4"
-                  }`}
+                  className={`inline-flex items-center gap-3 mb-4 transition-all duration-1000 ${isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                    }`}
                   style={{ transitionDelay: "0.2s" }}
                 >
                   <span
@@ -945,11 +947,10 @@ export default function CarDetail() {
 
                 {/* Car Name */}
                 <h1
-                  className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 transition-all duration-1000 ${
-                    isLoaded
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-8"
-                  }`}
+                  className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 transition-all duration-1000 ${isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                    }`}
                   style={{
                     fontFamily: "Cera Pro, sans-serif",
                     letterSpacing: "-0.02em",
@@ -961,11 +962,10 @@ export default function CarDetail() {
 
                 {/* Tagline */}
                 <p
-                  className={`text-lg sm:text-xl lg:text-2xl text-white/60 mb-8 transition-all duration-1000 ${
-                    isLoaded
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-4"
-                  }`}
+                  className={`text-lg sm:text-xl lg:text-2xl text-white/60 mb-8 transition-all duration-1000 ${isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                    }`}
                   style={{
                     fontFamily: "Montserrat, sans-serif",
                     fontWeight: 300,
@@ -977,11 +977,10 @@ export default function CarDetail() {
 
                 {/* Quick Stats Row */}
                 <div
-                  className={`flex flex-wrap gap-6 sm:gap-10 lg:gap-16 justify-center sm:justify-start transition-all duration-1000 ${
-                    isLoaded
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-4"
-                  }`}
+                  className={`flex flex-wrap gap-6 sm:gap-10 lg:gap-16 justify-center sm:justify-start transition-all duration-1000 ${isLoaded
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                    }`}
                   style={{ transitionDelay: "0.5s" }}
                 >
                   <div className="flex flex-col">
@@ -1042,7 +1041,7 @@ export default function CarDetail() {
                       className="text-xs text-white/50 uppercase tracking-widest mt-1"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      Çmimi
+                      Çmimi deri në Durrës
                     </span>
                   </div>}
                 </div>
@@ -1050,11 +1049,10 @@ export default function CarDetail() {
 
               {/* Right Logo */}
               <div
-                className={`hidden lg:flex items-center justify-center mt-12 transition-all duration-1000 ${
-                  isLoaded
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
+                className={`hidden lg:flex items-center justify-center mt-12 transition-all duration-1000 ${isLoaded
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+                  }`}
                 style={{ transitionDelay: "0.6s" }}
               >
                 {car?.brand && brandLogos[car.brand] ? (
@@ -1085,21 +1083,19 @@ export default function CarDetail() {
           {/* Section Header */}
           <div className="mb-12 lg:mb-20">
             <h2
-              className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-1000 ${
-                specsVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
+              className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-1000 ${specsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+                }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
               Performanca<span className="text-white/30">.</span>
             </h2>
             <p
-              className={`text-white/60 max-w-xl transition-all duration-1000 delay-100 ${
-                specsVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-4"
-              }`}
+              className={`text-white/60 max-w-xl transition-all duration-1000 delay-100 ${specsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+                }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               Fuqia e pastër, e ndërtuar mbi inxhinieri të rafinuar. Numra që
@@ -1112,11 +1108,10 @@ export default function CarDetail() {
             {specs.map((spec, index) => (
               <div
                 key={spec.label}
-                className={`group relative p-6 lg:p-8 border border-white/10 rounded-lg hover:border-white/30 transition-all duration-500 ${
-                  specsVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                } flex items-center justify-center`}
+                className={`group relative p-6 lg:p-8 border border-white/10 rounded-lg hover:border-white/30 transition-all duration-500 ${specsVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+                  } flex items-center justify-center`}
                 style={{ transitionDelay: `${200 + index * 100}ms` }}
               >
                 {/* Background glow on hover */}
@@ -1154,11 +1149,10 @@ export default function CarDetail() {
           {/* Engine & Drivetrain Details */}
           <div className="mt-16 lg:mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
             <div
-              className={`space-y-6 transition-all duration-1000 ${
-                specsVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
+              className={`space-y-6 transition-all duration-1000 ${specsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+                }`}
               style={{ transitionDelay: "600ms" }}
             >
               <div className="space-y-4">
@@ -1190,11 +1184,10 @@ export default function CarDetail() {
             </div>
 
             <div
-              className={`space-y-6 transition-all duration-1000 ${
-                specsVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
+              className={`space-y-6 transition-all duration-1000 ${specsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+                }`}
               style={{ transitionDelay: "700ms" }}
             >
               <div className="space-y-4">
@@ -1240,29 +1233,26 @@ export default function CarDetail() {
           {/* Section Header */}
           <div className="mb-12 lg:mb-20 text-center">
             <h2
-              className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-1000 ${
-                featuresVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
+              className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-1000 ${featuresVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+                }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
               Opsionet e veturës<span className="text-white/30">.</span>
             </h2>
             <div
-              className={`w-16 h-1 bg-white mx-auto mb-6 transition-all duration-1000 delay-100 ${
-                featuresVisible
-                  ? "opacity-100 scale-x-100"
-                  : "opacity-0 scale-x-0"
-              }`}
+              className={`w-16 h-1 bg-white mx-auto mb-6 transition-all duration-1000 delay-100 ${featuresVisible
+                ? "opacity-100 scale-x-100"
+                : "opacity-0 scale-x-0"
+                }`}
               style={{ transformOrigin: "center" }}
             />
             <p
-              className={`text-white/60 max-w-xl mx-auto transition-all duration-1000 delay-200 ${
-                featuresVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-4"
-              }`}
+              className={`text-white/60 max-w-xl mx-auto transition-all duration-1000 delay-200 ${featuresVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+                }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               {car.options
@@ -1426,11 +1416,10 @@ export default function CarDetail() {
                 car.features.map((feature, index) => (
                   <div
                     key={feature}
-                    className={`group relative p-5 lg:p-6 bg-neutral-900/30 border border-white/10 rounded-xl hover:border-white/20 hover:bg-neutral-900/50 transition-all duration-500 shadow-xl overflow-hidden cursor-default min-h-18 flex items-center ${
-                      featuresVisible
-                        ? "opacity-100 translate-y-0"
-                        : "opacity-0 translate-y-8"
-                    }`}
+                    className={`group relative p-5 lg:p-6 bg-neutral-900/30 border border-white/10 rounded-xl hover:border-white/20 hover:bg-neutral-900/50 transition-all duration-500 shadow-xl overflow-hidden cursor-default min-h-18 flex items-center ${featuresVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-8"
+                      }`}
                     style={{ transitionDelay: `${300 + index * 50}ms` }}
                   >
                     {/* Glowing background on hover */}
@@ -1467,11 +1456,10 @@ export default function CarDetail() {
           {/* Description */}
           {car.description && (
             <div
-              className={`mt-16 lg:mt-24 max-w-3xl mx-auto text-center transition-all duration-1000 ${
-                featuresVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
-              }`}
+              className={`mt-16 lg:mt-24 max-w-3xl mx-auto text-center transition-all duration-1000 ${featuresVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+                }`}
               style={{ transitionDelay: "800ms" }}
             >
               <p
@@ -1489,7 +1477,7 @@ export default function CarDetail() {
       {car && car.inspectionData && (
         <section className="relative py-20 lg:py-32 bg-neutral-950/40 border-t border-white/10">
           <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
-            
+
             {/* Header */}
             <div className="text-center mb-16">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4" style={{ fontFamily: "Cera Pro, sans-serif" }}>
@@ -1502,7 +1490,7 @@ export default function CarDetail() {
 
             {/* Accident Report Panels */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 max-w-5xl mx-auto mb-10">
-              
+
               {/* Panel 1: Jashtë (Exterior) */}
               <div className="group relative flex flex-col bg-neutral-900/30 rounded-3xl p-6 backdrop-blur-md transition-all duration-500 hover:shadow-[0_0_30px_-5px_rgba(255,255,255,0.03)]">
                 {/* Title & Info Header */}
@@ -1519,16 +1507,16 @@ export default function CarDetail() {
                     Exterior
                   </span>
                 </div>
-                
+
                 {/* Drawing Container */}
                 <div className="relative w-full max-w-[400px] aspect-[4/3] bg-neutral-950/60 rounded-2xl p-4 flex items-center justify-center mx-auto shadow-inner overflow-hidden">
-                  
+
                   {/* Tech corners */}
                   <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-white/20 rounded-tl" />
                   <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-white/20 rounded-tr" />
                   <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/20 rounded-bl" />
                   <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/20 rounded-br" />
-                  
+
                   {/* Scanning line effect */}
                   <div className="absolute inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent animate-scan pointer-events-none" />
 
@@ -1559,16 +1547,16 @@ export default function CarDetail() {
                     Interior
                   </span>
                 </div>
-                
+
                 {/* Drawing Container */}
                 <div className="relative w-full max-w-[400px] aspect-[4/3] bg-neutral-950/60 rounded-2xl p-4 flex items-center justify-center mx-auto shadow-inner overflow-hidden">
-                  
+
                   {/* Tech corners */}
                   <div className="absolute top-3 left-3 w-3 h-3 border-t border-l border-white/20 rounded-tl" />
                   <div className="absolute top-3 right-3 w-3 h-3 border-t border-r border-white/20 rounded-tr" />
                   <div className="absolute bottom-3 left-3 w-3 h-3 border-b border-l border-white/20 rounded-bl" />
                   <div className="absolute bottom-3 right-3 w-3 h-3 border-b border-r border-white/20 rounded-br" />
-                  
+
                   {/* Scanning line effect */}
                   <div className="absolute inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent animate-scan pointer-events-none" />
 
@@ -1706,7 +1694,7 @@ export default function CarDetail() {
 
                 {/* 2-Column Symmetric List */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 lg:gap-x-24 gap-y-8" style={{ fontFamily: "Montserrat" }}>
-                  
+
                   {/* Column 1: Motori */}
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold text-white/30 uppercase tracking-widest border-b border-white/10 pb-2.5">
@@ -1735,8 +1723,8 @@ export default function CarDetail() {
                       </h4>
                       <div className="divide-y divide-white/5">
                         {transChecks.map((check) => {
-                          const raw = getStatusByCode(car.inspectionData.inners, check.code) || 
-                                      (check.fallbackCode ? getStatusByCode(car.inspectionData.inners, check.fallbackCode) : null);
+                          const raw = getStatusByCode(car.inspectionData.inners, check.code) ||
+                            (check.fallbackCode ? getStatusByCode(car.inspectionData.inners, check.fallbackCode) : null);
                           const status = translateStatus(raw, check.isLeak);
                           return (
                             <div key={check.code} className="flex justify-between items-center py-3 border-b border-white/5 hover:border-white/10 transition-colors duration-300 text-sm">
@@ -1819,7 +1807,7 @@ export default function CarDetail() {
                 <h3 className="text-md font-bold uppercase tracking-widest text-white/40 mb-2">
                   Të dhënat e Automjetit
                 </h3>
-                
+
                 {/* Price input */}
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold text-white/60 tracking-wider uppercase">
@@ -1831,6 +1819,12 @@ export default function CarDetail() {
                       type="number"
                       value={priceInput || ""}
                       onChange={(e) => setPriceInput(Number(e.target.value))}
+                      onBlur={(e) => {
+                        const val = Number(e.target.value);
+                        if (val > 0) {
+                          setPriceInput(Math.ceil(val / 100) * 100);
+                        }
+                      }}
                       className="w-full bg-neutral-950/60 border border-white/10 rounded-xl py-3.5 pl-9 pr-4 text-white font-medium focus:border-white/30 focus:outline-none transition-all duration-300"
                       placeholder="P.sh. 15000"
                     />
@@ -1885,6 +1879,21 @@ export default function CarDetail() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+                      <span className="text-white/60 font-light">Çmimi deri në Durrës</span>
+                      <span className="font-semibold text-white">{formatPrice(priceInput)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+                      <span className="text-white/60 font-light">Transporti Durrës - Prishtinë</span>
+                      <span className="font-semibold text-emerald-400">+ {formatPrice(350)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
+                      <span className="text-white/60 font-light">Vlera Doganore (CIF)</span>
+                      <span className="font-semibold text-white">{formatPrice(priceInput + 350)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
                       <span className="text-white/60 font-light">Tatimi i Importit (10%)</span>
                       <span className="font-semibold text-white">{formatPrice(customsData.importTax)}</span>
                     </div>
@@ -1911,8 +1920,22 @@ export default function CarDetail() {
                         (Totali i taksave)
                       </span>
                     </div>
-                    <span className="text-3xl font-bold text-white" style={{ fontFamily: "Cera Pro, sans-serif" }}>
-                      {formatPrice(customsData.total)}
+                    <span className="text-2xl font-bold text-white/90" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                      {formatPrice(roundedCustomsTotal)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-end pt-4 border-t border-white/5" style={{ fontFamily: "Montserrat" }}>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest">
+                        Kostoja Totale (RKS)
+                      </span>
+                      <span className="text-xs text-white/40 font-light mt-0.5">
+                        (Durrës + Rruga + Dogana)
+                      </span>
+                    </div>
+                    <span className="text-3xl font-bold text-yellow-400" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                      {formatPrice(roundedTotalRKS)}
                     </span>
                   </div>
 
@@ -1937,10 +1960,11 @@ export default function CarDetail() {
                 Mënyra e përllogaritjes:
               </div>
               <ul className="list-disc pl-4 space-y-1.5">
-                <li><strong>Tatimi i importit:</strong> 10% e vlerës së vlerësuar të veturës.</li>
+                <li><strong>Vlera Doganore (CIF):</strong> Çmimi deri në Durrës + 350 € kostoja e transportit tokësor Durrës - Prishtinë.</li>
+                <li><strong>Tatimi i importit:</strong> 10% e vlerës doganore (CIF).</li>
                 <li><strong>Akciza:</strong> Tarifë fikse e bazuar në vjetërsinë dhe kategorinë e motorit (CC) të veturës.</li>
-                <li><strong>TVSH:</strong> 18% e aplikuar mbi shumën (Çmimi + Akciza + Tatimi i importit).</li>
-                <li><strong>Shuma totale:</strong> Akciza + Tatimi i importit + TVSH. Ky llogaritës është orientues dhe nuk ka efekt zyrtar.</li>
+                <li><strong>TVSH:</strong> 18% e aplikuar mbi shumën (Vlera Doganore + Akciza + Tatimi i importit).</li>
+                <li><strong>Kostoja Totale (RKS):</strong> Çmimi deri në Durrës + 350 € transporti + Dogana (Tatimi + Akciza + TVSH). Ky llogaritës është vetëm orientues.</li>
               </ul>
             </div>
 
@@ -1959,30 +1983,27 @@ export default function CarDetail() {
             <div className="flex items-end justify-between">
               <div>
                 <h2
-                  className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-1000 ${
-                    galleryVisible
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-8"
-                  }`}
+                  className={`text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 transition-all duration-1000 ${galleryVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
+                    }`}
                   style={{ fontFamily: "Cera Pro, sans-serif" }}
                 >
                   Galeria<span className="text-white/30">.</span>
                 </h2>
                 <p
-                  className={`text-white/60 transition-all duration-1000 delay-100 ${
-                    galleryVisible
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-4"
-                  }`}
+                  className={`text-white/60 transition-all duration-1000 delay-100 ${galleryVisible
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-4"
+                    }`}
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   Eksploro çdo kënd të këtij automjeti
                 </p>
               </div>
               <div
-                className={`hidden sm:flex items-center gap-2 text-white/50 text-sm transition-all duration-1000 delay-200 ${
-                  galleryVisible ? "opacity-100" : "opacity-0"
-                }`}
+                className={`hidden sm:flex items-center gap-2 text-white/50 text-sm transition-all duration-1000 delay-200 ${galleryVisible ? "opacity-100" : "opacity-0"
+                  }`}
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 <svg
@@ -2015,11 +2036,10 @@ export default function CarDetail() {
               <button
                 key={index}
                 onClick={() => openGallery(index)}
-                className={`group relative aspect-4/3 overflow-hidden rounded-lg transition-all duration-700 ${
-                  galleryVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
-                }`}
+                className={`group relative aspect-4/3 overflow-hidden rounded-lg transition-all duration-700 ${galleryVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
+                  }`}
                 style={{ transitionDelay: `${200 + index * 100}ms` }}
               >
                 {/* Image */}
@@ -2204,10 +2224,10 @@ export default function CarDetail() {
                 className="text-sm text-white/50 uppercase tracking-widest mb-2"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Çmimi i listuar
+                Çmimi deri në Durrës
               </p>
               <div className="flex items-baseline justify-center gap-3">
-                  {SHOW_PRICES && <>
+                {SHOW_PRICES && <>
                   {car.discountPrice && (
                     <span
                       className="text-xl sm:text-2xl text-red-400 line-through"
@@ -2222,7 +2242,7 @@ export default function CarDetail() {
                   >
                     {formatPrice(car.discountPrice || car.price)}
                   </span>
-                  </>}
+                </>}
               </div>
 
               {/* CTAs */}
@@ -2423,11 +2443,10 @@ export default function CarDetail() {
                 <button
                   key={index}
                   onClick={() => setModalImageIndex(index)}
-                  className={`relative shrink-0 w-20 h-16 sm:w-28 sm:h-20 lg:w-32 lg:h-24 rounded-md overflow-visible transition-all duration-300 z-50 ${
-                    modalImageIndex === index
-                      ? "ring-2 ring-white ring-offset-2 ring-offset-black opacity-100"
-                      : "opacity-40 hover:opacity-70"
-                  }`}
+                  className={`relative shrink-0 w-20 h-16 sm:w-28 sm:h-20 lg:w-32 lg:h-24 rounded-md overflow-visible transition-all duration-300 z-50 ${modalImageIndex === index
+                    ? "ring-2 ring-white ring-offset-2 ring-offset-black opacity-100"
+                    : "opacity-40 hover:opacity-70"
+                    }`}
                 >
                   <img
                     src={image}

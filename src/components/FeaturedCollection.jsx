@@ -218,22 +218,29 @@ export default function FeaturedCollection() {
 
                       {/* Price and Arrow */}
                       <div className="flex items-center justify-between">
-                        {SHOW_PRICES && <div className="flex items-center gap-2">
-                          {vehicle.formattedOriginalPrice && (
-                            <span
-                              className="text-sm text-red-400 line-through"
-                              style={{ fontFamily: "Cera Pro, sans-serif" }}
-                            >
-                              {vehicle.formattedOriginalPrice}
+                        {SHOW_PRICES && (
+                          <div>
+                            <div className="flex items-center gap-2">
+                              {vehicle.formattedOriginalPrice && (
+                                <span
+                                  className="text-sm text-red-400 line-through"
+                                  style={{ fontFamily: "Cera Pro, sans-serif" }}
+                                >
+                                  {vehicle.formattedOriginalPrice}
+                                </span>
+                              )}
+                              <span
+                                className="text-lg font-semibold text-white"
+                                style={{ fontFamily: "Cera Pro, sans-serif" }}
+                              >
+                                {vehicle.formattedPrice}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-white/40 block mt-0.5" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                              Deri në Durrës
                             </span>
-                          )}
-                          <span
-                            className="text-lg font-semibold text-white"
-                            style={{ fontFamily: "Cera Pro, sans-serif" }}
-                          >
-                            {vehicle.formattedPrice}
-                          </span>
-                        </div>}
+                          </div>
+                        )}
                         <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center group-hover:border-white group-hover:bg-white transition-all duration-300">
                           <span className="text-white/50 group-hover:text-black transition-colors duration-300">
                             →
