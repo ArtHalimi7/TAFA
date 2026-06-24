@@ -193,6 +193,19 @@ const initializeDatabase = async () => {
       }
     }
 
+    // Add pricing_data column if it doesn't exist (stores full pricing breakdown)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN pricing_data JSON DEFAULT NULL
+      `);
+      console.log("✅ Added pricing_data column to cars table");
+    } catch (err) {
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ pricing_data column already exists");
+      }
+    }
+
     // Migrate existing sold status to is_sold field
     try {
       await connection.query(`

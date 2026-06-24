@@ -1,5 +1,6 @@
 const Car = require("../models/Car");
 const db = require("../config/db_connect");
+const pricingService = require("./pricingService");
 
 // Local mapping fallback if Gemini API fails
 const BRAND_MAP = {
@@ -328,15 +329,52 @@ ${insuranceSummary ? `- Insurance History:\n${insuranceSummary}` : ''}
   }
 }
 
-// Convert KRW (in 10,000s) to EUR (Durrës Price)
-function convertPrice(priceInTenThousandKrw) {
-  // Exchange rate: 1 KRW = 0.00057 EUR
-  // Logistics markup (Korea to Durrës port + dealer handling/profit): 2,000 EUR
-  // Always round up to the next hundred (e.g. 17233 -> 17300)
-  const krw = priceInTenThousandKrw * 10000;
-  const baseEur = krw * 0.00057;
-  const withMarkup = baseEur + 2000;
-  return Math.ceil(withMarkup / 100) * 100;
+// ── Exchange Rate ─────────────────────────────────────────────────────────
+// Cached for the lifetime of a single sync run
+let _cachedRate = null;
+
+/**
+ * Fetch a live EUR → KRW rate from Frankfurter API.
+ * Falls back to a reasonable default if the call fails.
+ */
+async function fetchEurKrwRate() {
+  if (_cachedRate) return _cachedRate;
+  try {
+    const res = await fetch('https://api.frankfurter.app/latest?from=EUR&to=KRW', {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const body = await res.json();
+    _cachedRate = body.rates.KRW;
+    console.log(`💱 Live EUR/KRW rate: ${_cachedRate}`);
+    return _cachedRate;
+  } catch (err) {
+    const fallback = 1750;
+    console.warn(`⚠️ Failed to fetch EUR/KRW rate (${err.message}), using fallback ${fallback}`);
+    _cachedRate = fallback;
+    return fallback;
+  }
+}
+
+/**
+ * Convert Encar KRW price (in 10 000× units) → EUR listing price
+ * using the tiered pricing engine with zero-loss guarantee.
+ *
+ * @param {number} priceInTenThousandKrw  Encar price (e.g. 3490 = 34,900,000 KRW)
+ * @param {number} eurKrwRate             Live rate
+ * @param {string} [brand]                Vehicle brand for competitive adjustment
+ * @returns {{ price: number, pricingData: object }}
+ */
+function convertPrice(priceInTenThousandKrw, eurKrwRate, brand) {
+  const krwPrice = priceInTenThousandKrw * 10000;
+  const result = pricingService.calculatePrice(krwPrice, eurKrwRate, {
+    brand,
+    _debug: true,
+  });
+  return {
+    price: result.listingPrice,
+    pricingData: result._debug,
+  };
 }
 
 // Sync latest listings from Encar
@@ -347,6 +385,9 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
   let skippedCount = 0;
 
   try {
+    // Fetch live EUR/KRW rate once for the entire sync run
+    const eurKrwRate = await fetchEurKrwRate();
+
     // 1. Fetch latest listings from Encar — both domestic AND foreign pools
     // Domestic (CarType.Y) = Korean brands (Hyundai, Kia, Genesis, etc.)
     // Foreign (CarType.N) = Imported brands (BMW, Mercedes, Audi, Porsche, etc.)
@@ -441,7 +482,11 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
       const options = detailData.options || null;
       
       const priceKrw = ad.price || car.Price || 0;
-      const priceEur = convertPrice(priceKrw);
+      if (!priceKrw || priceKrw <= 0) {
+        console.log(`[Encar ID ${car.Id}] Skipping — no valid price`);
+        skippedCount++;
+        continue;
+      }
       const oneLineText = ad.oneLineText || "";
 
       // Fetch Accident & Insurance Details dynamically using vehicleId
@@ -527,6 +572,9 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         }
       }
 
+      // Price conversion — after brand is finalized
+      const { price: priceEur, pricingData: priceBreakdown } = convertPrice(priceKrw, eurKrwRate, brand);
+
       // Normalize fuel type variants that Gemini sometimes returns in English
       const FUEL_NORMALIZE = {
         diesel: "Dizell", dizell: "Dizell",
@@ -604,6 +652,7 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         vin: detailData.vin ? `${detailData.vin}-${car.Id}` : `KOR${car.Id}${Math.floor(100 + Math.random() * 900)}`, // Unique Encar VIN or fallback
         description: description,
         inspectionData: inspectionData,
+        pricingData: priceBreakdown,
         status: "active", // Published immediately
         showcaseImage: 0,
         isFeatured: 0,
