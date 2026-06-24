@@ -2246,14 +2246,14 @@ export default function CarDetail() {
               </div>
 
               {/* CTAs */}
-              <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mt-6">
                 <button
                   onClick={() =>
                     navigate("/contact", {
                       state: { carName: car.name, carSlug: slug },
                     })
                   }
-                  className="group px-8 py-3 bg-white text-black font-semibold tracking-widest uppercase text-xs sm:text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.15)] rounded-lg"
+                  className="w-full sm:w-auto group px-8 py-3 bg-white text-black font-semibold tracking-widest uppercase text-xs sm:text-sm transition-all duration-300 hover:bg-neutral-100 hover:shadow-[0_20px_60px_rgba(255,255,255,0.15)] rounded-lg"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   <span className="flex items-center justify-center gap-2">
@@ -2273,30 +2273,83 @@ export default function CarDetail() {
                     </svg>
                   </span>
                 </button>
-                <a
-                  href="tel:+38344666662"
-                  className="group flex items-center justify-center gap-2 px-5 py-3 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
-                  style={{ fontFamily: "Montserrat, sans-serif" }}
-                >
-                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
-                    <svg
-                      className="w-3 h-3 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                {car.encar_id ? (
+                  <>
+                    <a
+                      href="tel:+38349955797"
+                      className="w-full sm:w-auto group flex items-center justify-center gap-2 px-5 py-3 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      />
-                    </svg>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium tracking-wide text-white">
-                    Na kontaktoni
-                  </span>
-                </a>
+                      <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-xs sm:text-sm font-medium tracking-wide text-white">
+                        Kore: +383 49 955 797
+                      </span>
+                    </a>
+                    <a
+                      href="tel:+38346472472"
+                      className="w-full sm:w-auto group flex items-center justify-center gap-2 px-5 py-3 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
+                        <svg
+                          className="w-3 h-3 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-xs sm:text-sm font-medium tracking-wide text-white">
+                        Kore: +383 46 472 472
+                      </span>
+                    </a>
+                  </>
+                ) : (
+                  <a
+                    href="tel:+38344666662"
+                    className="w-full sm:w-auto group flex items-center justify-center gap-2 px-5 py-3 border border-white/30 rounded-full backdrop-blur-md bg-black/60 hover:bg-black/80 hover:border-white/50 transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+                    style={{ fontFamily: "Montserrat, sans-serif" }}
+                  >
+                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-colors duration-300">
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        />
+                      </svg>
+                    </div>
+                    <span className="text-xs sm:text-sm font-medium tracking-wide text-white">
+                      Evropë: +383 44 666 662
+                    </span>
+                  </a>
+                )}
               </div>
 
               {/* Logo */}
@@ -2484,7 +2537,7 @@ export default function CarDetail() {
 
       {/* Floating Action Button - Mobile */}
       <a
-        href="tel:+38344666662"
+        href={car.encar_id ? "tel:+38349955797" : "tel:+38344666662"}
         className="fixed bottom-6 right-6 lg:hidden z-40 group w-14 h-14 bg-black/70 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.5)] active:scale-95 hover:bg-black/90 hover:border-white/40 transition-all duration-300"
       >
         <div className="relative">

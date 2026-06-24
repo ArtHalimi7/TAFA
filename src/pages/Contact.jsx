@@ -152,7 +152,19 @@ export default function Contact() {
     },
     {
       label: "Telefon",
-      value: "+383 44 666 662",
+      value: (
+        <span className="flex flex-col gap-1 items-center">
+          <a href="tel:+38344666662" className="hover:text-white transition-colors duration-300">
+            Evropë: +383 44 666 662
+          </a>
+          <a href="tel:+38349955797" className="hover:text-white transition-colors duration-300">
+            Kore: +383 49 955 797
+          </a>
+          <a href="tel:+38346472472" className="hover:text-white transition-colors duration-300">
+            Kore: +383 46 472 472
+          </a>
+        </span>
+      ),
       icon: (
         <svg
           className="w-5 h-5"
@@ -355,20 +367,20 @@ export default function Contact() {
                 </div>
 
                 {/* Label */}
-                <p
+                <div
                   className="text-xs uppercase tracking-[0.2em] text-white/40 mb-2"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {detail.label}
-                </p>
+                </div>
 
                 {/* Value */}
-                <p
+                <div
                   className="text-lg lg:text-xl text-white font-light group-hover:text-white/90 transition-colors duration-300 wrap-break-word whitespace-normal text-center"
                   style={{ fontFamily: "Montserrat, sans-serif" }}
                 >
                   {detail.value}
-                </p>
+                </div>
 
                 {/* Bottom accent */}
                 <div className="mt-6 w-8 h-px bg-linear-to-r from-white/20 to-transparent group-hover:w-full group-hover:from-white/40 transition-all duration-500" />
@@ -642,7 +654,7 @@ export default function Contact() {
           {/* Google Maps Embed */}
           <div className="relative h-96 lg:h-125 border border-white/10 overflow-hidden rounded-lg group">
             <iframe
-              src="https://www.google.com/maps?q=Auto%20Tafa%20CFM4%2BW38%2C%20Livo%C3%A7%20i%20Posht%C3%ABm%2060000&z=17&output=embed"
+              src="https://www.google.com/maps?q=42.4710891,21.4230827&z=17&output=embed"
               width="100%"
               height="100%"
               style={{
@@ -662,7 +674,7 @@ export default function Contact() {
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               <span className="font-semibold text-white">Adresa:</span> Auto
-              Tafa, Livoç i Poshtëm 60000
+              Tafa, Rruga e Prishtinës, Gjilan 60000
             </p>
           </div>
         </div>

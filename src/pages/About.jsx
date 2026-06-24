@@ -527,12 +527,20 @@ export default function About() {
 
             {/* Contact Info - Horizontal */}
             <div
-              className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12 mb-16 text-white/60"
+              className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 mb-16 text-white/60 text-center"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
               <span className="text-lg">E Hënë — E Shtunë: 9:00 – 18:00</span>
-              <span className="hidden sm:block text-white/20">|</span>
-              <span className="text-lg">+383 44 666 662</span>
+              <span className="hidden md:block text-white/20">|</span>
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center text-base sm:text-lg">
+                <a href="tel:+38344666662" className="hover:text-white transition-colors duration-300">Evropë: +383 44 666 662</a>
+                <span className="hidden sm:block text-white/10">•</span>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-center">
+                  <a href="tel:+38349955797" className="hover:text-white transition-colors duration-300">Kore: +383 49 955 797</a>
+                  <span className="hidden sm:block text-white/10">&</span>
+                  <a href="tel:+38346472472" className="hover:text-white transition-colors duration-300">+383 46 472 472</a>
+                </div>
+              </div>
             </div>
 
             {/* CTA Button - link to contact form */}

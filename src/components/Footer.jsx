@@ -157,17 +157,38 @@ export default function Footer() {
               </h4>
               <ul className="space-y-4">
                 <li>
-                  <a
-                    href="tel:+38344666662"
-                    className="text-white/80 hover:text-white transition-colors duration-300"
-                    style={{ fontFamily: "Montserrat, sans-serif" }}
-                  >
-                    +38344666662
-                  </a>
+                  <div className="flex flex-col gap-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                    <div>
+                      <span className="text-white/40 text-[10px] block uppercase tracking-wider mb-0.5">Makina nga Evropa</span>
+                      <a
+                        href="tel:+38344666662"
+                        className="text-white/80 hover:text-white transition-colors duration-300 text-sm"
+                      >
+                        +383 44 666 662
+                      </a>
+                    </div>
+                    <div>
+                      <span className="text-white/40 text-[10px] block uppercase tracking-wider mb-0.5">Porosi nga Korea</span>
+                      <div className="flex flex-col gap-1">
+                        <a
+                          href="tel:+38349955797"
+                          className="text-white/80 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          +383 49 955 797
+                        </a>
+                        <a
+                          href="tel:+38346472472"
+                          className="text-white/80 hover:text-white transition-colors duration-300 text-sm"
+                        >
+                          +383 46 472 472
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </li>
                 <li>
                   <a
-                    href="mailto:hello@tafaleka.com"
+                    href="mailto:info@tafaleka.com"
                     className="text-white/80 hover:text-white transition-colors duration-300"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
@@ -179,7 +200,7 @@ export default function Footer() {
                     className="text-white/80"
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   >
-                    CFM4+W38, Livoç i Poshtëm 60000
+                    Rruga e Prishtinës, 60000
                     <br />
                     Gjilan, Kosovë
                   </p>

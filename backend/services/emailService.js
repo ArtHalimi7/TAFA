@@ -50,7 +50,8 @@ const sendContactEmail = async (name, email, phone, message) => {
           <p>Hi ${name},</p>
           <p>We have received your inquiry and appreciate your interest in AUTO TAFA. Our team will review your message and get back to you within 24 hours.</p>
           <p>If you need immediate assistance, please don't hesitate to call us:</p>
-          <p><strong>Phone:</strong> +38344666662</p>
+          <p><strong>Phone (Europe):</strong> +383 44 666 662</p>
+          <p><strong>Phone (Korea Orders):</strong> +383 49 955 797 &amp; +383 46 472 472</p>
           <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;" />
           <p style="color: #999; font-size: 12px;">
             Best regards,<br/>
