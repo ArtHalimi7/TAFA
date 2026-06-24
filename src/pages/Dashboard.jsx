@@ -227,8 +227,8 @@ export default function Dashboard() {
   const [isPinValidated, setIsPinValidated] = useState(false); // PIN was correct but awaiting 2FA
   const [adminEmail, setAdminEmail] = useState(
     import.meta.env.VITE_ADMIN_EMAIL ||
-      localStorage.getItem("tafa_admin_email") ||
-      "",
+    localStorage.getItem("tafa_admin_email") ||
+    "",
   );
   const [twoFAToken, setTwoFAToken] = useState(null);
   const [is2FASent, setIs2FASent] = useState(false);
@@ -1279,11 +1279,10 @@ export default function Dashboard() {
                     value={pinInput}
                     onChange={handlePinChange}
                     placeholder={t.enterPin}
-                    className={`w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${
-                      pinError
-                        ? "border-red-500/50 text-red-400 animate-shake"
-                        : "border-white/10 text-white placeholder-white/30 focus:border-white/40"
-                    }`}
+                    className={`w-full px-4 py-3 text-center text-lg font-medium bg-white/5 border-2 rounded-xl transition-all duration-300 focus:outline-none ${pinError
+                      ? "border-red-500/50 text-red-400 animate-shake"
+                      : "border-white/10 text-white placeholder-white/30 focus:border-white/40"
+                      }`}
                     style={{ fontFamily: "Montserrat, sans-serif" }}
                   />
                   <button
@@ -1427,19 +1426,17 @@ export default function Dashboard() {
     <div className="min-h-screen bg-black text-white flex">
       {/* Mobile Sidebar Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/80 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${
-          isMobileSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 z-40 bg-black/80 backdrop-blur-sm lg:hidden transition-opacity duration-300 ${isMobileSidebarOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
         onClick={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-50 h-screen bg-black border-r border-white/10 transition-all duration-300 ${
-          isMobileSidebarOpen
-            ? "translate-x-0"
-            : "-translate-x-full lg:translate-x-0"
-        } ${isSidebarCollapsed ? "w-20" : "w-64"}`}
+        className={`fixed lg:sticky top-0 left-0 z-50 h-screen bg-black border-r border-white/10 transition-all duration-300 ${isMobileSidebarOpen
+          ? "translate-x-0"
+          : "-translate-x-full lg:translate-x-0"
+          } ${isSidebarCollapsed ? "w-20" : "w-64"}`}
       >
         <div className="flex flex-col h-full">
           {/* Logo & Toggle */}
@@ -1509,11 +1506,10 @@ export default function Dashboard() {
                   }
                   setIsMobileSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                  activeTab === item.id
-                    ? "bg-white/10 text-white"
-                    : "text-white/60 hover:bg-white/5 hover:text-white"
-                }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === item.id
+                  ? "bg-white/10 text-white"
+                  : "text-white/60 hover:bg-white/5 hover:text-white"
+                  }`}
               >
                 {item.icon}
                 {!isSidebarCollapsed && (
@@ -2006,11 +2002,10 @@ export default function Dashboard() {
                         {/* Status Badge */}
                         <div className="absolute top-3 right-3">
                           <span
-                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                              car.status === "active"
-                                ? "bg-green-500/20 text-green-400 border border-green-500/30"
-                                : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                            }`}
+                            className={`px-2.5 py-1 rounded-full text-xs font-medium ${car.status === "active"
+                              ? "bg-green-500/20 text-green-400 border border-green-500/30"
+                              : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                              }`}
                           >
                             {car.status === "active" ? t.active : t.draft}
                           </span>
@@ -2061,16 +2056,23 @@ export default function Dashboard() {
                                 {formatPrice(car.price)}
                               </p>
                             )}
+                            {car.pricingData?.profit?.amount ? (
+                              <p
+                                className="text-xs text-emerald-400/80 mt-0.5"
+                                style={{ fontFamily: "Montserrat, sans-serif" }}
+                              >
+                                Profit: {formatPrice(car.pricingData.profit.amount)}
+                              </p>
+                            ) : null}
                           </div>
                           <div className="flex items-center gap-2">
                             {/* Featured Indicator */}
                             <button
                               onClick={() => toggleFeatured(car)}
-                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                car.isFeatured
-                                  ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
-                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-yellow-400"
-                              }`}
+                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${car.isFeatured
+                                ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
+                                : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-yellow-400"
+                                }`}
                               title={
                                 car.isFeatured
                                   ? "Hiq nga të veçuarat"
@@ -2094,11 +2096,10 @@ export default function Dashboard() {
                             {/* Sold Indicator */}
                             <button
                               onClick={() => toggleSoldStatus(car)}
-                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                                car.isSold
-                                  ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
-                              }`}
+                              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${car.isSold
+                                ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                                : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
+                                }`}
                               title={
                                 car.isSold
                                   ? "Hiq statusin e shitur"
@@ -2106,11 +2107,10 @@ export default function Dashboard() {
                               }
                             >
                               <span
-                                className={`w-4 h-4 flex items-center justify-center text-sm font-bold ${
-                                  car.isSold
-                                    ? "bg-red-400 text-black rounded-full"
-                                    : ""
-                                }`}
+                                className={`w-4 h-4 flex items-center justify-center text-sm font-bold ${car.isSold
+                                  ? "bg-red-400 text-black rounded-full"
+                                  : ""
+                                  }`}
                                 style={{ fontFamily: "Arial, sans-serif" }}
                               >
                                 €
@@ -2215,11 +2215,10 @@ export default function Dashboard() {
                                 {car.name}
                               </h3>
                               <span
-                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                  car.status === "active"
-                                    ? "bg-green-500/20 text-green-400"
-                                    : "bg-amber-500/20 text-amber-400"
-                                }`}
+                                className={`px-2 py-0.5 rounded-full text-xs font-medium ${car.status === "active"
+                                  ? "bg-green-500/20 text-green-400"
+                                  : "bg-amber-500/20 text-amber-400"
+                                  }`}
                               >
                                 {car.status === "active" ? t.active : t.draft}
                               </span>
@@ -2254,6 +2253,14 @@ export default function Dashboard() {
                                 {formatPrice(car.price)}
                               </p>
                             )}
+                            {car.pricingData?.profit?.amount ? (
+                              <p
+                                className="text-sm text-emerald-400/80 mt-1"
+                                style={{ fontFamily: "Montserrat, sans-serif" }}
+                              >
+                                Profit: {formatPrice(car.pricingData.profit.amount)}
+                              </p>
+                            ) : null}
                           </div>
 
                           {/* Actions */}
@@ -2261,11 +2268,10 @@ export default function Dashboard() {
                             {/* Toggle Status */}
                             <button
                               onClick={() => toggleCarStatus(car.id)}
-                              className={`p-2.5 rounded-xl transition-all duration-300 ${
-                                car.status === "active"
-                                  ? "bg-green-500/10 text-green-400 hover:bg-green-500/20"
-                                  : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
-                              }`}
+                              className={`p-2.5 rounded-xl transition-all duration-300 ${car.status === "active"
+                                ? "bg-green-500/10 text-green-400 hover:bg-green-500/20"
+                                : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60"
+                                }`}
                               title={
                                 car.status === "active"
                                   ? t.setAsDraft
@@ -2296,11 +2302,10 @@ export default function Dashboard() {
                             {/* Featured Indicator */}
                             <button
                               onClick={() => toggleFeatured(car)}
-                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
-                                car.isFeatured
-                                  ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
-                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-yellow-400"
-                              }`}
+                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${car.isFeatured
+                                ? "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
+                                : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-yellow-400"
+                                }`}
                               title={
                                 car.isFeatured
                                   ? "Hiq nga të veçuarat"
@@ -2325,11 +2330,10 @@ export default function Dashboard() {
                             {/* Sold Indicator */}
                             <button
                               onClick={() => toggleSoldStatus(car)}
-                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${
-                                car.isSold
-                                  ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                                  : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
-                              }`}
+                              className={`p-2.5 rounded-xl transition-all duration-300 cursor-pointer ${car.isSold
+                                ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                                : "bg-white/5 text-white/20 hover:bg-white/10 hover:text-red-400"
+                                }`}
                               title={
                                 car.isSold
                                   ? "Hiq statusin e shitur"
@@ -2337,11 +2341,10 @@ export default function Dashboard() {
                               }
                             >
                               <span
-                                className={`w-5 h-5 flex items-center justify-center text-base font-bold ${
-                                  car.isSold
-                                    ? "bg-red-400 text-black rounded-full"
-                                    : ""
-                                }`}
+                                className={`w-5 h-5 flex items-center justify-center text-base font-bold ${car.isSold
+                                  ? "bg-red-400 text-black rounded-full"
+                                  : ""
+                                  }`}
                                 style={{ fontFamily: "Arial, sans-serif" }}
                               >
                                 €
@@ -2555,25 +2558,23 @@ export default function Dashboard() {
                           <button
                             type="button"
                             onClick={() => setSyncDomestic(true)}
-                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
-                              syncDomestic
-                                ? "bg-white text-black border-white shadow-xl shadow-white/5"
-                                : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
-                            }`}
+                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${syncDomestic
+                              ? "bg-white text-black border-white shadow-xl shadow-white/5"
+                              : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                              }`}
                           >
                             <span className="text-xs uppercase tracking-widest font-semibold opacity-70 mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>Pool A</span>
                             <span className="text-sm font-bold" style={{ fontFamily: "Cera Pro, sans-serif" }}>Koreane</span>
                             <span className={`text-[10px] mt-2 opacity-60 ${syncDomestic ? 'text-black/70' : 'text-white/40'}`}>제네시스, 현대, 기아</span>
                           </button>
-                          
+
                           <button
                             type="button"
                             onClick={() => setSyncDomestic(false)}
-                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${
-                              !syncDomestic
-                                ? "bg-white text-black border-white shadow-xl shadow-white/5"
-                                : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
-                            }`}
+                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${!syncDomestic
+                              ? "bg-white text-black border-white shadow-xl shadow-white/5"
+                              : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
+                              }`}
                           >
                             <span className="text-xs uppercase tracking-widest font-semibold opacity-70 mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>Pool B</span>
                             <span className="text-sm font-bold" style={{ fontFamily: "Cera Pro, sans-serif" }}>Të Importuara</span>
@@ -2608,11 +2609,10 @@ export default function Dashboard() {
                       <button
                         type="submit"
                         disabled={isSyncing}
-                        className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 cursor-pointer duration-300 ${
-                          isSyncing 
-                            ? "bg-blue-600/30 text-blue-300 border border-blue-500/20 cursor-not-allowed" 
-                            : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 hover:scale-[1.01]"
-                        }`}
+                        className={`w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-3 cursor-pointer duration-300 ${isSyncing
+                          ? "bg-blue-600/30 text-blue-300 border border-blue-500/20 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-600/20 hover:scale-[1.01]"
+                          }`}
                         style={{ fontFamily: "Montserrat, sans-serif" }}
                       >
                         {isSyncing ? (
@@ -2655,7 +2655,7 @@ export default function Dashboard() {
                             </div>
                           </div>
                         </div>
-                        
+
                         {syncResult.logs && syncResult.logs.length > 0 && (
                           <div className="space-y-2">
                             <h4 className="text-xs uppercase tracking-widest text-white/40 font-bold" style={{ fontFamily: "Montserrat, sans-serif" }}>
@@ -2926,14 +2926,12 @@ export default function Dashboard() {
                           isSold: !prev.isSold,
                         }))
                       }
-                      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-                        formData.isSold ? "bg-red-500" : "bg-white/10"
-                      }`}
+                      className={`relative w-12 h-6 rounded-full transition-all duration-300 ${formData.isSold ? "bg-red-500" : "bg-white/10"
+                        }`}
                     >
                       <span
-                        className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${
-                          formData.isSold ? "left-7" : "left-1"
-                        }`}
+                        className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-all duration-300 ${formData.isSold ? "left-7" : "left-1"
+                          }`}
                       />
                     </button>
                     <span
@@ -3164,11 +3162,10 @@ export default function Dashboard() {
                     {formData.images.map((img, index) => (
                       <div
                         key={index}
-                        className={`relative aspect-4/3 rounded-xl overflow-hidden border-2 transition-all ${
-                          formData.showcaseImage === index
-                            ? "border-amber-500"
-                            : "border-white/10 hover:border-white/30"
-                        }`}
+                        className={`relative aspect-4/3 rounded-xl overflow-hidden border-2 transition-all ${formData.showcaseImage === index
+                          ? "border-amber-500"
+                          : "border-white/10 hover:border-white/30"
+                          }`}
                       >
                         <img
                           src={getImageUrl(img)}
@@ -3189,11 +3186,10 @@ export default function Dashboard() {
                           <button
                             type="button"
                             onClick={() => setShowcaseImage(index)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              formData.showcaseImage === index
-                                ? "bg-amber-500 text-black"
-                                : "bg-white/20 hover:bg-amber-500 hover:text-black"
-                            }`}
+                            className={`p-2 rounded-lg transition-colors ${formData.showcaseImage === index
+                              ? "bg-amber-500 text-black"
+                              : "bg-white/20 hover:bg-amber-500 hover:text-black"
+                              }`}
                             title="Set as Showcase"
                           >
                             <svg
@@ -3504,11 +3500,10 @@ export default function Dashboard() {
       {/* Notification Toast */}
       {notification && (
         <div
-          className={`fixed bottom-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-xl transition-all duration-300 ${
-            notification.type === "success"
-              ? "bg-green-500/20 border-green-500/30 text-green-400"
-              : "bg-red-500/20 border-red-500/30 text-red-400"
-          }`}
+          className={`fixed bottom-6 right-6 z-50 px-6 py-4 rounded-xl shadow-2xl border backdrop-blur-xl transition-all duration-300 ${notification.type === "success"
+            ? "bg-green-500/20 border-green-500/30 text-green-400"
+            : "bg-red-500/20 border-red-500/30 text-red-400"
+            }`}
         >
           <div className="flex items-center gap-3">
             {notification.type === "success" ? (

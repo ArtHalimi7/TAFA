@@ -103,13 +103,13 @@ async function main() {
         // Only update pricing_data if price didn't change
         await db.query(
           "UPDATE cars SET encar_price_krw = ?, pricing_data = ? WHERE id = ?",
-          [krwPrice, JSON.stringify(result._debug), car.id]
+          [krwPrice, JSON.stringify(result), car.id]
         );
         console.log(`  = ${car.name.padEnd(30)} ${String(oldPrice).padStart(6)} € → ${String(newPrice).padStart(6)} € (same)`);
       } else {
         await db.query(
           "UPDATE cars SET encar_price_krw = ?, price = ?, pricing_data = ? WHERE id = ?",
-          [krwPrice, newPrice, JSON.stringify(result._debug), car.id]
+          [krwPrice, newPrice, JSON.stringify(result), car.id]
         );
         const diff = newPrice - oldPrice;
         console.log(`  ${diff > 0 ? '+' : ''}${String(diff).padStart(5)} ${car.name.padEnd(30)} ${String(oldPrice).padStart(6)} € → ${String(newPrice).padStart(6)} € (${result.tier}, ${result.profit.marginOnRevenue})`);

@@ -373,7 +373,7 @@ function convertPrice(priceInTenThousandKrw, eurKrwRate, brand) {
   });
   return {
     price: result.listingPrice,
-    pricingData: result._debug,
+    pricingData: result,
   };
 }
 
