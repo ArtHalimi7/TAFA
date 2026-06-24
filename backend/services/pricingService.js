@@ -24,8 +24,8 @@ const TIERS = [
     name: 'Budget',
     minKrw: 0,
     maxKrw: 10_000_000,
-    marginMin: 0.010,             // 1.0 % — safe floor (others)
-    marginMid: 0.020,             // 2.0 % — competitive (German brands)
+    marginMin: 0.005,             // 0.5 % — safe floor (others)
+    marginMid: 0.015,             // 1.5 % — competitive (German brands)
     inspectionCost: 100,
     insuranceRate: 0.004,         // 0.4 % of vehicle value
   },
@@ -33,8 +33,8 @@ const TIERS = [
     name: 'Standard',
     minKrw: 10_000_000,
     maxKrw: 25_000_000,
-    marginMin: 0.015,
-    marginMid: 0.025,
+    marginMin: 0.010,
+    marginMid: 0.020,
     inspectionCost: 150,
     insuranceRate: 0.005,
   },
@@ -42,8 +42,8 @@ const TIERS = [
     name: 'Premium',
     minKrw: 25_000_000,
     maxKrw: 60_000_000,
-    marginMin: 0.015,
-    marginMid: 0.020,
+    marginMin: 0.010,
+    marginMid: 0.015,
     inspectionCost: 200,
     insuranceRate: 0.007,
   },
@@ -51,8 +51,8 @@ const TIERS = [
     name: 'Luxury',
     minKrw: 60_000_000,
     maxKrw: Infinity,
-    marginMin: 0.030,
-    marginMid: 0.040,
+    marginMin: 0.025,
+    marginMid: 0.035,
     inspectionCost: 400,
     insuranceRate: 0.008,
   },
