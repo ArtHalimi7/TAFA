@@ -75,6 +75,19 @@ function isLikelyTruncatedImage(url) {
     return true;
   return false;
 }
+
+// MySQL JSON columns are auto-parsed by mysql2 → already an object.
+// TEXT/MEDIUMTEXT columns need explicit JSON.parse.
+function safeParseJson(val) {
+  if (!val) return null;
+  if (typeof val === "object") return val; // already parsed (MySQL JSON type)
+  try {
+    return JSON.parse(val);
+  } catch {
+    return null;
+  }
+}
+
 const Car = {
   // Get all cars with images and features - OPTIMIZED
   async getAll(filters = {}) {
@@ -225,7 +238,8 @@ const Car = {
             acceleration: parseFloat(row.acceleration),
             isSold: !!row.is_sold,
             inspectionData: row.inspection_data ? JSON.parse(row.inspection_data) : null,
-            pricingData: row.pricing_data ? JSON.parse(row.pricing_data) : null,
+            pricingData: safeParseJson(row.pricing_data),
+            encarPriceKrw: row.encar_price_krw ? Number(row.encar_price_krw) : null,
             options: row.options ? JSON.parse(row.options) : null,
           };
         }),
@@ -283,6 +297,8 @@ const Car = {
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
         inspectionData: car.inspection_data ? JSON.parse(car.inspection_data) : null,
+        pricingData: safeParseJson(car.pricing_data),
+        encarPriceKrw: car.encar_price_krw ? Number(car.encar_price_krw) : null,
         options: car.options ? JSON.parse(car.options) : null,
       };
     } catch (error) {
@@ -336,6 +352,8 @@ const Car = {
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
         inspectionData: car.inspection_data ? JSON.parse(car.inspection_data) : null,
+        pricingData: safeParseJson(car.pricing_data),
+        encarPriceKrw: car.encar_price_krw ? Number(car.encar_price_krw) : null,
         options: car.options ? JSON.parse(car.options) : null,
       };
     } catch (error) {
