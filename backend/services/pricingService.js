@@ -43,7 +43,7 @@ const TIERS = [
     minKrw: 25_000_000,
     maxKrw: 60_000_000,
     marginMin: 0.010,
-    marginMid: 0.015,
+    marginMid: 0.010,
     inspectionCost: 200,
     insuranceRate: 0.007,
   },
