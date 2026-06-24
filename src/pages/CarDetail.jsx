@@ -1041,7 +1041,7 @@ export default function CarDetail() {
                       className="text-xs text-white/50 uppercase tracking-widest mt-1"
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
-                      Çmimi deri në Durrës
+                      Çmimi deri në Kosovë
                     </span>
                   </div>}
                 </div>
@@ -2224,7 +2224,7 @@ export default function CarDetail() {
                 className="text-sm text-white/50 uppercase tracking-widest mb-2"
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
-                Çmimi deri në Durrës
+                Çmimi deri në Kosovë
               </p>
               <div className="flex items-baseline justify-center gap-3">
                 {SHOW_PRICES && <>
