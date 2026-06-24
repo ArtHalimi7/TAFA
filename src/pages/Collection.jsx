@@ -300,7 +300,7 @@ export default function Collection() {
     const fetchCars = async () => {
       try {
         setIsContentLoading(true);
-        const response = await carsApi.getActiveCars({ limit: 200 });
+        const response = await carsApi.getActiveCars({ limit: 500 });
         if (response.success) {
           // Transform backend data
           const transformedCars = response.data.map((car) => ({
