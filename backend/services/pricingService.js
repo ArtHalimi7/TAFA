@@ -43,7 +43,7 @@ const TIERS = [
     minKrw: 25_000_000,
     maxKrw: 60_000_000,
     marginMin: 0.015,
-    marginMid: 0.025,
+    marginMid: 0.020,
     inspectionCost: 200,
     insuranceRate: 0.007,
   },
@@ -61,7 +61,7 @@ const TIERS = [
 // ---------------------------------------------------------------------------
 // Fixed cost parameters (lean estimates)
 // ---------------------------------------------------------------------------
-const SHIPPING_COST = 1300;        // Busan → Durrës Ro-Ro freight
+const SHIPPING_COST = 1600;        // Busan → Durrës Ro-Ro freight
 const KOREA_LOGISTICS = 200;       // domestic transport → Busan port
 const CIF_FEES = 200;              // port handling, docs, customs broker
 const FX_BUFFER_RATE = 0;          // dealer assumes FX risk (not passed to customer)
