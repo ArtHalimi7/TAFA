@@ -66,7 +66,7 @@ const KOREA_LOGISTICS = 200;       // domestic transport → Busan port
 const CIF_FEES = 200;              // port handling, docs, customs broker
 const FX_BUFFER_RATE = 0;          // dealer assumes FX risk (not passed to customer)
 const LOCAL_DELIVERY_FEE = 350;    // Prishtina delivery
-const MIN_ABSOLUTE_PROFIT = 200;   // minimum net profit floor (EUR)
+const MIN_ABSOLUTE_PROFIT = 500;   // minimum net profit floor (EUR)
 
 // ---------------------------------------------------------------------------
 // Brand strategy — three tiers of competitiveness
