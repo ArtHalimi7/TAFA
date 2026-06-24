@@ -24,8 +24,8 @@ const TIERS = [
     name: 'Budget',
     minKrw: 0,
     maxKrw: 10_000_000,
-    marginMin: 0.04,              // 4 % — safe floor (others)
-    marginMid: 0.05,              // 5 % — competitive (German brands)
+    marginMin: 0.010,             // 1.0 % — safe floor (others)
+    marginMid: 0.020,             // 2.0 % — competitive (German brands)
     inspectionCost: 100,
     insuranceRate: 0.004,         // 0.4 % of vehicle value
   },
@@ -33,8 +33,8 @@ const TIERS = [
     name: 'Standard',
     minKrw: 10_000_000,
     maxKrw: 25_000_000,
-    marginMin: 0.06,
-    marginMid: 0.08,
+    marginMin: 0.015,
+    marginMid: 0.025,
     inspectionCost: 150,
     insuranceRate: 0.005,
   },
@@ -42,31 +42,31 @@ const TIERS = [
     name: 'Premium',
     minKrw: 25_000_000,
     maxKrw: 60_000_000,
-    marginMin: 0.08,
-    marginMid: 0.10,
-    inspectionCost: 300,          // 3rd-party enhanced inspection
-    insuranceRate: 0.008,         // 0.8 %
+    marginMin: 0.015,
+    marginMid: 0.025,
+    inspectionCost: 200,
+    insuranceRate: 0.007,
   },
   {
     name: 'Luxury',
     minKrw: 60_000_000,
     maxKrw: Infinity,
-    marginMin: 0.12,
-    marginMid: 0.14,
-    inspectionCost: 500,          // premium 3rd-party (Auto Bell etc.)
-    insuranceRate: 0.010,         // 1.0 %
+    marginMin: 0.030,
+    marginMid: 0.040,
+    inspectionCost: 400,
+    insuranceRate: 0.008,
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Fixed cost parameters (realistic estimates)
+// Fixed cost parameters (lean estimates)
 // ---------------------------------------------------------------------------
-const SHIPPING_COST = 1500;        // Busan → Durrës Ro-Ro freight (realistic)
-const KOREA_LOGISTICS = 300;       // domestic transport → Busan port
-const CIF_FEES = 300;              // port handling, docs, customs broker
+const SHIPPING_COST = 1300;        // Busan → Durrës Ro-Ro freight
+const KOREA_LOGISTICS = 200;       // domestic transport → Busan port
+const CIF_FEES = 200;              // port handling, docs, customs broker
 const FX_BUFFER_RATE = 0;          // dealer assumes FX risk (not passed to customer)
-const LOCAL_DELIVERY_FEE = 350;    // Prishtina delivery (margin buffer)
-const MIN_ABSOLUTE_PROFIT = 300;   // minimum net profit floor (EUR)
+const LOCAL_DELIVERY_FEE = 350;    // Prishtina delivery
+const MIN_ABSOLUTE_PROFIT = 200;   // minimum net profit floor (EUR)
 
 // ---------------------------------------------------------------------------
 // Brand strategy — three tiers of competitiveness
@@ -80,7 +80,7 @@ const COMPETITIVE_BRANDS = new Set([
   'Audi', 'BMW', 'Mercedes', 'Mercedes-Benz', 'Porsche', 'Volkswagen',
 ]);
 
-const ADVANTAGE_MARGIN_BOOST = 0.02;   // +2 % on top of marginMid
+const ADVANTAGE_MARGIN_BOOST = 0.005;   // +0.5 % on top of marginMid
 
 // ---------------------------------------------------------------------------
 // Helpers
