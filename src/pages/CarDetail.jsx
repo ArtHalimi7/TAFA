@@ -1813,6 +1813,9 @@ export default function CarDetail() {
                   <label className="text-xs font-semibold text-white/60 tracking-wider uppercase">
                     Çmimi i Veturës (€)
                   </label>
+                  <p className="text-[10px] text-white/30 -mt-1">
+                    Çmimi ynë përfshin transportin deri në Kosovë.
+                  </p>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">€</span>
                     <input
@@ -1879,7 +1882,7 @@ export default function CarDetail() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                      <span className="text-white/60 font-light">Çmimi deri në Durrës</span>
+                      <span className="text-white/60 font-light">Çmimi i Veturës</span>
                       <span className="font-semibold text-white">{formatPrice(priceInput)}</span>
                     </div>
 
@@ -1960,11 +1963,11 @@ export default function CarDetail() {
                 Mënyra e përllogaritjes:
               </div>
               <ul className="list-disc pl-4 space-y-1.5">
-                <li><strong>Vlera Doganore (CIF):</strong> Çmimi deri në Durrës + 350 € kostoja e transportit tokësor Durrës - Prishtinë.</li>
-                <li><strong>Tatimi i importit:</strong> 10% e vlerës doganore (CIF).</li>
+                <li><strong>Vlera Doganore (CIF):</strong> Çmimi i veturës + 350 € transporti Durrës - Prishtinë.</li>
+                <li><strong>Tatimi i importit:</strong> 10% e vlerës doganore.</li>
                 <li><strong>Akciza:</strong> Tarifë fikse e bazuar në vjetërsinë dhe kategorinë e motorit (CC) të veturës.</li>
                 <li><strong>TVSH:</strong> 18% e aplikuar mbi shumën (Vlera Doganore + Akciza + Tatimi i importit).</li>
-                <li><strong>Kostoja Totale (RKS):</strong> Çmimi deri në Durrës + 350 € transporti + Dogana (Tatimi + Akciza + TVSH). Ky llogaritës është vetëm orientues.</li>
+                <li><strong>Kostoja Totale (RKS):</strong> Çmimi i veturës + 350 € transporti + Dogana (Tatimi + Akciza + TVSH). Ky llogaritës është vetëm orientues.</li>
               </ul>
             </div>
 
