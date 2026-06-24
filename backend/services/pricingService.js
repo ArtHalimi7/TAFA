@@ -24,53 +24,49 @@ const TIERS = [
     name: 'Budget',
     minKrw: 0,
     maxKrw: 10_000_000,
-    marginMin: 0.08,              // 8 % — safe floor (others)
-    marginMid: 0.09,              // 9 % — competitive (German brands)
-    inspectionCost: 150,
-    insuranceRate: 0.006,         // 0.6 % of vehicle value
-    contingency: 200,
+    marginMin: 0.04,              // 4 % — safe floor (others)
+    marginMid: 0.05,              // 5 % — competitive (German brands)
+    inspectionCost: 100,
+    insuranceRate: 0.004,         // 0.4 % of vehicle value
   },
   {
     name: 'Standard',
     minKrw: 10_000_000,
     maxKrw: 25_000_000,
-    marginMin: 0.12,
-    marginMid: 0.14,
+    marginMin: 0.06,
+    marginMid: 0.08,
     inspectionCost: 150,
-    insuranceRate: 0.006,
-    contingency: 300,
+    insuranceRate: 0.005,
   },
   {
     name: 'Premium',
     minKrw: 25_000_000,
     maxKrw: 60_000_000,
-    marginMin: 0.18,
-    marginMid: 0.20,
-    inspectionCost: 400,          // 3rd-party enhanced inspection
-    insuranceRate: 0.010,         // 1.0 % — luxury surcharge
-    contingency: 600,
+    marginMin: 0.08,
+    marginMid: 0.10,
+    inspectionCost: 300,          // 3rd-party enhanced inspection
+    insuranceRate: 0.008,         // 0.8 %
   },
   {
     name: 'Luxury',
     minKrw: 60_000_000,
     maxKrw: Infinity,
-    marginMin: 0.25,
-    marginMid: 0.28,
-    inspectionCost: 600,          // premium 3rd-party (Auto Bell etc.)
-    insuranceRate: 0.012,         // 1.2 % — marine insurance surcharge
-    contingency: 1200,            // client mediation / goodwill buffer
+    marginMin: 0.12,
+    marginMid: 0.14,
+    inspectionCost: 500,          // premium 3rd-party (Auto Bell etc.)
+    insuranceRate: 0.010,         // 1.0 %
   },
 ];
 
 // ---------------------------------------------------------------------------
-// Fixed cost parameters (conservative / high-end estimates)
+// Fixed cost parameters (realistic estimates)
 // ---------------------------------------------------------------------------
-const SHIPPING_COST = 1800;        // Busan → Durrës Ro-Ro freight
-const KOREA_LOGISTICS = 400;       // domestic transport → Busan port
-const CIF_FEES = 400;              // port handling, docs, customs broker
-const FX_BUFFER_RATE = 0.02;       // 2 % KRW/EUR volatility reserve
+const SHIPPING_COST = 1500;        // Busan → Durrës Ro-Ro freight (realistic)
+const KOREA_LOGISTICS = 300;       // domestic transport → Busan port
+const CIF_FEES = 300;              // port handling, docs, customs broker
+const FX_BUFFER_RATE = 0;          // dealer assumes FX risk (not passed to customer)
 const LOCAL_DELIVERY_FEE = 350;    // Prishtina delivery (margin buffer)
-const MIN_ABSOLUTE_PROFIT = 500;   // minimum net profit floor (EUR)
+const MIN_ABSOLUTE_PROFIT = 300;   // minimum net profit floor (EUR)
 
 // ---------------------------------------------------------------------------
 // Brand strategy — three tiers of competitiveness
@@ -184,7 +180,7 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
   const koreaLogistics = options.koreaLogistics  ?? KOREA_LOGISTICS;
   const cifFees        = options.cifFees         ?? CIF_FEES;
   const inspection     = options.inspectionCost  ?? tier.inspectionCost;
-  const contingency    = options.contingency     ?? tier.contingency;
+  const contingency    = options.contingency     ?? 0;
 
   const insurance      = vehicleCost * tier.insuranceRate;
   const fxBuffer       = vehicleCost * FX_BUFFER_RATE;
@@ -273,7 +269,7 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
         maxKrw:       tier.maxKrw === Infinity ? '∞' : tier.maxKrw,
         inspection:   tier.inspectionCost,
         insurancePct: tier.insuranceRate,
-        contingency:  tier.contingency,
+        contingency:  contingency,
       },
     };
   }
