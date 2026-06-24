@@ -83,7 +83,7 @@ const Car = {
         SELECT c.id, c.encar_id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
                c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
                c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
-               c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.inspection_data, c.pricing_data, c.status,
+               c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.inspection_data, c.pricing_data, c.encar_price_krw, c.status,
                c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.options, c.created_at, c.updated_at,
                (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
                (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
@@ -352,6 +352,7 @@ const Car = {
 
       const {
         encar_id,
+        encarPriceKrw,
         name,
         slug,
         tagline,
@@ -395,13 +396,14 @@ const Car = {
 
       const [result] = await connection.query(
         `INSERT INTO cars (
-          encar_id, name, slug, tagline, category, brand, price, discount_price, year, mileage,
+          encar_id, encar_price_krw, name, slug, tagline, category, brand, price, discount_price, year, mileage,
           exterior_color, interior_color, engine, horsepower, torque,
           acceleration, top_speed, transmission, drivetrain, fuel_type,
           mpg, vin, description, inspection_data, pricing_data, status, showcase_image, is_featured, is_showcase, is_sold, options
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           encar_id || null,
+          encarPriceKrw || null,
           name,
           slug,
           tagline,
@@ -494,6 +496,7 @@ const Car = {
 
       const {
         encar_id,
+        encarPriceKrw,
         name,
         slug,
         tagline,
@@ -538,7 +541,7 @@ const Car = {
 
       await connection.query(
         `UPDATE cars SET
-          encar_id = ?, name = ?, slug = ?, tagline = ?, category = ?, brand = ?,
+          encar_id = ?, encar_price_krw = ?, name = ?, slug = ?, tagline = ?, category = ?, brand = ?,
           price = ?, discount_price = ?, year = ?, mileage = ?, exterior_color = ?,
           interior_color = ?, engine = ?, horsepower = ?, torque = ?,
           acceleration = ?, top_speed = ?, transmission = ?, drivetrain = ?,
@@ -548,6 +551,7 @@ const Car = {
         WHERE id = ?`,
         [
           encar_id || null,
+          encarPriceKrw || null,
           name,
           slug,
           tagline,

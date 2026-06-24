@@ -206,6 +206,19 @@ const initializeDatabase = async () => {
       }
     }
 
+    // Add encar_price_krw column if it doesn't exist (stores original Encar KRW price)
+    try {
+      await connection.query(`
+        ALTER TABLE cars 
+        ADD COLUMN encar_price_krw BIGINT DEFAULT NULL
+      `);
+      console.log("✅ Added encar_price_krw column to cars table");
+    } catch (err) {
+      if (err.code !== "ER_DUP_FIELDNAME") {
+        console.log("ℹ️ encar_price_krw column already exists");
+      }
+    }
+
     // Migrate existing sold status to is_sold field
     try {
       await connection.query(`

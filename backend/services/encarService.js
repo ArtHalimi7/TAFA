@@ -630,6 +630,7 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
       // Assemble car database payload
       const carPayload = {
         encar_id: encarId,
+        encarPriceKrw: priceKrw * 10000, // full KRW price
         name: name,
         slug: slugBase,
         tagline: tagline,

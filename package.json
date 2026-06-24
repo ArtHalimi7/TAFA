@@ -10,7 +10,8 @@
     "server": "node backend/index.js",
     "server:dev": "node --watch backend/index.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run server:dev\"",
-    "db:init": "node backend/scripts/init-db.js"
+    "db:init": "node backend/scripts/init-db.js",
+    "reprice": "node backend/scripts/reprice-cars.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
