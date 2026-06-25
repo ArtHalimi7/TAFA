@@ -23,32 +23,32 @@ const TIERS = [
     name: 'Budget',
     minKrw: 0,
     maxKrw: 10_000_000,
-    marginMin: 0.003,             // 0.3 % — safe floor (others)
-    marginMid: 0.010,             // 1.0 % — competitive (German brands)
+    marginMin: 0.002,             // 0.2 % — safe floor (others)
+    marginMid: 0.009,             // 0.9 % — competitive (German brands)
     inspectionCost: 100,
   },
   {
     name: 'Standard',
     minKrw: 10_000_000,
     maxKrw: 25_000_000,
-    marginMin: 0.005,
-    marginMid: 0.015,
+    marginMin: 0.004,
+    marginMid: 0.014,
     inspectionCost: 150,
   },
   {
     name: 'Premium',
     minKrw: 25_000_000,
     maxKrw: 60_000_000,
-    marginMin: 0.005,
-    marginMid: 0.005,
+    marginMin: 0.004,
+    marginMid: 0.004,
     inspectionCost: 200,
   },
   {
     name: 'Luxury',
     minKrw: 60_000_000,
     maxKrw: Infinity,
-    marginMin: 0.020,
-    marginMid: 0.030,
+    marginMin: 0.019,
+    marginMid: 0.029,
     inspectionCost: 400,
   },
 ];
