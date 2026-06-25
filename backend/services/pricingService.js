@@ -2,8 +2,7 @@
  * pricingService.js — tiered, zero-loss-guaranteed pricing engine
  *
  * Takes a raw Encar KRW price + live EUR/KRW rate and outputs a final
- * CIF Durrës listing price with baked-in profit, FX buffer, insurance,
- * inspection, and contingency reserves.
+ * CIF Durrës listing price with baked-in profit, FX buffer, inspection, and contingency reserves.
  *
  * Brand strategy — three tiers of competitiveness:
  *   - ADVANTAGE brands (Genesis, Kia, Hyundai):  marginMid + 2 % boost
@@ -27,7 +26,6 @@ const TIERS = [
     marginMin: 0.003,             // 0.3 % — safe floor (others)
     marginMid: 0.010,             // 1.0 % — competitive (German brands)
     inspectionCost: 100,
-    insuranceRate: 0.004,         // 0.4 % of vehicle value
   },
   {
     name: 'Standard',
@@ -36,7 +34,6 @@ const TIERS = [
     marginMin: 0.005,
     marginMid: 0.015,
     inspectionCost: 150,
-    insuranceRate: 0.005,
   },
   {
     name: 'Premium',
@@ -45,7 +42,6 @@ const TIERS = [
     marginMin: 0.005,
     marginMid: 0.005,
     inspectionCost: 200,
-    insuranceRate: 0.007,
   },
   {
     name: 'Luxury',
@@ -54,7 +50,6 @@ const TIERS = [
     marginMin: 0.020,
     marginMid: 0.030,
     inspectionCost: 400,
-    insuranceRate: 0.008,
   },
 ];
 
@@ -182,7 +177,6 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
   const inspection     = options.inspectionCost  ?? tier.inspectionCost;
   const contingency    = options.contingency     ?? 0;
 
-  const insurance      = vehicleCost * tier.insuranceRate;
   const fxBuffer       = vehicleCost * FX_BUFFER_RATE;
 
   const totalLandedCost =
@@ -191,7 +185,6 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
     shipping +
     cifFees +
     inspection +
-    insurance +
     fxBuffer +
     contingency;
 
@@ -247,7 +240,6 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
       oceanFreight:       shipping,
       cifFees,
       inspection,
-      insurance:          Math.round(insurance),
       fxBuffer:           Math.round(fxBuffer),
       contingency,
       totalLandedCost:    Math.round(totalLandedCost),
@@ -268,7 +260,6 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
         minKrw:       tier.minKrw,
         maxKrw:       tier.maxKrw === Infinity ? '∞' : tier.maxKrw,
         inspection:   tier.inspectionCost,
-        insurancePct: tier.insuranceRate,
         contingency:  contingency,
       },
     };
