@@ -69,6 +69,26 @@ const COLOR_MAP = {
   "진주": "Perla"
 };
 
+// Translate Korean terms in car Badge fields to English
+const BADGE_MAP = {
+  "디젤": "Diesel",
+  "가솔린": "Gasoline",
+  "터보": "Turbo",
+  "프리미엄": "Premium",
+  "익스클루시브": "Exclusive",
+  "스페셜": "Special",
+  "프레스티지": "Prestige",
+  "프레지던트": "President",
+  "마스터즈": "Masters",
+  "노블레스": "Noblesse",
+  "스포츠": "Sport",
+  "리미티드": "Limited",
+  "콰트로": "Quattro",
+  "하이브리드": "Hybrid",
+  "전기": "Electric",
+  "LPG": "LPG",
+};
+
 // Korean-to-English model name mapping
 const MODEL_NAME_MAP = {
   // Hyundai
@@ -148,6 +168,26 @@ const PREMIUM_BRANDS = [
   "Land Rover", "Jaguar", "Maserati", "Ferrari", "Lamborghini",
   "Bentley", "Rolls-Royce", "McLaren", "Aston Martin"
 ];
+
+// Map Encar Korean body names → Albanian categories.
+// This is the authoritative source – Gemini may still be used as a fallback.
+const BODY_TYPE_MAP = {
+  "SUV": "SUV",
+  "대형차": "Sedan",        // Large car
+  "중형차": "Sedan",        // Midsize car
+  "준중형차": "Sedan",     // Compact/subcompact (Avante/Elantra, Cruze, A4 — all sedans)
+  "소형차": "Haxhbek",     // Small car
+  "경차": "Haxhbek",       // Mini/light car
+  "승합차": "Minivan",     // Passenger van
+  "화물차": "Pickup",      // Cargo truck
+  "RV": "Minivan",         // Recreational vehicle (Kia Carnival etc. — large MPV/minivan)
+  "스포츠카": "Kupe",      // Sports car
+  "쿠페": "Kupe",          // Coupe
+  "컨버터블": "Kabriolet", // Convertible
+  "리무진": "Sedan",       // Limousine
+  "MPV": "Minivan",        // Multi-purpose vehicle
+  "픽업트럭": "Pickup",   // Pickup truck
+};
 
 // Normalize brand names to match the frontend ALL_BRANDS list
 const BRAND_NORMALIZE = {
@@ -313,6 +353,7 @@ Source Data:
 - Fuel Type: ${car.FuelType || ''}
 - Color: ${spec.colorName || ''}
 - Transmission: ${spec.transmissionName || ''}
+- Body Type (from manufacturer): ${spec.bodyName || 'N/A'}
 - Short Description: ${oneLineText || ''}
 ${accidentSummary ? `- Accident & Inspection History:\n${accidentSummary}` : ''}
 ${insuranceSummary ? `- Insurance History:\n${insuranceSummary}` : ''}
@@ -545,7 +586,16 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
       let brand = manufacturerName;
       brand = BRAND_NORMALIZE[brand] || brand;
       const isPremium = PREMIUM_BRANDS.includes(brand);
-      let category = isDomestic && !isPremium ? "SUV" : "Sedan";
+
+      // Determine category from the Encar API bodyName first (most reliable)
+      let category = "Sedan"; // safe default
+      if (spec.bodyName) {
+        category = BODY_TYPE_MAP[spec.bodyName] || category;
+      } else {
+        // Fallback when bodyName is missing from the API
+        category = isDomestic && !isPremium ? "SUV" : "Sedan";
+      }
+
       let transmission = TRANSMISSION_MAP[spec.transmissionName] || "Automatike";
       let fuelType = FUEL_MAP[car.FuelType] || FUEL_MAP[spec.fuelName] || "Benzin";
       let color = COLOR_MAP[spec.colorName] || spec.colorName || "E hirtë";
@@ -561,7 +611,10 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         name = translated.name || name;
         brand = translated.brand || brand;
         brand = BRAND_NORMALIZE[brand] || brand;
-        category = translated.category || category;
+        // Only let Gemini override category if we didn't get bodyName from the API
+        if (!spec.bodyName && translated.category) {
+          category = translated.category;
+        }
         transmission = translated.transmission || transmission;
         fuelType = translated.fuelType || fuelType;
         color = translated.color || color;
@@ -570,6 +623,22 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         if (translated.features && translated.features.length > 0) {
           features = translated.features;
         }
+      }
+
+      // Append badge/trim info (e.g. "40 TDI Premium") to the name
+      if (car.Badge) {
+        let badge = translateWithMap(BADGE_MAP, car.Badge);
+        badge = badge.replace(/[\uAC00-\uD7AF]+\s*/g, "").trim();
+        if (badge && !name.includes(badge)) {
+          name = `${name} ${badge}`.replace(/\s+/g, " ").trim();
+        }
+      }
+
+      // Final category validation – ensure it matches one of the allowed values
+      const ALLOWED_CATEGORIES = ["SUV", "Sedan", "Kupe", "Kabriolet", "Haxhbek", "Karavan", "Minivan", "Pickup", "Elektrik", "Performancë"];
+      if (!ALLOWED_CATEGORIES.includes(category)) {
+        console.warn(`[Encar ID ${car.Id}] Normalizing invalid category "${category}" to "Sedan"`);
+        category = "Sedan";
       }
 
       // Price conversion — after brand is finalized
