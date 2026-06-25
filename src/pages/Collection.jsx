@@ -26,9 +26,8 @@ function CustomSelect({ value, onChange, options, placeholder, disabled, disable
       <button
         type="button"
         onClick={() => !disabled && setOpen(!open)}
-        className={`w-full px-4 py-3 bg-transparent border rounded-lg text-sm text-left flex items-center justify-between transition-colors ${
-          disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
-        } ${open ? "border-white/40" : "border-white/20 hover:border-white/40"}`}
+        className={`w-full px-4 py-3 bg-transparent border rounded-lg text-sm text-left flex items-center justify-between transition-colors ${disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer"
+          } ${open ? "border-white/40" : "border-white/20 hover:border-white/40"}`}
         style={{ fontFamily: "Montserrat, sans-serif" }}
       >
         <span className={selected ? "text-white/90" : "text-white/40"}>
@@ -55,13 +54,12 @@ function CustomSelect({ value, onChange, options, placeholder, disabled, disable
                 key={opt.value}
                 type="button"
                 onClick={() => { if (!isDisabled) { onChange(opt.value); setOpen(false); } }}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                  value === opt.value
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${value === opt.value
                     ? "bg-white/15 text-white border-l-2 border-white"
                     : isDisabled
                       ? "text-white/30 cursor-not-allowed"
                       : "text-white/70 hover:text-white hover:bg-white/8"
-                }`}
+                  }`}
                 style={{ fontFamily: "Montserrat, sans-serif" }}
               >
                 {opt.label}
@@ -254,6 +252,9 @@ export default function Collection() {
   const [selectedDrivetrain, setSelectedDrivetrain] = useState(
     savedFilters?.selectedDrivetrain || "",
   );
+  const [selectedTransmission, setSelectedTransmission] = useState(
+    savedFilters?.selectedTransmission || "",
+  );
   const [selectedOrigin, setSelectedOrigin] = useState(
     savedFilters?.selectedOrigin || "",
   );
@@ -267,13 +268,15 @@ export default function Collection() {
     savedFilters?.kmUpTo || "",
   );
   const [sortBy, setSortBy] = useState(savedFilters?.sortBy || "featured");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
   const [filteredCars, setFilteredCars] = useState([]);
   const [searchQuery, setSearchQuery] = useState(
     savedFilters?.searchQuery || "",
   );
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(
+    savedFilters?.currentPage || 1,
+  );
 
   // Save filters to localStorage whenever they change
   useEffect(() => {
@@ -283,12 +286,14 @@ export default function Collection() {
       selectedCategory,
       selectedFuelType,
       selectedDrivetrain,
+      selectedTransmission,
       selectedOrigin,
       yearFrom,
       priceUpTo,
       kmUpTo,
       sortBy,
       searchQuery,
+      currentPage,
     };
     localStorage.setItem("collectionFilters", JSON.stringify(filters));
   }, [
@@ -297,32 +302,44 @@ export default function Collection() {
     selectedCategory,
     selectedFuelType,
     selectedDrivetrain,
+    selectedTransmission,
     selectedOrigin,
     yearFrom,
     priceUpTo,
     kmUpTo,
     sortBy,
     searchQuery,
+    currentPage,
   ]);
 
-  // Fetch cars from backend
+  // Fetch cars from backend with sessionStorage cache
   useEffect(() => {
+    const CACHE_KEY = "collectionCars";
+    const CACHE_TS_KEY = "collectionCarsTs";
+    const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+    const loadCars = (cars) => {
+      setAllCars(cars);
+      setFilteredCars(cars);
+    };
+
     const fetchCars = async () => {
       try {
         setIsContentLoading(true);
         const response = await carsApi.getActiveCars({ limit: 500 });
         if (response.success) {
-          // Transform backend data
           const transformedCars = response.data.map((car) => ({
             ...car,
-            // Get first image or placeholder
             image:
               car.images && car.images.length > 0
                 ? getImageUrl(car.images[0])
                 : "/placeholder-car.jpg",
           }));
-          setAllCars(transformedCars);
-          setFilteredCars(transformedCars);
+          try {
+            sessionStorage.setItem(CACHE_KEY, JSON.stringify(transformedCars));
+            sessionStorage.setItem(CACHE_TS_KEY, String(Date.now()));
+          } catch (_) {}
+          loadCars(transformedCars);
         }
       } catch (error) {
         console.error("Error fetching cars:", error);
@@ -331,13 +348,36 @@ export default function Collection() {
       }
     };
 
+    // Try cache first
+    try {
+      const cached = sessionStorage.getItem(CACHE_KEY);
+      const cachedTs = sessionStorage.getItem(CACHE_TS_KEY);
+      if (cached && cachedTs && Date.now() - Number(cachedTs) < CACHE_TTL) {
+        loadCars(JSON.parse(cached));
+        setIsContentLoading(false);
+        // Refresh in background
+        fetchCars();
+        const timer = setTimeout(() => setIsLoaded(true), 100);
+        return () => clearTimeout(timer);
+      }
+    } catch (_) {}
+
     fetchCars();
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
+  // Track previous filters hash to avoid resetting page on initial data load
+  const prevFiltersHashRef = useRef("");
+
   // Filter cars based on selections
   useEffect(() => {
+    const currentFiltersHash = JSON.stringify({
+      selectedBrand, selectedModel, selectedCategory, selectedFuelType,
+      selectedDrivetrain, selectedTransmission, selectedOrigin,
+      yearFrom, priceUpTo, kmUpTo, sortBy, searchQuery,
+    });
+
     let result = [...allCars];
 
     // Filter by search query
@@ -375,6 +415,11 @@ export default function Collection() {
     // Filter by drivetrain
     if (selectedDrivetrain) {
       result = result.filter((car) => car.drivetrain === selectedDrivetrain);
+    }
+
+    // Filter by transmission
+    if (selectedTransmission) {
+      result = result.filter((car) => car.transmission === selectedTransmission);
     }
 
     // Filter by origin
@@ -419,7 +464,11 @@ export default function Collection() {
     }
 
     setFilteredCars(result);
-    setCurrentPage(1); // Reset to first page when filters change
+    // Only reset to page 1 when filters actually change, not on initial data load
+    if (prevFiltersHashRef.current !== "" && prevFiltersHashRef.current !== currentFiltersHash) {
+      setCurrentPage(1);
+    }
+    prevFiltersHashRef.current = currentFiltersHash;
   }, [
     allCars,
     selectedBrand,
@@ -427,6 +476,7 @@ export default function Collection() {
     selectedCategory,
     selectedFuelType,
     selectedDrivetrain,
+    selectedTransmission,
     selectedOrigin,
     yearFrom,
     priceUpTo,
@@ -453,12 +503,21 @@ export default function Collection() {
     currentPage * ITEMS_PER_PAGE,
   );
 
+  // Scroll to top of filter section when page changes
+  useEffect(() => {
+    const el = document.getElementById("collection-top");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [currentPage]);
+
   const clearFilters = () => {
     setSelectedBrand("");
     setSelectedModel("");
     setSelectedCategory("");
     setSelectedFuelType("");
     setSelectedDrivetrain("");
+    setSelectedTransmission("");
     setSelectedOrigin("");
     setYearFrom("");
     setPriceUpTo("");
@@ -474,6 +533,7 @@ export default function Collection() {
     const cat = overrides.category !== undefined ? overrides.category : selectedCategory;
     const fuel = overrides.fuelType !== undefined ? overrides.fuelType : selectedFuelType;
     const drive = overrides.drivetrain !== undefined ? overrides.drivetrain : selectedDrivetrain;
+    const trans = overrides.transmission !== undefined ? overrides.transmission : selectedTransmission;
     const origin = overrides.origin !== undefined ? overrides.origin : selectedOrigin;
     const year = overrides.yearFrom !== undefined ? overrides.yearFrom : yearFrom;
     const price = overrides.priceUpTo !== undefined ? overrides.priceUpTo : priceUpTo;
@@ -486,6 +546,7 @@ export default function Collection() {
     if (cat) result = result.filter((c) => c.category === cat);
     if (fuel) result = result.filter((c) => c.fuel_type === fuel);
     if (drive) result = result.filter((c) => c.drivetrain === drive);
+    if (trans) result = result.filter((c) => c.transmission === trans);
     if (origin) result = result.filter((c) => origin === "Kore e Jugut" ? c.encar_id : !c.encar_id);
     if (year) result = result.filter((c) => c.year >= parseInt(year));
     if (price) result = result.filter((c) => c.price <= parseInt(price));
@@ -505,17 +566,20 @@ export default function Collection() {
   const availableCategories = ALL_CATEGORIES;
   const availableFuelTypes = [...new Set(allCars.map((c) => c.fuel_type))].sort();
   const availableDrivetrains = [...new Set(allCars.map((c) => c.drivetrain).filter(Boolean))].sort();
+  const TRANSMISSION_OPTIONS = ["Automatike", "Manuale"];
+  const availableTransmissions = TRANSMISSION_OPTIONS;
   const availableOrigins = [...new Set(allCars.map((c) => c.encar_id ? "Kore e Jugut" : "Europe"))].sort().reverse();
 
   // Compute disabled options for each filter type based on other active filters
   const disabledOptions = useMemo(() => {
-    const empty = { brands: [], categories: [], fuelTypes: [], drivetrains: [], origins: [] };
+    const empty = { brands: [], categories: [], fuelTypes: [], drivetrains: [], transmissions: [], origins: [] };
     if (!allCars.length) return empty;
 
     const brands = new Set(filterBy(allCars, { brand: "" }).map((c) => c.brand));
     const categories = new Set(filterBy(allCars, { category: "" }).map((c) => c.category));
     const fuelTypes = new Set(filterBy(allCars, { fuelType: "" }).map((c) => c.fuel_type));
     const drivetrains = new Set(filterBy(allCars, { drivetrain: "" }).map((c) => c.drivetrain));
+    const transmissions = new Set(filterBy(allCars, { transmission: "" }).map((c) => c.transmission));
     const origins = new Set(filterBy(allCars, { origin: "" }).map((c) => c.encar_id ? "Kore e Jugut" : "Europe"));
 
     return {
@@ -523,9 +587,10 @@ export default function Collection() {
       categories: ALL_CATEGORIES.filter((c) => !categories.has(c)),
       fuelTypes: availableFuelTypes.filter((f) => !fuelTypes.has(f)),
       drivetrains: availableDrivetrains.filter((d) => !drivetrains.has(d)),
+      transmissions: availableTransmissions.filter((t) => !transmissions.has(t)),
       origins: availableOrigins.filter((o) => !origins.has(o)),
     };
-  }, [allCars, selectedBrand, selectedModel, selectedCategory, selectedFuelType, selectedDrivetrain, selectedOrigin, yearFrom, priceUpTo, kmUpTo, searchQuery, availableFuelTypes, availableDrivetrains, availableOrigins]);
+  }, [allCars, selectedBrand, selectedModel, selectedCategory, selectedFuelType, selectedDrivetrain, selectedTransmission, selectedOrigin, yearFrom, priceUpTo, kmUpTo, searchQuery, availableFuelTypes, availableDrivetrains, availableTransmissions, availableOrigins]);
 
   const activeFiltersCount =
     (selectedBrand ? 1 : 0) +
@@ -533,6 +598,7 @@ export default function Collection() {
     (selectedCategory ? 1 : 0) +
     (selectedFuelType ? 1 : 0) +
     (selectedDrivetrain ? 1 : 0) +
+    (selectedTransmission ? 1 : 0) +
     (selectedOrigin ? 1 : 0) +
     (yearFrom ? 1 : 0) +
     (priceUpTo ? 1 : 0) +
@@ -579,8 +645,8 @@ export default function Collection() {
           <div className="text-center">
             <h1
               className={`text-4xl sm:text-5xl lg:text-7xl font-bold mb-6 transition-all duration-1000 ${isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-8"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
                 }`}
               style={{ fontFamily: "Cera Pro, sans-serif" }}
             >
@@ -588,8 +654,8 @@ export default function Collection() {
             </h1>
             <p
               className={`text-white/60 text-lg lg:text-xl max-w-2xl mx-auto transition-all duration-1000 delay-100 ${isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-4"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
                 }`}
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
@@ -604,12 +670,12 @@ export default function Collection() {
       <section className="pb-20 lg:pb-32">
         <div className="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24">
           {/* Filter Panel - Desktop & Mobile */}
-          <div
+          <div id="collection-top"
             className={`relative z-20 mb-8 lg:mb-12 transition-all duration-1000 delay-200 ${isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
               }`}
           >
-            {/* Mobile Toggle + Search row */}
-            <div className="lg:hidden flex items-center justify-between mb-6">
+            {/* Toggle + Search row */}
+            <div className="flex items-center justify-between mb-6">
               <div className="relative flex-1 mr-3">
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40"
@@ -639,7 +705,7 @@ export default function Collection() {
             </div>
 
             {/* Main filter card */}
-            <div className={`bg-white/5 border border-white/10 rounded-xl p-6 lg:p-8 ${isFilterOpen ? 'block' : 'hidden lg:block'}`}>
+            <div className={`bg-white/5 border border-white/10 rounded-xl p-6 lg:p-8 ${isFilterOpen ? 'block' : 'hidden'}`}>
               <h3 className="text-lg font-bold text-white/90 mb-6 tracking-wide" style={{ fontFamily: "Cera Pro, sans-serif" }}>
                 Kërkim i detajuar
               </h3>
@@ -690,6 +756,18 @@ export default function Collection() {
                     options={availableDrivetrains.map((d) => ({ value: d, label: d }))}
                     placeholder="Të gjithë"
                     disabledOptions={disabledOptions.drivetrains}
+                  />
+                </div>
+
+                {/* Transmisioni */}
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-white/50 mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>Transmisioni</label>
+                  <CustomSelect
+                    value={selectedTransmission}
+                    onChange={setSelectedTransmission}
+                    options={availableTransmissions.map((t) => ({ value: t, label: t === "Automatike" ? "Automatik" : t === "Manuale" ? "Manual" : t }))}
+                    placeholder="Të gjithë"
+                    disabledOptions={disabledOptions.transmissions}
                   />
                 </div>
 
@@ -816,7 +894,7 @@ export default function Collection() {
           </div>
 
           {/* Cars Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div id="cars-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {isContentLoading
               ? // Skeleton Loading State
               [...Array(6)].map((_, index) => <SkeletonCarCard key={index} />)
@@ -825,15 +903,15 @@ export default function Collection() {
                   to={`/car/${car.slug}`}
                   key={`${car.id}-${index}-${currentPage}`}
                   className={`group relative transition-all duration-700 ${isLoaded
-                      ? "opacity-100 translate-y-0"
-                      : "opacity-0 translate-y-8"
+                    ? "opacity-100 translate-y-0"
+                    : "opacity-0 translate-y-8"
                     }`}
                   style={{ transitionDelay: `${100 + index * 50}ms` }}
                 >
                   {/* Card */}
-                  <div className="relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-500">
+                  <div className="relative rounded-xl overflow-hidden bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-500 h-full flex flex-col">
                     {/* Image Container */}
-                    <div className="relative aspect-4/3 overflow-hidden">
+                    <div className="relative aspect-4/3 overflow-hidden shrink-0">
                       <LazyImage
                         src={car.image}
                         alt={car.name}
@@ -860,25 +938,25 @@ export default function Collection() {
                     </div>
 
                     {/* Content Below Image */}
-                    <div className="p-5 space-y-4">
-                      {/* Top Row - Category and Year */}
-                      <div className="flex flex-wrap items-center gap-2">
+                    <div className="p-5 flex flex-col flex-1 gap-4">
+                      {/* Top Row - Fuel / Origin / Year */}
+                      <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
                         <span
-                          className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium text-white/70 tracking-wider uppercase"
+                          className="px-2.5 py-1 bg-white/10 rounded-full text-[10px] font-medium text-white/70 tracking-wider uppercase whitespace-nowrap"
                           style={{ fontFamily: "Montserrat, sans-serif" }}
                         >
-                          {car.category}
+                          {car.fuel_type}
                         </span>
                         {car.encar_id && (
                           <span
-                            className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-xs font-semibold text-blue-400 tracking-wider uppercase"
+                            className="px-2.5 py-1 bg-blue-500/20 border border-blue-500/30 rounded-full text-[10px] font-semibold text-blue-400 tracking-wider uppercase whitespace-nowrap"
                             style={{ fontFamily: "Montserrat, sans-serif" }}
                           >
                             Importuar nga Korea
                           </span>
                         )}
                         <span
-                          className="text-sm text-white/50 ml-auto"
+                          className="text-[11px] text-white/50 ml-auto whitespace-nowrap"
                           style={{ fontFamily: "Montserrat, sans-serif" }}
                         >
                           {car.year}
@@ -887,11 +965,14 @@ export default function Collection() {
 
                       {/* Name */}
                       <h3
-                        className="text-xl font-bold text-white"
+                        className="text-xl font-bold text-white truncate"
                         style={{ fontFamily: "Cera Pro, sans-serif" }}
                       >
                         {car.name}
                       </h3>
+
+                      {/* Spacer - pushes bottom content down for equal-height cards */}
+                      <div className="flex-1" />
 
                       {/* Divider */}
                       <div className="w-full h-px bg-white/10" />
@@ -939,7 +1020,7 @@ export default function Collection() {
                             {car.mileage.toLocaleString()} km
                           </span>
                         </div>
-                        <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
+                        <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300 shrink-0">
                           <svg
                             className="w-4 h-4 text-white/50 group-hover:text-black transition-colors duration-300"
                             fill="none"
@@ -971,11 +1052,10 @@ export default function Collection() {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                  currentPage === 1
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${currentPage === 1
                     ? "border-white/10 text-white/30 cursor-not-allowed"
                     : "border-white/30 text-white hover:border-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4"
@@ -1010,11 +1090,10 @@ export default function Collection() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
-                        currentPage === page
+                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${currentPage === page
                           ? "bg-white text-black"
                           : "text-white/70 hover:bg-white/10 hover:text-white"
-                      }`}
+                        }`}
                       style={{ fontFamily: "Montserrat, sans-serif" }}
                     >
                       {page}
@@ -1029,11 +1108,10 @@ export default function Collection() {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                  currentPage === totalPages
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border flex items-center justify-center transition-all duration-300 ${currentPage === totalPages
                     ? "border-white/10 text-white/30 cursor-not-allowed"
                     : "border-white/30 text-white hover:border-white hover:bg-white/10"
-                }`}
+                  }`}
               >
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4"

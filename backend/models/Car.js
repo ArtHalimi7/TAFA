@@ -203,6 +203,9 @@ const Car = {
         params.push(parseInt(filters.offset));
       }
 
+      // Increase group_concat_max_len to prevent truncation of image URLs
+      await db.query("SET SESSION group_concat_max_len = 100000");
+
       const [rows] = await db.query(query, params);
 
       // Resolve images/features and perform fallback fetch for truncated GROUP_CONCAT results
