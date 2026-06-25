@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useSEO, seoContent } from "../hooks/useSEO";
 import { LazyImage } from "../components/LazyImage";
@@ -6,7 +6,7 @@ import { SkeletonCarCard } from "../components/Skeleton";
 import { carsApi } from "../services/api";
 import { SHOW_PRICES } from "../config";
 
-function CustomSelect({ value, onChange, options, placeholder, disabled }) {
+function CustomSelect({ value, onChange, options, placeholder, disabled, disabledOptions = [] }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -19,6 +19,7 @@ function CustomSelect({ value, onChange, options, placeholder, disabled }) {
   }, []);
 
   const selected = options.find((o) => o.value === value);
+  const disabledSet = new Set(disabledOptions);
 
   return (
     <div ref={ref} className="relative">
@@ -47,17 +48,26 @@ function CustomSelect({ value, onChange, options, placeholder, disabled }) {
           >
             {placeholder}
           </button>
-          {options.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => { onChange(opt.value); setOpen(false); }}
-              className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${value === opt.value ? "bg-white/15 text-white border-l-2 border-white" : "text-white/70 hover:text-white hover:bg-white/8"}`}
-              style={{ fontFamily: "Montserrat, sans-serif" }}
-            >
-              {opt.label}
-            </button>
-          ))}
+          {options.map((opt) => {
+            const isDisabled = disabledSet.has(opt.value);
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { if (!isDisabled) { onChange(opt.value); setOpen(false); } }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                  value === opt.value
+                    ? "bg-white/15 text-white border-l-2 border-white"
+                    : isDisabled
+                      ? "text-white/30 cursor-not-allowed"
+                      : "text-white/70 hover:text-white hover:bg-white/8"
+                }`}
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
@@ -457,6 +467,36 @@ export default function Collection() {
     setSearchQuery("");
   };
 
+  // Helper: filter cars by specific values (empty string = no filter for that key)
+  const filterBy = (cars, overrides = {}) => {
+    const b = overrides.brand !== undefined ? overrides.brand : selectedBrand;
+    const m = overrides.model !== undefined ? overrides.model : selectedModel;
+    const cat = overrides.category !== undefined ? overrides.category : selectedCategory;
+    const fuel = overrides.fuelType !== undefined ? overrides.fuelType : selectedFuelType;
+    const drive = overrides.drivetrain !== undefined ? overrides.drivetrain : selectedDrivetrain;
+    const origin = overrides.origin !== undefined ? overrides.origin : selectedOrigin;
+    const year = overrides.yearFrom !== undefined ? overrides.yearFrom : yearFrom;
+    const price = overrides.priceUpTo !== undefined ? overrides.priceUpTo : priceUpTo;
+    const km = overrides.kmUpTo !== undefined ? overrides.kmUpTo : kmUpTo;
+    const search = overrides.searchQuery !== undefined ? overrides.searchQuery : searchQuery;
+
+    let result = [...cars];
+    if (b) result = result.filter((c) => c.brand === b);
+    if (m) { const q = m.toLowerCase(); result = result.filter((c) => c.name.toLowerCase().includes(q)); }
+    if (cat) result = result.filter((c) => c.category === cat);
+    if (fuel) result = result.filter((c) => c.fuel_type === fuel);
+    if (drive) result = result.filter((c) => c.drivetrain === drive);
+    if (origin) result = result.filter((c) => origin === "Kore e Jugut" ? c.encar_id : !c.encar_id);
+    if (year) result = result.filter((c) => c.year >= parseInt(year));
+    if (price) result = result.filter((c) => c.price <= parseInt(price));
+    if (km) result = result.filter((c) => c.mileage <= parseInt(km));
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((c) => c.name.toLowerCase().includes(q) || c.brand.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
+    }
+    return result;
+  };
+
   // Derived: available brands, models, categories from allCars
   const availableBrands = ALL_BRANDS;
   const availableModels = selectedBrand
@@ -466,6 +506,26 @@ export default function Collection() {
   const availableFuelTypes = [...new Set(allCars.map((c) => c.fuel_type))].sort();
   const availableDrivetrains = [...new Set(allCars.map((c) => c.drivetrain).filter(Boolean))].sort();
   const availableOrigins = [...new Set(allCars.map((c) => c.encar_id ? "Kore e Jugut" : "Europe"))].sort().reverse();
+
+  // Compute disabled options for each filter type based on other active filters
+  const disabledOptions = useMemo(() => {
+    const empty = { brands: [], categories: [], fuelTypes: [], drivetrains: [], origins: [] };
+    if (!allCars.length) return empty;
+
+    const brands = new Set(filterBy(allCars, { brand: "" }).map((c) => c.brand));
+    const categories = new Set(filterBy(allCars, { category: "" }).map((c) => c.category));
+    const fuelTypes = new Set(filterBy(allCars, { fuelType: "" }).map((c) => c.fuel_type));
+    const drivetrains = new Set(filterBy(allCars, { drivetrain: "" }).map((c) => c.drivetrain));
+    const origins = new Set(filterBy(allCars, { origin: "" }).map((c) => c.encar_id ? "Kore e Jugut" : "Europe"));
+
+    return {
+      brands: ALL_BRANDS.filter((b) => !brands.has(b)),
+      categories: ALL_CATEGORIES.filter((c) => !categories.has(c)),
+      fuelTypes: availableFuelTypes.filter((f) => !fuelTypes.has(f)),
+      drivetrains: availableDrivetrains.filter((d) => !drivetrains.has(d)),
+      origins: availableOrigins.filter((o) => !origins.has(o)),
+    };
+  }, [allCars, selectedBrand, selectedModel, selectedCategory, selectedFuelType, selectedDrivetrain, selectedOrigin, yearFrom, priceUpTo, kmUpTo, searchQuery, availableFuelTypes, availableDrivetrains, availableOrigins]);
 
   const activeFiltersCount =
     (selectedBrand ? 1 : 0) +
@@ -593,6 +653,7 @@ export default function Collection() {
                     onChange={(v) => { setSelectedBrand(v); setSelectedModel(""); }}
                     options={availableBrands.map((b) => ({ value: b, label: b }))}
                     placeholder="Të gjithë"
+                    disabledOptions={disabledOptions.brands}
                   />
                 </div>
 
@@ -616,6 +677,7 @@ export default function Collection() {
                     onChange={setSelectedFuelType}
                     options={availableFuelTypes.map((f) => ({ value: f, label: f }))}
                     placeholder="Të gjithë"
+                    disabledOptions={disabledOptions.fuelTypes}
                   />
                 </div>
 
@@ -627,6 +689,7 @@ export default function Collection() {
                     onChange={setSelectedDrivetrain}
                     options={availableDrivetrains.map((d) => ({ value: d, label: d }))}
                     placeholder="Të gjithë"
+                    disabledOptions={disabledOptions.drivetrains}
                   />
                 </div>
 
@@ -641,6 +704,7 @@ export default function Collection() {
                       label: o === "Kore e Jugut" ? "🇰🇷 Kore e Jugut" : "🇪🇺 Europe",
                     }))}
                     placeholder="Të gjithë"
+                    disabledOptions={disabledOptions.origins}
                   />
                 </div>
 
@@ -652,6 +716,7 @@ export default function Collection() {
                     onChange={setSelectedCategory}
                     options={availableCategories.map((c) => ({ value: c, label: c }))}
                     placeholder="Të gjithë"
+                    disabledOptions={disabledOptions.categories}
                   />
                 </div>
 

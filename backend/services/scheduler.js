@@ -20,10 +20,11 @@ const getMsUntil6AM = () => {
 };
 
 const runSync = async () => {
-  console.log(`[Scheduler] ${new Date().toISOString()} - Running scheduled daily sync of 30 cars...`);
+  console.log(`[Scheduler] ${new Date().toISOString()} - Running scheduled daily sync of foreign premium cars (with diesel focus)...`);
   try {
-    // Sync 30 domestic cars, sorting by ModifiedDate (newest first)
-    const result = await syncEncarListings(30, true, "ModifiedDate", 1);
+    // Sync foreign premium cars (BMW, Mercedes, Audi, Porsche, etc.) by ModifiedDate
+    // Also fetches an extra batch of diesel-only foreign listings for more diesel variety
+    const result = await syncEncarListings(30, false, "ModifiedDate", 1);
     console.log(`[Scheduler] Daily sync completed: imported ${result.importedCount}, skipped ${result.skippedCount}`);
   } catch (error) {
     console.error(`[Scheduler] Daily sync failed:`, error.message);

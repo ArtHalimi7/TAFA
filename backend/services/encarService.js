@@ -419,7 +419,7 @@ function convertPrice(priceInTenThousandKrw, eurKrwRate, brand) {
 }
 
 // Sync latest listings from Encar
-async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "ModifiedDate", pages = 1) {
+async function syncEncarListings(limit = 30, isDomestic = false, sortBy = "ModifiedDate", pages = 1) {
   console.log(`🚀 Starting Encar Sync (Domestic: ${isDomestic}, Limit: ${limit}, Sort: ${sortBy}, Pages: ${pages})`);
   const logs = [];
   let importedCount = 0;
@@ -429,13 +429,14 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
     // Fetch live EUR/KRW rate once for the entire sync run
     const eurKrwRate = await fetchEurKrwRate();
 
-    // 1. Fetch latest listings from Encar — both domestic AND foreign pools
+    // 1. Fetch latest listings from Encar
     // Domestic (CarType.Y) = Korean brands (Hyundai, Kia, Genesis, etc.)
     // Foreign (CarType.N) = Imported brands (BMW, Mercedes, Audi, Porsche, etc.)
-    const fetchPool = async (carType) => {
+    const fetchPool = async (carType, fuelType = null) => {
       const allPageResults = [];
+      const fuelSegment = fuelType ? `.FuelType.${encodeURIComponent(fuelType)}` : "";
       for (let page = 0; page < pages; page++) {
-        const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.${carType}.)&sr=%7C${sortBy}%7C${page * limit}%7C${limit}`;
+        const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.${carType}${fuelSegment}.)&sr=%7C${sortBy}%7C${page * limit}%7C${limit}`;
         const res = await fetch(url, {
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
@@ -448,37 +449,51 @@ async function syncEncarListings(limit = 30, isDomestic = true, sortBy = "Modifi
         const data = await res.json();
         const results = data.SearchResults || [];
         allPageResults.push(...results);
-        console.log(`  ${carType} page ${page + 1}/${pages}: ${results.length} cars`);
+        const label = fuelType ? `${carType} (${fuelType})` : carType;
+        console.log(`  ${label} page ${page + 1}/${pages}: ${results.length} cars`);
         if (results.length < limit) break; // No more results
       }
       return allPageResults;
     };
-    const pools = isDomestic
-      ? ["CarType.Y", "CarType.N"]
-      : ["CarType.N", "CarType.Y"];
 
-    const [firstResults, secondResults] = await Promise.allSettled(
-      pools.map(p => fetchPool(p))
-    );
+    let domesticResults = [];
+    let foreignResults = [];
+    let dieselResults = [];
+    let allSearchResults = [];
 
-    const first = firstResults.status === "fulfilled" ? firstResults.value : [];
-    const second = secondResults.status === "fulfilled" ? secondResults.value : [];
+    if (isDomestic) {
+      // Original domestic-first mode
+      const [dom, forGen] = await Promise.allSettled([
+        fetchPool("CarType.Y"),
+        fetchPool("CarType.N"),
+      ]);
+      domesticResults = dom.status === "fulfilled" ? dom.value : [];
+      foreignResults = forGen.status === "fulfilled" ? forGen.value : [];
 
-    const [domesticResults, foreignResults] = isDomestic
-      ? [first, second]
-      : [second, first];
+      // Merge: domestic first, then foreign
+      const seenIds = new Set();
+      for (const car of [...domesticResults, ...foreignResults]) {
+        if (!seenIds.has(car.Id)) { seenIds.add(car.Id); allSearchResults.push(car); }
+      }
+    } else {
+      // Foreign-first mode — also fetch a dedicated diesel batch for premium European brands
+      const [forGen, forDsl, dom] = await Promise.allSettled([
+        fetchPool("CarType.N"),           // Foreign all fuel types
+        fetchPool("CarType.N", "디젤"),   // Foreign diesel only
+        fetchPool("CarType.Y"),            // Domestic
+      ]);
+      foreignResults = forGen.status === "fulfilled" ? forGen.value : [];
+      dieselResults = forDsl.status === "fulfilled" ? forDsl.value : [];
+      domesticResults = dom.status === "fulfilled" ? dom.value : [];
 
-    // Merge and deduplicate by car Id (prefer domestic first)
-    const seenIds = new Set();
-    const allSearchResults = [];
-    for (const car of [...domesticResults, ...foreignResults]) {
-      if (!seenIds.has(car.Id)) {
-        seenIds.add(car.Id);
-        allSearchResults.push(car);
+      // Merge priority: diesel foreign > general foreign > domestic
+      const seenIds = new Set();
+      for (const car of [...dieselResults, ...foreignResults, ...domesticResults]) {
+        if (!seenIds.has(car.Id)) { seenIds.add(car.Id); allSearchResults.push(car); }
       }
     }
 
-    console.log(`Found ${domesticResults.length} domestic + ${foreignResults.length} foreign = ${allSearchResults.length} unique listings`);
+    console.log(`Found ${domesticResults.length} domestic + ${foreignResults.length} foreign + ${dieselResults.length} foreign diesel = ${allSearchResults.length} unique listings`);
 
     // 2. Process each listing
     for (const car of allSearchResults) {
