@@ -654,7 +654,7 @@ export default function Contact() {
           {/* Google Maps Embed */}
           <div className="relative h-96 lg:h-125 border border-white/10 overflow-hidden rounded-lg group">
             <iframe
-              src="https://www.google.com/maps?q=42.4710891,21.4230827&z=17&output=embed"
+              src="https://www.google.com/maps?q=42.471027,21.422988&z=17&output=embed"
               width="100%"
               height="100%"
               style={{
@@ -668,14 +668,26 @@ export default function Contact() {
           </div>
 
           {/* Address Info */}
-          <div className="mt-4 p-4 border border-white/10 bg-white/2 rounded-lg">
+          <div className="mt-4 p-4 border border-white/10 bg-white/2 rounded-lg flex items-center justify-between gap-4">
             <p
               className="text-white/70 text-sm"
               style={{ fontFamily: "Montserrat, sans-serif" }}
             >
-              <span className="font-semibold text-white">Adresa:</span> Auto
-              Tafa, Rruga e Prishtinës, Gjilan 60000
+              <span className="font-semibold text-white">Adresa:</span> Auto Tafa, Pasjak, 60000
             </p>
+            <a
+              href="https://www.google.com/maps/dir/?api=1&destination=42.471027,21.422988"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-xs font-medium text-white transition-all duration-300"
+              style={{ fontFamily: "Montserrat, sans-serif" }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Merrni drejtimet
+            </a>
           </div>
         </div>
       </section>
