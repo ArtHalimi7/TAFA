@@ -198,7 +198,7 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
   let listingPrice    = ceilMultiple(rawListingPrice, 100);
 
   // --- Zero-loss guarantee ------------------------------------------------
-  const grossProfit = listingPrice - totalLandedCost;
+  const grossProfit = listingPrice - totalLandedCost - deliveryFee;
   if (grossProfit < MIN_ABSOLUTE_PROFIT) {
     // Force minimum profit by bumping the listing price
     const forcedPrice = ceilMultiple(totalLandedCost + deliveryFee + MIN_ABSOLUTE_PROFIT, 100);
@@ -218,7 +218,7 @@ function calculatePrice(krwPrice, eurKrwRate, options = {}) {
   }
 
   // --- Build result -------------------------------------------------------
-  const finalProfit        = listingPrice - totalLandedCost;
+  const finalProfit        = listingPrice - totalLandedCost - deliveryFee;
   const actualMarginOnRev  = finalProfit / listingPrice;
 
   const result = {

@@ -304,8 +304,8 @@ const calculateCustoms = (price, cc, year) => {
     excise = category === 0 ? 1500 : category === 1 ? 2200 : 3900;
   }
 
-  // Vlera bazë doganore = Çmimi deri në Durrës + 350 € transporti tokësor
-  const baseValue = price + 350;
+  // Vlera bazë doganore = Çmimi (përfshin transportin)
+  const baseValue = price;
   const importTax = baseValue * 0.10;
   const vat = (baseValue + excise + importTax) * 0.18;
   const total = excise + importTax + vat;
@@ -715,10 +715,9 @@ export default function CarDetail() {
   };
 
   const customsData = calculateCustoms(priceInput, ccInput, yearInput);
-  const baseValue = (priceInput || 0) + 350;
-  const rawTotalRKS = baseValue + customsData.total;
+  const rawTotalRKS = (priceInput || 0) + customsData.total;
   const roundedTotalRKS = Math.ceil(rawTotalRKS / 100) * 100;
-  const roundedCustomsTotal = Math.max(0, roundedTotalRKS - (priceInput || 0) - 350);
+  const roundedCustomsTotal = Math.max(0, roundedTotalRKS - (priceInput || 0));
 
   // Loading state
   if (isLoading) {
@@ -1808,31 +1807,8 @@ export default function CarDetail() {
                   Të dhënat e Automjetit
                 </h3>
 
-                {/* Price input */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-white/60 tracking-wider uppercase">
-                    Çmimi i Veturës (€)
-                  </label>
-                  <p className="text-[10px] text-white/30 -mt-1">
-                    Çmimi ynë përfshin transportin deri në Kosovë.
-                  </p>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-medium">€</span>
-                    <input
-                      type="number"
-                      value={priceInput || ""}
-                      onChange={(e) => setPriceInput(Number(e.target.value))}
-                      onBlur={(e) => {
-                        const val = Number(e.target.value);
-                        if (val > 0) {
-                          setPriceInput(Math.ceil(val / 100) * 100);
-                        }
-                      }}
-                      className="w-full bg-neutral-950/60 border border-white/10 rounded-xl py-3.5 pl-9 pr-4 text-white font-medium focus:border-white/30 focus:outline-none transition-all duration-300"
-                      placeholder="P.sh. 15000"
-                    />
-                  </div>
-                </div>
+                {/* Hidden price input */}
+                <input type="hidden" value={priceInput} readOnly />
 
                 {/* CC input */}
                 <div className="flex flex-col gap-2">
@@ -1882,21 +1858,6 @@ export default function CarDetail() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                      <span className="text-white/60 font-light">Çmimi i Veturës</span>
-                      <span className="font-semibold text-white">{formatPrice(priceInput)}</span>
-                    </div>
-
-                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                      <span className="text-white/60 font-light">Transporti Durrës - Prishtinë</span>
-                      <span className="font-semibold text-emerald-400">+ {formatPrice(350)}</span>
-                    </div>
-
-                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
-                      <span className="text-white/60 font-light">Vlera Doganore (CIF)</span>
-                      <span className="font-semibold text-white">{formatPrice(priceInput + 350)}</span>
-                    </div>
-
-                    <div className="flex justify-between items-center py-2 border-b border-white/5 text-sm">
                       <span className="text-white/60 font-light">Tatimi i Importit (10%)</span>
                       <span className="font-semibold text-white">{formatPrice(customsData.importTax)}</span>
                     </div>
@@ -1933,9 +1894,6 @@ export default function CarDetail() {
                       <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest">
                         Kostoja Totale (RKS)
                       </span>
-                      <span className="text-xs text-white/40 font-light mt-0.5">
-                        (Durrës + Rruga + Dogana)
-                      </span>
                     </div>
                     <span className="text-3xl font-bold text-yellow-400" style={{ fontFamily: "Cera Pro, sans-serif" }}>
                       {formatPrice(roundedTotalRKS)}
@@ -1963,11 +1921,10 @@ export default function CarDetail() {
                 Mënyra e përllogaritjes:
               </div>
               <ul className="list-disc pl-4 space-y-1.5">
-                <li><strong>Vlera Doganore (CIF):</strong> Çmimi i veturës + 350 € transporti Durrës - Prishtinë.</li>
                 <li><strong>Tatimi i importit:</strong> 10% e vlerës doganore.</li>
                 <li><strong>Akciza:</strong> Tarifë fikse e bazuar në vjetërsinë dhe kategorinë e motorit (CC) të veturës.</li>
                 <li><strong>TVSH:</strong> 18% e aplikuar mbi shumën (Vlera Doganore + Akciza + Tatimi i importit).</li>
-                <li><strong>Kostoja Totale (RKS):</strong> Çmimi i veturës + 350 € transporti + Dogana (Tatimi + Akciza + TVSH). Ky llogaritës është vetëm orientues.</li>
+                <li><strong>Kostoja Totale (RKS):</strong> Vlera Doganore + Dogana (Tatimi + Akciza + TVSH). Ky llogaritës është vetëm orientues.</li>
               </ul>
             </div>
 
