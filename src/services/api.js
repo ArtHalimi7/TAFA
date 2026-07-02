@@ -116,6 +116,14 @@ export const carsApi = {
     });
   },
 
+  // Delete cars in bulk
+  deleteCarsBulk: async (ids) => {
+    return apiCall("/cars/bulk", {
+      method: "DELETE",
+      body: JSON.stringify({ ids }),
+    });
+  },
+
   // Toggle car status (visibility: active/draft)
   toggleStatus: async (id) => {
     return apiCall(`/cars/${id}/toggle-status`, {

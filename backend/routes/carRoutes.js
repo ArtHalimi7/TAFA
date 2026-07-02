@@ -268,6 +268,29 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// Bulk delete cars
+router.delete("/bulk", async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ success: false, message: "Invalid or empty IDs list" });
+    }
+
+    for (const id of ids) {
+      await Car.delete(id);
+    }
+
+    res.json({ success: true, message: "Cars deleted successfully" });
+  } catch (error) {
+    console.error("Error in bulk deleteCar:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete selected cars",
+      error: error.message,
+    });
+  }
+});
+
 // Delete car
 router.delete("/:id", async (req, res) => {
   try {

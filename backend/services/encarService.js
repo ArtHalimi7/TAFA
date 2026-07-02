@@ -196,6 +196,41 @@ const BRAND_NORMALIZE = {
   "Renault Samsung": "Renault",
 };
 
+// List of European brand names. Note that "Renault" is explicitly excluded here
+// as it represents Korean brands like "Renault Samsung/Korea" in the Korean market
+// which the user wants grouped with the "rest" (20% odds).
+const EUROPEAN_BRANDS = [
+  "Mercedes-Benz",
+  "Mercedes",
+  "BMW",
+  "Audi",
+  "Volkswagen",
+  "Volvo",
+  "Porsche",
+  "MINI",
+  "Peugeot",
+  "Jaguar",
+  "Land Rover",
+  "Maserati",
+  "Bentley",
+  "Lamborghini",
+  "Ferrari",
+  "Aston Martin",
+  "Rolls-Royce",
+  "McLaren"
+];
+
+function getTranslatedBrand(manufacturer) {
+  if (!manufacturer) return "";
+  const translated = translateWithMap(BRAND_MAP, manufacturer, true) || manufacturer;
+  return BRAND_NORMALIZE[translated] || translated;
+}
+
+function isEuropeanBrand(brand) {
+  if (!brand) return false;
+  return EUROPEAN_BRANDS.includes(brand);
+}
+
 // Replace Korean text with English using map, keeping any suffixes/prefixes
 function translateWithMap(map, text, stripTrailingKorean = false) {
   if (!text) return text;
@@ -429,92 +464,183 @@ async function syncEncarListings(limit = 30, isDomestic = false, sortBy = "Modif
     // Fetch live EUR/KRW rate once for the entire sync run
     const eurKrwRate = await fetchEurKrwRate();
 
-    // 1. Fetch latest listings from Encar
+    // 1. Fetch latest listings from Encar page by page
     // Domestic (CarType.Y) = Korean brands (Hyundai, Kia, Genesis, etc.)
     // Foreign (CarType.N) = Imported brands (BMW, Mercedes, Audi, Porsche, etc.)
-    const fetchPool = async (carType, fuelType = null) => {
-      const allPageResults = [];
+    const fetchPoolPage = async (carType, fuelType = null, pageIndex = 0) => {
       const fuelSegment = fuelType ? `.FuelType.${encodeURIComponent(fuelType)}` : "";
-      for (let page = 0; page < pages; page++) {
-        const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.${carType}${fuelSegment}.)&sr=%7C${sortBy}%7C${page * limit}%7C${limit}`;
-        const res = await fetch(url, {
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            "Referer": "https://www.encar.com/",
-            "Accept": "application/json, text/plain, */*",
-            "Accept-Language": "ko-KR,ko;q=0.9"
-          }
-        });
-        if (!res.ok) throw new Error(`Encar ${carType} page ${page + 1} failed with status ${res.status}`);
-        const data = await res.json();
-        const results = data.SearchResults || [];
-        allPageResults.push(...results);
-        const label = fuelType ? `${carType} (${fuelType})` : carType;
-        console.log(`  ${label} page ${page + 1}/${pages}: ${results.length} cars`);
-        if (results.length < limit) break; // No more results
-      }
-      return allPageResults;
+      const url = `https://api.encar.com/search/car/list/general?count=true&q=(And.Hidden.N._.${carType}${fuelSegment}.)&sr=%7C${sortBy}%7C${pageIndex * 30}%7C30`;
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "Referer": "https://www.encar.com/",
+          "Accept": "application/json, text/plain, */*",
+          "Accept-Language": "ko-KR,ko;q=0.9"
+        }
+      });
+      if (!res.ok) throw new Error(`Encar ${carType} page ${pageIndex + 1} failed with status ${res.status}`);
+      const data = await res.json();
+      return data.SearchResults || [];
     };
 
-    let domesticResults = [];
-    let foreignResults = [];
-    let dieselResults = [];
-    let allSearchResults = [];
+    const euroDieselCandidates = [];
+    const euroOtherCandidates = [];
+    const restDieselCandidates = [];
+    const restOtherCandidates = [];
+    const existingToUpdate = [];
+    const seenIds = new Set();
 
-    if (isDomestic) {
-      // Original domestic-first mode
-      const [dom, forGen] = await Promise.allSettled([
-        fetchPool("CarType.Y"),
-        fetchPool("CarType.N"),
-      ]);
-      domesticResults = dom.status === "fulfilled" ? dom.value : [];
-      foreignResults = forGen.status === "fulfilled" ? forGen.value : [];
+    let page = 0;
+    const maxPages = 10; // safety ceiling to prevent infinite loops
 
-      // Merge: domestic first, then foreign
-      const seenIds = new Set();
-      for (const car of [...domesticResults, ...foreignResults]) {
-        if (!seenIds.has(car.Id)) { seenIds.add(car.Id); allSearchResults.push(car); }
+    while (page < maxPages) {
+      console.log(`[Sync] Fetching page ${page + 1} to find candidates...`);
+      
+      let foreignResults = [];
+      let dieselResults = [];
+      let domesticResults = [];
+      let domesticDieselResults = [];
+
+      if (isDomestic) {
+        // Domestic-first mode
+        const [domGen, forGen] = await Promise.allSettled([
+          fetchPoolPage("CarType.Y", null, page),
+          fetchPoolPage("CarType.N", null, page),
+        ]);
+        domesticResults = domGen.status === "fulfilled" ? domGen.value : [];
+        foreignResults = forGen.status === "fulfilled" ? forGen.value : [];
+      } else {
+        // Foreign-first mode (unified sync)
+        const [forGen, forDsl, domGen, domDsl] = await Promise.allSettled([
+          fetchPoolPage("CarType.N", null, page),
+          fetchPoolPage("CarType.N", "디젤", page),
+          fetchPoolPage("CarType.Y", null, page),
+          fetchPoolPage("CarType.Y", "디젤", page),
+        ]);
+        foreignResults = forGen.status === "fulfilled" ? forGen.value : [];
+        dieselResults = forDsl.status === "fulfilled" ? forDsl.value : [];
+        domesticResults = domGen.status === "fulfilled" ? domGen.value : [];
+        domesticDieselResults = domDsl.status === "fulfilled" ? domDsl.value : [];
       }
-    } else {
-      // Foreign-first mode — also fetch a dedicated diesel batch for premium European brands
-      const [forGen, forDsl, dom] = await Promise.allSettled([
-        fetchPool("CarType.N"),           // Foreign all fuel types
-        fetchPool("CarType.N", "디젤"),   // Foreign diesel only
-        fetchPool("CarType.Y"),            // Domestic
-      ]);
-      foreignResults = forGen.status === "fulfilled" ? forGen.value : [];
-      dieselResults = forDsl.status === "fulfilled" ? forDsl.value : [];
-      domesticResults = dom.status === "fulfilled" ? dom.value : [];
 
-      // Merge priority: diesel foreign > general foreign > domestic
-      const seenIds = new Set();
-      for (const car of [...dieselResults, ...foreignResults, ...domesticResults]) {
-        if (!seenIds.has(car.Id)) { seenIds.add(car.Id); allSearchResults.push(car); }
-      }
-    }
+      // Merge and filter duplicates in this page's results
+      const pageResults = [];
+      const mergedList = isDomestic 
+        ? [...domesticResults, ...foreignResults]
+        : [...dieselResults, ...foreignResults, ...domesticDieselResults, ...domesticResults];
 
-    console.log(`Found ${domesticResults.length} domestic + ${foreignResults.length} foreign + ${dieselResults.length} foreign diesel = ${allSearchResults.length} unique listings`);
-
-    // 2. Process each listing
-    for (const car of allSearchResults) {
-      const encarId = `encar_${car.Id}`;
-
-      // Check if car already exists
-      const [existing] = await db.query("SELECT id, inspection_data FROM cars WHERE encar_id = ? LIMIT 1", [encarId]);
-      let isUpdateMissingInspection = false;
-      let existingCarId = null;
-      if (existing && existing.length > 0) {
-        const existingCar = existing[0];
-        if (!existingCar.inspection_data) {
-          console.log(`[Encar ID ${encarId}] Already imported but missing inspection data. Fetching details and updating...`);
-          isUpdateMissingInspection = true;
-          existingCarId = existingCar.id;
-        } else {
-          console.log(`[Encar ID ${encarId}] Already imported, skipping.`);
-          skippedCount++;
-          continue;
+      for (const car of mergedList) {
+        if (!seenIds.has(car.Id)) {
+          seenIds.add(car.Id);
+          pageResults.push(car);
         }
       }
+
+      if (pageResults.length === 0) {
+        console.log(`[Sync] No more listings returned from Encar on page ${page + 1}. Stopping search.`);
+        break;
+      }
+
+      // Check database in bulk for this page's results
+      const pageEncarIds = pageResults.map(car => `encar_${car.Id}`);
+      const pageExistingMap = new Map();
+      if (pageEncarIds.length > 0) {
+        const [rows] = await db.query(
+          "SELECT id, encar_id, inspection_data FROM cars WHERE encar_id IN (?)",
+          [pageEncarIds]
+        );
+        for (const row of rows) {
+          pageExistingMap.set(row.encar_id, row);
+        }
+      }
+
+      // Classify this page's listings
+      for (const car of pageResults) {
+        const encarId = `encar_${car.Id}`;
+        const existing = pageExistingMap.get(encarId);
+
+        if (existing) {
+          if (!existing.inspection_data) {
+            console.log(`[Encar ID ${encarId}] Already imported but missing inspection data. Fetching details and updating...`);
+            existingToUpdate.push({ car, existingCarId: existing.id });
+          } else {
+            skippedCount++;
+          }
+        } else {
+          // Classify new candidate
+          const brand = getTranslatedBrand(car.Manufacturer);
+          const isEuro = isEuropeanBrand(brand);
+          const isDsl = car.FuelType === "디젤" || (car.FuelType && car.FuelType.includes("디젤"));
+
+          if (isEuro) {
+            if (isDsl) {
+              euroDieselCandidates.push(car);
+            } else {
+              euroOtherCandidates.push(car);
+            }
+          } else {
+            if (isDsl) {
+              restDieselCandidates.push(car);
+            } else {
+              restOtherCandidates.push(car);
+            }
+          }
+        }
+      }
+
+      // Check if we have gathered enough new candidates to satisfy the requested limit
+      const totalNewCandidates = euroDieselCandidates.length + euroOtherCandidates.length + restDieselCandidates.length + restOtherCandidates.length;
+      if (totalNewCandidates >= limit) {
+        console.log(`[Sync] Found enough new candidates (${totalNewCandidates} >= target ${limit}) after page ${page + 1}. Stopping search.`);
+        break;
+      }
+
+      page++;
+    }
+
+    // Select new cars to import according to user rules (80% European, 20% Rest, mostly Diesel)
+    const selectedNewCars = [];
+
+    if (isDomestic) {
+      // If domestic mode, prioritize Domestic candidates (Rest), then European candidates. Prioritize Diesel.
+      const domesticPool = [...restDieselCandidates, ...restOtherCandidates];
+      const foreignPool = [...euroDieselCandidates, ...euroOtherCandidates];
+      const allCandidatesOrdered = [...domesticPool, ...foreignPool];
+      selectedNewCars.push(...allCandidatesOrdered.slice(0, limit));
+      console.log(`[Sync Selection] Domestic mode - candidates: ${domesticPool.length} Domestic, ${foreignPool.length} Foreign. Selected: ${selectedNewCars.length} cars.`);
+    } else {
+      // Normal/foreign-first mode: target 80% European, 20% Rest. Prioritize Diesel.
+      const euroPool = [...euroDieselCandidates, ...euroOtherCandidates];
+      const restPool = [...restDieselCandidates, ...restOtherCandidates];
+
+      let targetEuro = Math.round(limit * 0.8);
+      let targetRest = limit - targetEuro;
+
+      // Adjust targets dynamically if one pool is smaller than its target
+      if (euroPool.length < targetEuro) {
+        targetEuro = euroPool.length;
+        targetRest = Math.min(restPool.length, limit - targetEuro);
+      } else if (restPool.length < targetRest) {
+        targetRest = restPool.length;
+        targetEuro = Math.min(euroPool.length, limit - targetRest);
+      }
+
+      const selectedEuro = euroPool.slice(0, targetEuro);
+      const selectedRest = restPool.slice(0, targetRest);
+      selectedNewCars.push(...selectedEuro, ...selectedRest);
+
+      console.log(`[Sync Selection] New candidates: ${euroDieselCandidates.length} Euro Diesel, ${euroOtherCandidates.length} Euro Other, ${restDieselCandidates.length} Rest Diesel, ${restOtherCandidates.length} Rest Other`);
+      console.log(`[Sync Selection] Target: ${targetEuro} Euro, ${targetRest} Rest. Selected: ${selectedEuro.length} Euro, ${selectedRest.length} Rest.`);
+    }
+
+    // 3. Process the selected listings
+    const carsToProcess = [
+      ...existingToUpdate.map(item => ({ car: item.car, isUpdateMissingInspection: true, existingCarId: item.existingCarId })),
+      ...selectedNewCars.map(car => ({ car, isUpdateMissingInspection: false, existingCarId: null }))
+    ];
+
+    for (const { car, isUpdateMissingInspection, existingCarId } of carsToProcess) {
+      const encarId = `encar_${car.Id}`;
 
       // Fetch detail page data with PHOTOS and OPTIONS include
       const detailUrl = `https://api.encar.com/v1/readside/vehicle/${car.Id}?include=MANAGE,SPEC,CONDITION,ADVERTISEMENT,PHOTOS,OPTIONS`;

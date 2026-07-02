@@ -256,7 +256,6 @@ export default function Dashboard() {
   // Encar Sync States
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncLimit, setSyncLimit] = useState(10);
-  const [syncDomestic, setSyncDomestic] = useState(true);
   const [syncResult, setSyncResult] = useState(null);
   const [syncError, setSyncError] = useState("");
 
@@ -266,7 +265,7 @@ export default function Dashboard() {
     setSyncError("");
     setSyncResult(null);
     try {
-      const response = await syncApi.syncEncar(syncLimit, syncDomestic);
+      const response = await syncApi.syncEncar(syncLimit, false);
       if (response.success) {
         setSyncResult(response.data);
         showNotification("Sinkronizimi me Encar u krye me sukses!");
@@ -280,6 +279,45 @@ export default function Dashboard() {
       setSyncError(err.message || "Ndodhi një gabim gjatë sinkronizimit.");
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  // Selected cars state for bulk actions
+  const [selectedCarIds, setSelectedCarIds] = useState([]);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+
+  const handleToggleSelectCar = (carId) => {
+    setSelectedCarIds((prev) =>
+      prev.includes(carId) ? prev.filter((id) => id !== carId) : [...prev, carId]
+    );
+  };
+
+  const handleSelectAllCars = () => {
+    if (selectedCarIds.length === filteredCars.length) {
+      setSelectedCarIds([]);
+    } else {
+      setSelectedCarIds(filteredCars.map((car) => car.id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedCarIds.length === 0 || isBulkDeleting) return;
+    setIsBulkDeleting(true);
+    try {
+      const response = await carsApi.deleteCarsBulk(selectedCarIds);
+      if (response.success) {
+        showNotification(`${selectedCarIds.length} automjete u fshinë me sukses!`, "error");
+        setCars((prev) => prev.filter((car) => !selectedCarIds.includes(car.id)));
+        setSelectedCarIds([]);
+        setShowBulkDeleteConfirm(false);
+        await fetchStats();
+      }
+    } catch (error) {
+      console.error("Bulk delete error:", error);
+      showNotification("Fshirja e automjeteve dështoi", "error");
+    } finally {
+      setIsBulkDeleting(false);
     }
   };
 
@@ -1137,13 +1175,13 @@ export default function Dashboard() {
           className="w-5 h-5"
           fill="none"
           stroke="currentColor"
+          strokeWidth={1.5}
           viewBox="0 0 24 24"
         >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={1.5}
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"
+            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
           />
         </svg>
       ),
@@ -1407,7 +1445,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* CSS for shake animation */}
+        {/* CSS for animations */}
         <style>{`
           @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -1416,6 +1454,13 @@ export default function Dashboard() {
           }
           .animate-shake {
             animation: shake 0.5s ease-in-out;
+          }
+          @keyframes slide-up {
+            0% { transform: translate(-50%, 1rem); opacity: 0; }
+            100% { transform: translate(-50%, 0); opacity: 1; }
+          }
+          .animate-slide-up {
+            animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
         `}</style>
       </div>
@@ -1503,6 +1548,7 @@ export default function Dashboard() {
                     openAddModal();
                   } else {
                     setActiveTab(item.id);
+                    setSelectedCarIds([]);
                   }
                   setIsMobileSidebarOpen(false);
                 }}
@@ -2149,7 +2195,7 @@ export default function Dashboard() {
           {activeTab === "inventory" && (
             <div className="space-y-6">
               {/* Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
                 <div>
                   <h2
                     className="text-2xl font-bold"
@@ -2165,6 +2211,44 @@ export default function Dashboard() {
                     {filteredCars.length !== 1 ? "s" : ""} in inventory
                   </p>
                 </div>
+
+                {filteredCars.length > 0 && (
+                  <div className="flex items-center gap-4">
+                    {/* Select All Checkbox Button */}
+                    <button
+                      onClick={handleSelectAllCars}
+                      className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-sm font-medium transition-all cursor-pointer"
+                      style={{ fontFamily: "Montserrat, sans-serif" }}
+                    >
+                      <div
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                          selectedCarIds.length === filteredCars.length && filteredCars.length > 0
+                            ? "bg-blue-600 border-blue-600 text-white"
+                            : "border-white/30 bg-transparent text-transparent"
+                        }`}
+                      >
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={3.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span>Zgjidh të gjitha</span>
+                    </button>
+
+                    {/* Bulk Delete Button */}
+                    {selectedCarIds.length > 0 && (
+                      <button
+                        onClick={() => setShowBulkDeleteConfirm(true)}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500 text-red-400 hover:text-white text-sm font-medium transition-all cursor-pointer animate-fade-in"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span>Fshi të Zgjedhurat ({selectedCarIds.length})</span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Vehicles List */}
@@ -2173,10 +2257,26 @@ export default function Dashboard() {
                   {filteredCars.map((car, index) => (
                     <div
                       key={car.id}
-                      className="group relative overflow-hidden bg-white/5 border border-white/10 rounded-2xl hover:border-white/20 transition-all duration-300"
+                      className={`group relative overflow-hidden bg-white/5 border rounded-2xl transition-all duration-300 ${selectedCarIds.includes(car.id) ? 'border-blue-500 bg-blue-500/5 shadow-lg shadow-blue-500/5' : 'border-white/10 hover:border-white/20'}`}
                       style={{ transitionDelay: `${index * 50}ms` }}
                     >
-                      <div className="flex flex-col sm:flex-row">
+                      <div className="flex flex-col sm:flex-row items-stretch">
+                        {/* Checkbox column */}
+                        <div className="flex items-center justify-center pl-5 pr-2 shrink-0 select-none">
+                          <div
+                            onClick={() => handleToggleSelectCar(car.id)}
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                              selectedCarIds.includes(car.id)
+                                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/20 scale-105"
+                                : "border-white/20 bg-transparent text-transparent hover:border-white/40"
+                            }`}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        </div>
+
                         {/* Image */}
                         <div className="relative w-full sm:w-48 lg:w-64 aspect-16/10 sm:aspect-auto sm:h-auto bg-white/5 shrink-0">
                           {car.images && car.images.length > 0 ? (
@@ -2507,6 +2607,46 @@ export default function Dashboard() {
                   )}
                 </div>
               )}
+
+              {/* Bulk Delete Confirmation Modal */}
+              {showBulkDeleteConfirm && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                  {/* Backdrop */}
+                  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowBulkDeleteConfirm(false)} />
+                  
+                  {/* Modal Content */}
+                  <div className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 text-center z-10 shadow-2xl">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold mb-2" style={{ fontFamily: "Cera Pro, sans-serif" }}>
+                      Fshi Veturat e Zgjedhura
+                    </h3>
+                    <p className="text-sm text-white/50 mb-6" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                      A jeni të sigurt që dëshironi të fshini <strong className="text-white font-semibold">{selectedCarIds.length}</strong> vetura të zgjedhura? Kjo veprim nuk mund të tërhiqet.
+                    </p>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => setShowBulkDeleteConfirm(false)}
+                        className="flex-1 px-5 py-2.5 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors cursor-pointer"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        Anulo
+                      </button>
+                      <button
+                        onClick={handleBulkDelete}
+                        disabled={isBulkDeleting}
+                        className="flex-1 px-5 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-500 disabled:bg-red-600/30 disabled:text-red-300 transition-colors cursor-pointer"
+                        style={{ fontFamily: "Montserrat, sans-serif" }}
+                      >
+                        {isBulkDeleting ? "Duke fshirë..." : "Fshi të gjitha"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -2520,8 +2660,18 @@ export default function Dashboard() {
                     className="text-2xl font-bold flex items-center gap-2"
                     style={{ fontFamily: "Cera Pro, sans-serif" }}
                   >
-                    <svg className="w-7 h-7 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4" />
+                    <svg
+                      className="w-7 h-7 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                      />
                     </svg>
                     Sinkronizimi me Encar (Korea)
                   </h2>
@@ -2549,38 +2699,12 @@ export default function Dashboard() {
                     </div>
 
                     <form onSubmit={handleEncarSync} className="space-y-6">
-                      {/* Select car origin category */}
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-white/50 mb-3" style={{ fontFamily: "Montserrat, sans-serif" }}>
-                          Lloji i Veturave
-                        </label>
-                        <div className="grid grid-cols-2 gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setSyncDomestic(true)}
-                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${syncDomestic
-                              ? "bg-white text-black border-white shadow-xl shadow-white/5"
-                              : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
-                              }`}
-                          >
-                            <span className="text-xs uppercase tracking-widest font-semibold opacity-70 mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>Pool A</span>
-                            <span className="text-sm font-bold" style={{ fontFamily: "Cera Pro, sans-serif" }}>Koreane</span>
-                            <span className={`text-[10px] mt-2 opacity-60 ${syncDomestic ? 'text-black/70' : 'text-white/40'}`}>제네시스, 현대, 기아</span>
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => setSyncDomestic(false)}
-                            className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all duration-300 relative overflow-hidden group cursor-pointer ${!syncDomestic
-                              ? "bg-white text-black border-white shadow-xl shadow-white/5"
-                              : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10"
-                              }`}
-                          >
-                            <span className="text-xs uppercase tracking-widest font-semibold opacity-70 mb-1" style={{ fontFamily: "Montserrat, sans-serif" }}>Pool B</span>
-                            <span className="text-sm font-bold" style={{ fontFamily: "Cera Pro, sans-serif" }}>Të Importuara</span>
-                            <span className={`text-[10px] mt-2 opacity-60 ${!syncDomestic ? 'text-black/70' : 'text-white/40'}`}>BMW, Benz, Audi, Porsche</span>
-                          </button>
-                        </div>
+                      {/* Unified import strategy info */}
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-xl space-y-2">
+                        <span className="text-xs uppercase tracking-widest font-semibold text-blue-400" style={{ fontFamily: "Montserrat, sans-serif" }}>Strategjia e Importit</span>
+                        <p className="text-xs text-white/60 leading-relaxed" style={{ fontFamily: "Montserrat, sans-serif" }}>
+                          API do të importojë automatikisht vetura me raportin <strong className="text-white">80% Të Importuara (Evropiane)</strong> dhe <strong className="text-white">20% Koreane/Të tjera</strong>, me përparësi absolute për ato <strong className="text-emerald-400">Dizell</strong>.
+                        </p>
                       </div>
 
                       {/* Quantity input */}
@@ -3493,6 +3617,38 @@ export default function Dashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Action Banner at Bottom-Center */}
+      {selectedCarIds.length > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
+          <div className="bg-neutral-950/90 backdrop-blur-md border border-white/10 shadow-2xl rounded-2xl px-5 py-4 flex items-center gap-6">
+            <div className="text-left whitespace-nowrap">
+              <p className="text-xs text-white/50 font-medium" style={{ fontFamily: "Montserrat, sans-serif" }}>Automjete të Zgjedhura</p>
+              <p className="text-sm font-bold text-white" style={{ fontFamily: "Cera Pro, sans-serif" }}>{selectedCarIds.length} vetura</p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedCarIds([])}
+                className="px-3 py-2 rounded-xl text-xs text-white/60 hover:text-white hover:bg-white/5 transition-all cursor-pointer font-medium"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                Anulo
+              </button>
+              <button
+                onClick={() => setShowBulkDeleteConfirm(true)}
+                className="flex items-center gap-1.5 px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-red-600/10 hover:scale-[1.02] cursor-pointer"
+                style={{ fontFamily: "Montserrat, sans-serif" }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Fshi të Zgjedhurat
+              </button>
+            </div>
           </div>
         </div>
       )}

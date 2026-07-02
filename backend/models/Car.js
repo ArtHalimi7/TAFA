@@ -11,6 +11,7 @@ const cache = {
 };
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const queryCache = new Map();
 
 // Helper: parse GROUP_CONCAT / JSON / array values, trim and dedupe preserving order
 function parseAndDedupe(val) {
@@ -91,6 +92,12 @@ function safeParseJson(val) {
 const Car = {
   // Get all cars with images and features - OPTIMIZED
   async getAll(filters = {}) {
+    const cacheKey = JSON.stringify(filters);
+    const cached = queryCache.get(cacheKey);
+    if (cached && cached.expiry > Date.now()) {
+      return cached.data;
+    }
+
     try {
       let query = `
         SELECT c.id, c.encar_id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
@@ -247,6 +254,12 @@ const Car = {
           };
         }),
       );
+
+      // Cache the result
+      queryCache.set(cacheKey, {
+        data: cars,
+        expiry: Date.now() + CACHE_TTL,
+      });
 
       return cars;
     } catch (error) {
@@ -768,6 +781,7 @@ const Car = {
     cache.showcaseExpiry = 0;
     cache.stats = null;
     cache.statsExpiry = 0;
+    queryCache.clear();
   },
 
   // Toggle car status (visibility: active/draft)
