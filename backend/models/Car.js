@@ -200,8 +200,8 @@ const Car = {
         query += " ORDER BY c.created_at DESC";
       }
 
-      // Pagination with default limit
-      const limit = Math.min(parseInt(filters.limit) || 500, 2000);
+      // Pagination with default limit (increased to support listing all cars)
+      const limit = Math.min(parseInt(filters.limit) || 10000, 100000);
       query += " LIMIT ?";
       params.push(limit);
 

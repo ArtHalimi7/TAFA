@@ -1889,17 +1889,6 @@ export default function CarDetail() {
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-end pt-4 border-t border-white/5" style={{ fontFamily: "Montserrat" }}>
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-yellow-400 uppercase tracking-widest">
-                        Kostoja Totale (RKS)
-                      </span>
-                    </div>
-                    <span className="text-3xl font-bold text-yellow-400" style={{ fontFamily: "Cera Pro, sans-serif" }}>
-                      {formatPrice(roundedTotalRKS)}
-                    </span>
-                  </div>
-
                   {customsData.isProhibited && (
                     <div className="flex items-start gap-2.5 p-3.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-xs leading-relaxed" style={{ fontFamily: "Montserrat" }}>
                       <svg className="w-5 h-5 shrink-0 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1924,7 +1913,6 @@ export default function CarDetail() {
                 <li><strong>Tatimi i importit:</strong> 10% e vlerës doganore.</li>
                 <li><strong>Akciza:</strong> Tarifë fikse e bazuar në vjetërsinë dhe kategorinë e motorit (CC) të veturës.</li>
                 <li><strong>TVSH:</strong> 18% e aplikuar mbi shumën (Vlera Doganore + Akciza + Tatimi i importit).</li>
-                <li><strong>Kostoja Totale (RKS):</strong> Vlera Doganore + Dogana (Tatimi + Akciza + TVSH). Ky llogaritës është vetëm orientues.</li>
               </ul>
             </div>
 

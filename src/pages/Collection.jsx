@@ -273,6 +273,17 @@ export default function Collection() {
   const [searchQuery, setSearchQuery] = useState(
     savedFilters?.searchQuery || "",
   );
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(
+    savedFilters?.searchQuery || "",
+  );
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 250);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     savedFilters?.currentPage || 1,
@@ -323,10 +334,12 @@ export default function Collection() {
       setFilteredCars(cars);
     };
 
-    const fetchCars = async () => {
+    const fetchCars = async (isBackground = false) => {
       try {
-        setIsContentLoading(true);
-        const response = await carsApi.getActiveCars({ limit: 500 });
+        if (!isBackground) {
+          setIsContentLoading(true);
+        }
+        const response = await carsApi.getActiveCars({ limit: 10000 });
         if (response.success) {
           const transformedCars = response.data.map((car) => ({
             ...car,
@@ -344,7 +357,9 @@ export default function Collection() {
       } catch (error) {
         console.error("Error fetching cars:", error);
       } finally {
-        setIsContentLoading(false);
+        if (!isBackground) {
+          setIsContentLoading(false);
+        }
       }
     };
 
@@ -355,14 +370,14 @@ export default function Collection() {
       if (cached && cachedTs && Date.now() - Number(cachedTs) < CACHE_TTL) {
         loadCars(JSON.parse(cached));
         setIsContentLoading(false);
-        // Refresh in background
-        fetchCars();
+        // Refresh in background without showing skeleton loader
+        fetchCars(true);
         const timer = setTimeout(() => setIsLoaded(true), 100);
         return () => clearTimeout(timer);
       }
     } catch (_) {}
 
-    fetchCars();
+    fetchCars(false);
     const timer = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -375,14 +390,14 @@ export default function Collection() {
     const currentFiltersHash = JSON.stringify({
       selectedBrand, selectedModel, selectedCategory, selectedFuelType,
       selectedDrivetrain, selectedTransmission, selectedOrigin,
-      yearFrom, priceUpTo, kmUpTo, sortBy, searchQuery,
+      yearFrom, priceUpTo, kmUpTo, sortBy, debouncedSearchQuery,
     });
 
     let result = [...allCars];
 
     // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+    if (debouncedSearchQuery.trim()) {
+      const query = debouncedSearchQuery.toLowerCase();
       result = result.filter(
         (car) =>
           car.name.toLowerCase().includes(query) ||
@@ -482,7 +497,7 @@ export default function Collection() {
     priceUpTo,
     kmUpTo,
     sortBy,
-    searchQuery,
+    debouncedSearchQuery,
   ]);
 
   // Close dropdown when clicking outside
@@ -526,38 +541,6 @@ export default function Collection() {
     setSearchQuery("");
   };
 
-  // Helper: filter cars by specific values (empty string = no filter for that key)
-  const filterBy = (cars, overrides = {}) => {
-    const b = overrides.brand !== undefined ? overrides.brand : selectedBrand;
-    const m = overrides.model !== undefined ? overrides.model : selectedModel;
-    const cat = overrides.category !== undefined ? overrides.category : selectedCategory;
-    const fuel = overrides.fuelType !== undefined ? overrides.fuelType : selectedFuelType;
-    const drive = overrides.drivetrain !== undefined ? overrides.drivetrain : selectedDrivetrain;
-    const trans = overrides.transmission !== undefined ? overrides.transmission : selectedTransmission;
-    const origin = overrides.origin !== undefined ? overrides.origin : selectedOrigin;
-    const year = overrides.yearFrom !== undefined ? overrides.yearFrom : yearFrom;
-    const price = overrides.priceUpTo !== undefined ? overrides.priceUpTo : priceUpTo;
-    const km = overrides.kmUpTo !== undefined ? overrides.kmUpTo : kmUpTo;
-    const search = overrides.searchQuery !== undefined ? overrides.searchQuery : searchQuery;
-
-    let result = [...cars];
-    if (b) result = result.filter((c) => c.brand === b);
-    if (m) { const q = m.toLowerCase(); result = result.filter((c) => c.name.toLowerCase().includes(q)); }
-    if (cat) result = result.filter((c) => c.category === cat);
-    if (fuel) result = result.filter((c) => c.fuel_type === fuel);
-    if (drive) result = result.filter((c) => c.drivetrain === drive);
-    if (trans) result = result.filter((c) => c.transmission === trans);
-    if (origin) result = result.filter((c) => origin === "Kore e Jugut" ? c.encar_id : !c.encar_id);
-    if (year) result = result.filter((c) => c.year >= parseInt(year));
-    if (price) result = result.filter((c) => c.price <= parseInt(price));
-    if (km) result = result.filter((c) => c.mileage <= parseInt(km));
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      result = result.filter((c) => c.name.toLowerCase().includes(q) || c.brand.toLowerCase().includes(q) || c.category.toLowerCase().includes(q));
-    }
-    return result;
-  };
-
   // Derived: available brands, models, categories from allCars
   const availableBrands = ALL_BRANDS;
   const availableModels = selectedBrand
@@ -570,27 +553,73 @@ export default function Collection() {
   const availableTransmissions = TRANSMISSION_OPTIONS;
   const availableOrigins = [...new Set(allCars.map((c) => c.encar_id ? "Kore e Jugut" : "Europe"))].sort().reverse();
 
-  // Compute disabled options for each filter type based on other active filters
+  // Compute disabled options for each filter type based on other active filters (optimized single-pass loop)
   const disabledOptions = useMemo(() => {
     const empty = { brands: [], categories: [], fuelTypes: [], drivetrains: [], transmissions: [], origins: [] };
     if (!allCars.length) return empty;
 
-    const brands = new Set(filterBy(allCars, { brand: "" }).map((c) => c.brand));
-    const categories = new Set(filterBy(allCars, { category: "" }).map((c) => c.category));
-    const fuelTypes = new Set(filterBy(allCars, { fuelType: "" }).map((c) => c.fuel_type));
-    const drivetrains = new Set(filterBy(allCars, { drivetrain: "" }).map((c) => c.drivetrain));
-    const transmissions = new Set(filterBy(allCars, { transmission: "" }).map((c) => c.transmission));
-    const origins = new Set(filterBy(allCars, { origin: "" }).map((c) => c.encar_id ? "Kore e Jugut" : "Europe"));
+    const validBrands = new Set();
+    const validCategories = new Set();
+    const validFuelTypes = new Set();
+    const validDrivetrains = new Set();
+    const validTransmissions = new Set();
+    const validOrigins = new Set();
+
+    const modelLower = selectedModel ? selectedModel.toLowerCase() : "";
+    const searchLower = debouncedSearchQuery ? debouncedSearchQuery.toLowerCase().trim() : "";
+    const yearParsed = yearFrom ? parseInt(yearFrom, 10) : 0;
+    const priceParsed = priceUpTo ? parseInt(priceUpTo, 10) : Infinity;
+    const kmParsed = kmUpTo ? parseInt(kmUpTo, 10) : Infinity;
+
+    for (let i = 0; i < allCars.length; i++) {
+      const car = allCars[i];
+
+      const mBrand = !selectedBrand || car.brand === selectedBrand;
+      const mModel = !selectedModel || car.name.toLowerCase().includes(modelLower);
+      const mCategory = !selectedCategory || car.category === selectedCategory;
+      const mFuel = !selectedFuelType || car.fuel_type === selectedFuelType;
+      const mDrivetrain = !selectedDrivetrain || car.drivetrain === selectedDrivetrain;
+      const mTransmission = !selectedTransmission || car.transmission === selectedTransmission;
+      const mOrigin = !selectedOrigin || (selectedOrigin === "Kore e Jugut" ? !!car.encar_id : !car.encar_id);
+      const mYear = !yearFrom || car.year >= yearParsed;
+      const mPrice = !priceUpTo || car.price <= priceParsed;
+      const mKm = !kmUpTo || car.mileage <= kmParsed;
+      const mSearch = !searchLower || (
+        car.name.toLowerCase().includes(searchLower) ||
+        car.brand.toLowerCase().includes(searchLower) ||
+        car.category.toLowerCase().includes(searchLower)
+      );
+
+      // Check combinations for each dropdown
+      const othersMatchExceptBrand = mModel && mCategory && mFuel && mDrivetrain && mTransmission && mOrigin && mYear && mPrice && mKm && mSearch;
+      if (othersMatchExceptBrand) validBrands.add(car.brand);
+
+      const othersMatchExceptCategory = mBrand && mModel && mFuel && mDrivetrain && mTransmission && mOrigin && mYear && mPrice && mKm && mSearch;
+      if (othersMatchExceptCategory) validCategories.add(car.category);
+
+      const othersMatchExceptFuel = mBrand && mModel && mCategory && mDrivetrain && mTransmission && mOrigin && mYear && mPrice && mKm && mSearch;
+      if (othersMatchExceptFuel) validFuelTypes.add(car.fuel_type);
+
+      const othersMatchExceptDrivetrain = mBrand && mModel && mCategory && mFuel && mTransmission && mOrigin && mYear && mPrice && mKm && mSearch;
+      if (othersMatchExceptDrivetrain) validDrivetrains.add(car.drivetrain);
+
+      const othersMatchExceptTransmission = mBrand && mModel && mCategory && mFuel && mDrivetrain && mOrigin && mYear && mPrice && mKm && mSearch;
+      if (othersMatchExceptTransmission) validTransmissions.add(car.transmission);
+
+      const othersMatchExceptOrigin = mBrand && mModel && mCategory && mFuel && mDrivetrain && mTransmission && mYear && mPrice && mKm && mSearch;
+      const carOrigin = car.encar_id ? "Kore e Jugut" : "Europe";
+      if (othersMatchExceptOrigin) validOrigins.add(carOrigin);
+    }
 
     return {
-      brands: ALL_BRANDS.filter((b) => !brands.has(b)),
-      categories: ALL_CATEGORIES.filter((c) => !categories.has(c)),
-      fuelTypes: availableFuelTypes.filter((f) => !fuelTypes.has(f)),
-      drivetrains: availableDrivetrains.filter((d) => !drivetrains.has(d)),
-      transmissions: availableTransmissions.filter((t) => !transmissions.has(t)),
-      origins: availableOrigins.filter((o) => !origins.has(o)),
+      brands: ALL_BRANDS.filter((b) => !validBrands.has(b)),
+      categories: ALL_CATEGORIES.filter((c) => !validCategories.has(c)),
+      fuelTypes: availableFuelTypes.filter((f) => !validFuelTypes.has(f)),
+      drivetrains: availableDrivetrains.filter((d) => !validDrivetrains.has(d)),
+      transmissions: availableTransmissions.filter((t) => !validTransmissions.has(t)),
+      origins: availableOrigins.filter((o) => !validOrigins.has(o)),
     };
-  }, [allCars, selectedBrand, selectedModel, selectedCategory, selectedFuelType, selectedDrivetrain, selectedTransmission, selectedOrigin, yearFrom, priceUpTo, kmUpTo, searchQuery, availableFuelTypes, availableDrivetrains, availableTransmissions, availableOrigins]);
+  }, [allCars, selectedBrand, selectedModel, selectedCategory, selectedFuelType, selectedDrivetrain, selectedTransmission, selectedOrigin, yearFrom, priceUpTo, kmUpTo, debouncedSearchQuery, availableFuelTypes, availableDrivetrains, availableTransmissions, availableOrigins]);
 
   const activeFiltersCount =
     (selectedBrand ? 1 : 0) +

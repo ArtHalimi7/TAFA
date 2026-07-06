@@ -231,6 +231,23 @@ function isEuropeanBrand(brand) {
   return EUROPEAN_BRANDS.includes(brand);
 }
 
+// Domestic Korean brands
+const DOMESTIC_BRANDS = [
+  "Genesis",
+  "Hyundai",
+  "Kia",
+  "SsangYong",
+  "KG Mobility",
+  "Renault", // Mapped from Renault Korea / Renault Samsung
+  "Chevrolet",
+  "Daewoo"
+];
+
+function isDomesticBrand(brand) {
+  if (!brand) return false;
+  return DOMESTIC_BRANDS.includes(brand);
+}
+
 // Replace Korean text with English using map, keeping any suffixes/prefixes
 function translateWithMap(map, text, stripTrailingKorean = false) {
   if (!text) return text;
@@ -485,8 +502,10 @@ async function syncEncarListings(limit = 30, isDomestic = false, sortBy = "Modif
 
     const euroDieselCandidates = [];
     const euroOtherCandidates = [];
-    const restDieselCandidates = [];
-    const restOtherCandidates = [];
+    const otherImportDieselCandidates = [];
+    const otherImportOtherCandidates = [];
+    const domesticDieselCandidates = [];
+    const domesticOtherCandidates = [];
     const existingToUpdate = [];
     const seenIds = new Set();
 
@@ -570,9 +589,16 @@ async function syncEncarListings(limit = 30, isDomestic = false, sortBy = "Modif
           // Classify new candidate
           const brand = getTranslatedBrand(car.Manufacturer);
           const isEuro = isEuropeanBrand(brand);
+          const isDom = isDomesticBrand(brand);
           const isDsl = car.FuelType === "디젤" || (car.FuelType && car.FuelType.includes("디젤"));
 
-          if (isEuro) {
+          if (isDom) {
+            if (isDsl) {
+              domesticDieselCandidates.push(car);
+            } else {
+              domesticOtherCandidates.push(car);
+            }
+          } else if (isEuro) {
             if (isDsl) {
               euroDieselCandidates.push(car);
             } else {
@@ -580,16 +606,22 @@ async function syncEncarListings(limit = 30, isDomestic = false, sortBy = "Modif
             }
           } else {
             if (isDsl) {
-              restDieselCandidates.push(car);
+              otherImportDieselCandidates.push(car);
             } else {
-              restOtherCandidates.push(car);
+              otherImportOtherCandidates.push(car);
             }
           }
         }
       }
 
       // Check if we have gathered enough new candidates to satisfy the requested limit
-      const totalNewCandidates = euroDieselCandidates.length + euroOtherCandidates.length + restDieselCandidates.length + restOtherCandidates.length;
+      const totalNewCandidates =
+        euroDieselCandidates.length +
+        euroOtherCandidates.length +
+        otherImportDieselCandidates.length +
+        otherImportOtherCandidates.length +
+        domesticDieselCandidates.length +
+        domesticOtherCandidates.length;
       if (totalNewCandidates >= limit) {
         console.log(`[Sync] Found enough new candidates (${totalNewCandidates} >= target ${limit}) after page ${page + 1}. Stopping search.`);
         break;
@@ -602,35 +634,48 @@ async function syncEncarListings(limit = 30, isDomestic = false, sortBy = "Modif
     const selectedNewCars = [];
 
     if (isDomestic) {
-      // If domestic mode, prioritize Domestic candidates (Rest), then European candidates. Prioritize Diesel.
-      const domesticPool = [...restDieselCandidates, ...restOtherCandidates];
-      const foreignPool = [...euroDieselCandidates, ...euroOtherCandidates];
-      const allCandidatesOrdered = [...domesticPool, ...foreignPool];
+      // If domestic mode, prioritize Domestic candidates, then European candidates, then other imports. Prioritize Diesel.
+      const domesticPool = [...domesticDieselCandidates, ...domesticOtherCandidates];
+      const importPool = [
+        ...euroDieselCandidates,
+        ...euroOtherCandidates,
+        ...otherImportDieselCandidates,
+        ...otherImportOtherCandidates
+      ];
+      const allCandidatesOrdered = [...domesticPool, ...importPool];
       selectedNewCars.push(...allCandidatesOrdered.slice(0, limit));
-      console.log(`[Sync Selection] Domestic mode - candidates: ${domesticPool.length} Domestic, ${foreignPool.length} Foreign. Selected: ${selectedNewCars.length} cars.`);
+      console.log(`[Sync Selection] Domestic mode - candidates: ${domesticPool.length} Domestic, ${importPool.length} Import. Selected: ${selectedNewCars.length} cars.`);
     } else {
-      // Normal/foreign-first mode: target 80% European, 20% Rest. Prioritize Diesel.
-      const euroPool = [...euroDieselCandidates, ...euroOtherCandidates];
-      const restPool = [...restDieselCandidates, ...restOtherCandidates];
+      // Normal/foreign-first mode: target 90% Import, 10% Domestic. Prioritize Euro Diesel first.
+      const importPool = [
+        ...euroDieselCandidates,
+        ...euroOtherCandidates,
+        ...otherImportDieselCandidates,
+        ...otherImportOtherCandidates
+      ];
+      const domesticPool = [
+        ...domesticDieselCandidates,
+        ...domesticOtherCandidates
+      ];
 
-      let targetEuro = Math.round(limit * 0.8);
-      let targetRest = limit - targetEuro;
+      let targetImport = Math.round(limit * 0.9);
+      let targetDomestic = limit - targetImport;
 
       // Adjust targets dynamically if one pool is smaller than its target
-      if (euroPool.length < targetEuro) {
-        targetEuro = euroPool.length;
-        targetRest = Math.min(restPool.length, limit - targetEuro);
-      } else if (restPool.length < targetRest) {
-        targetRest = restPool.length;
-        targetEuro = Math.min(euroPool.length, limit - targetRest);
+      if (importPool.length < targetImport) {
+        targetImport = importPool.length;
+        targetDomestic = Math.min(domesticPool.length, limit - targetImport);
+      } else if (domesticPool.length < targetDomestic) {
+        targetDomestic = domesticPool.length;
+        targetImport = Math.min(importPool.length, limit - targetDomestic);
       }
 
-      const selectedEuro = euroPool.slice(0, targetEuro);
-      const selectedRest = restPool.slice(0, targetRest);
-      selectedNewCars.push(...selectedEuro, ...selectedRest);
+      const selectedImport = importPool.slice(0, targetImport);
+      const selectedDomestic = domesticPool.slice(0, targetDomestic);
+      selectedNewCars.push(...selectedImport, ...selectedDomestic);
 
-      console.log(`[Sync Selection] New candidates: ${euroDieselCandidates.length} Euro Diesel, ${euroOtherCandidates.length} Euro Other, ${restDieselCandidates.length} Rest Diesel, ${restOtherCandidates.length} Rest Other`);
-      console.log(`[Sync Selection] Target: ${targetEuro} Euro, ${targetRest} Rest. Selected: ${selectedEuro.length} Euro, ${selectedRest.length} Rest.`);
+      console.log(`[Sync Selection] New candidates: ${euroDieselCandidates.length} Euro Diesel, ${euroOtherCandidates.length} Euro Other, ${otherImportDieselCandidates.length} Other Import Diesel, ${otherImportOtherCandidates.length} Other Import Other, ${domesticDieselCandidates.length} Domestic Diesel, ${domesticOtherCandidates.length} Domestic Other`);
+      console.log(`[Sync Selection] Target: ${targetImport} Import, ${targetDomestic} Domestic. Selected: ${selectedImport.length} Import, ${selectedDomestic.length} Domestic.`);
     }
 
     // 3. Process the selected listings
