@@ -819,18 +819,30 @@ export default function Dashboard() {
   };
 
   // Open modal for editing car
-  const openEditModal = (car) => {
+  const openEditModal = async (car) => {
     setSelectedCar(car);
     setPendingImageFiles([]);
-    const isKnownBrand = brands.includes(car.brand);
+    let fullCar = car;
+    try {
+      if (car.id) {
+        const res = await carsApi.getCarById(car.id);
+        if (res && res.success && res.data) {
+          fullCar = res.data;
+          setSelectedCar(res.data);
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch full car details, using list data:", err);
+    }
+    const isKnownBrand = brands.includes(fullCar.brand);
     setFormData({
-      ...car,
-      brand: isKnownBrand ? car.brand : "_custom",
-      customBrand: isKnownBrand ? "" : car.brand,
-      discountPrice: car.discountPrice || "",
-      features: car.features && car.features.length > 0 ? car.features : [""],
-      images: car.images || [],
-      isSold: car.isSold || false,
+      ...fullCar,
+      brand: isKnownBrand ? fullCar.brand : "_custom",
+      customBrand: isKnownBrand ? "" : fullCar.brand,
+      discountPrice: fullCar.discountPrice || "",
+      features: fullCar.features && fullCar.features.length > 0 ? fullCar.features : [""],
+      images: fullCar.images || [],
+      isSold: fullCar.isSold || false,
     });
     setModalMode("edit");
     setIsModalOpen(true);
@@ -2024,7 +2036,7 @@ export default function Dashboard() {
                       <div className="relative aspect-16/10 bg-white/5 overflow-hidden">
                         {car.images && car.images.length > 0 ? (
                           <img
-                            src={car.images[car.showcaseImage || 0]}
+                            src={car.images[car.showcaseImage || 0] || car.images[0] || car.image}
                             alt={car.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           />
@@ -2281,7 +2293,7 @@ export default function Dashboard() {
                         <div className="relative w-full sm:w-48 lg:w-64 aspect-16/10 sm:aspect-auto sm:h-auto bg-white/5 shrink-0">
                           {car.images && car.images.length > 0 ? (
                             <img
-                              src={car.images[car.showcaseImage || 0]}
+                              src={car.images[car.showcaseImage || 0] || car.images[0] || car.image}
                               alt={car.name}
                               className="w-full h-full object-cover"
                             />

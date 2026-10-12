@@ -4,7 +4,7 @@
   "description": "TAFA Auto Dealership API",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --max-old-space-size=400 index.js",
     "db:init": "node scripts/init-db.js"
   },
   "dependencies": {

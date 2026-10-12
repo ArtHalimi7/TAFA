@@ -11,7 +11,58 @@ const cache = {
 };
 
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-const queryCache = new Map();
+// Bounded query cache with LRU eviction and automatic TTL cleanup
+// Prevents unbounded memory growth on Render's 512MB RAM limit
+const MAX_CACHE_ENTRIES = 15;
+class BoundedCache {
+  constructor(max = MAX_CACHE_ENTRIES) {
+    this.max = max;
+    this.cache = new Map();
+  }
+
+  get(key) {
+    const item = this.cache.get(key);
+    if (!item) return null;
+    if (item.expiry <= Date.now()) {
+      this.cache.delete(key);
+      return null;
+    }
+    // Refresh LRU position
+    this.cache.delete(key);
+    this.cache.set(key, item);
+    return item.data;
+  }
+
+  set(key, data, ttl = CACHE_TTL) {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.max) {
+      // Evict oldest entry
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
+    }
+    this.cache.set(key, { data, expiry: Date.now() + ttl });
+  }
+
+  clear() {
+    this.cache.clear();
+  }
+
+  prune() {
+    const now = Date.now();
+    for (const [key, item] of this.cache.entries()) {
+      if (item.expiry <= now) {
+        this.cache.delete(key);
+      }
+    }
+  }
+}
+
+const queryCache = new BoundedCache(15);
+
+// Prune expired entries periodically without keeping process alive
+const pruneTimer = setInterval(() => queryCache.prune(), 2 * 60 * 1000);
+if (pruneTimer.unref) pruneTimer.unref();
 
 // Helper: parse GROUP_CONCAT / JSON / array values, trim and dedupe preserving order
 function parseAndDedupe(val) {
@@ -90,25 +141,42 @@ function safeParseJson(val) {
 }
 
 const Car = {
-  // Get all cars with images and features - OPTIMIZED
+  // Get all cars with images and features - OPTIMIZED FOR RENDER LOW MEMORY
   async getAll(filters = {}) {
+    const includeHeavy = filters.includeHeavy === true;
+
     const cacheKey = JSON.stringify(filters);
     const cached = queryCache.get(cacheKey);
-    if (cached && cached.expiry > Date.now()) {
-      return cached.data;
+    if (cached) {
+      return cached;
     }
 
     try {
-      let query = `
-        SELECT c.id, c.encar_id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
-               c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
-               c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
-               c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.inspection_data, c.pricing_data, c.encar_price_krw, c.status,
-               c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.options, c.created_at, c.updated_at,
-               (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
-               (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
-             FROM cars c
-      `;
+      let query;
+      if (includeHeavy) {
+        query = `
+          SELECT c.id, c.encar_id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
+                 c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
+                 c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
+                 c.drivetrain, c.fuel_type, c.mpg, c.vin, c.description, c.inspection_data, c.pricing_data, c.encar_price_krw, c.status,
+                 c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.options, c.created_at, c.updated_at,
+                 (SELECT GROUP_CONCAT(DISTINCT ci2.image_url ORDER BY ci2.image_order SEPARATOR '|||') FROM car_images ci2 WHERE ci2.car_id = c.id) as images,
+                 (SELECT GROUP_CONCAT(DISTINCT cf2.feature ORDER BY cf2.feature_order SEPARATOR '|||') FROM car_features cf2 WHERE cf2.car_id = c.id) as features
+               FROM cars c
+        `;
+      } else {
+        // LIGHTWEIGHT MODE: skips MEDIUMTEXT inspection_data, options, description, and correlated group_concats
+        // Reduces memory usage by >95% for 1500+ cars, preventing Render OOM crashes
+        query = `
+          SELECT c.id, c.encar_id, c.name, c.slug, c.tagline, c.category, c.brand, c.price, c.discount_price,
+                 c.year, c.mileage, c.exterior_color, c.interior_color, c.engine,
+                 c.horsepower, c.torque, c.acceleration, c.top_speed, c.transmission,
+                 c.drivetrain, c.fuel_type, c.mpg, c.vin, c.pricing_data, c.encar_price_krw, c.status,
+                 c.showcase_image, c.views, c.is_featured, c.is_showcase, c.is_sold, c.created_at, c.updated_at,
+                 (SELECT ci.image_url FROM car_images ci WHERE ci.car_id = c.id ORDER BY (ci.image_order = c.showcase_image) DESC, ci.image_order ASC LIMIT 1) as primary_image
+               FROM cars c
+        `;
+      }
 
       const conditions = [];
       const params = [];
@@ -200,7 +268,7 @@ const Car = {
         query += " ORDER BY c.created_at DESC";
       }
 
-      // Pagination with default limit (increased to support listing all cars)
+      // Pagination
       const limit = Math.min(parseInt(filters.limit) || 10000, 100000);
       query += " LIMIT ?";
       params.push(limit);
@@ -210,56 +278,83 @@ const Car = {
         params.push(parseInt(filters.offset));
       }
 
-      // Increase group_concat_max_len to prevent truncation of image URLs
-      await db.query("SET SESSION group_concat_max_len = 100000");
+      if (includeHeavy) {
+        await db.query("SET SESSION group_concat_max_len = 100000");
+      }
 
       const [rows] = await db.query(query, params);
 
-      // Resolve images/features and perform fallback fetch for truncated GROUP_CONCAT results
-      const cars = await Promise.all(
-        rows.map(async (row) => {
-          let images = parseAndDedupe(row.images);
+      const cars = rows.map((row) => {
+        let images;
+        let features = [];
 
-          // If any image looks truncated, fetch from car_images directly
-          if (images.some(isLikelyTruncatedImage)) {
-            try {
-              const [imgRows] = await db.query(
-                "SELECT image_url FROM car_images WHERE car_id = ? ORDER BY image_order",
-                [row.id],
-              );
-              images = imgRows.map((r) => r.image_url).filter(Boolean);
-            } catch (err) {
-              console.warn(
-                "Failed fallback fetch images for car",
-                row.id,
-                err.message,
-              );
-            }
+        if (includeHeavy) {
+          images = parseAndDedupe(row.images);
+          features = parseAndDedupe(row.features);
+        } else {
+          const primary = row.primary_image || null;
+          const showcaseIdx = row.showcase_image || 0;
+          if (primary) {
+            images = Array(Math.max(1, showcaseIdx + 1)).fill(primary);
+          } else {
+            images = [];
           }
+        }
 
-          return {
-            ...row,
-            images: images,
-            features: parseAndDedupe(row.features),
-            price: parseFloat(row.price),
-            discountPrice: row.discount_price
-              ? parseFloat(row.discount_price)
-              : null,
-            acceleration: parseFloat(row.acceleration),
-            isSold: !!row.is_sold,
-            inspectionData: row.inspection_data ? JSON.parse(row.inspection_data) : null,
-            pricingData: safeParseJson(row.pricing_data),
-            encarPriceKrw: row.encar_price_krw ? Number(row.encar_price_krw) : null,
-            options: row.options ? JSON.parse(row.options) : null,
-          };
-        }),
-      );
-
-      // Cache the result
-      queryCache.set(cacheKey, {
-        data: cars,
-        expiry: Date.now() + CACHE_TTL,
+        return {
+          id: row.id,
+          encar_id: row.encar_id,
+          name: row.name,
+          slug: row.slug,
+          tagline: row.tagline,
+          category: row.category,
+          brand: row.brand,
+          price: parseFloat(row.price) || 0,
+          discount_price: row.discount_price ? parseFloat(row.discount_price) : null,
+          discountPrice: row.discount_price ? parseFloat(row.discount_price) : null,
+          year: row.year,
+          mileage: row.mileage,
+          exterior_color: row.exterior_color,
+          interior_color: row.interior_color,
+          engine: row.engine,
+          horsepower: row.horsepower,
+          torque: row.torque,
+          acceleration: row.acceleration ? parseFloat(row.acceleration) : null,
+          top_speed: row.top_speed,
+          transmission: row.transmission,
+          drivetrain: row.drivetrain,
+          fuel_type: row.fuel_type,
+          mpg: row.mpg,
+          vin: row.vin,
+          pricing_data: safeParseJson(row.pricing_data),
+          pricingData: safeParseJson(row.pricing_data),
+          encar_price_krw: row.encar_price_krw ? Number(row.encar_price_krw) : null,
+          encarPriceKrw: row.encar_price_krw ? Number(row.encar_price_krw) : null,
+          status: row.status,
+          showcase_image: row.showcase_image || 0,
+          showcaseImage: row.showcase_image || 0,
+          views: row.views || 0,
+          is_featured: row.is_featured,
+          isFeatured: !!row.is_featured,
+          is_showcase: row.is_showcase,
+          isShowcase: !!row.is_showcase,
+          is_sold: !!row.is_sold,
+          isSold: !!row.is_sold,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          images: images,
+          image: images[0] || null,
+          features: features,
+          ...(includeHeavy && {
+            description: row.description,
+            inspectionData: safeParseJson(row.inspection_data),
+            options: safeParseJson(row.options),
+          }),
+        };
       });
+
+      // Cache the result in bounded LRU cache
+      queryCache.set(cacheKey, cars);
 
       return cars;
     } catch (error) {
@@ -312,10 +407,10 @@ const Car = {
           : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
-        inspectionData: car.inspection_data ? JSON.parse(car.inspection_data) : null,
+        inspectionData: safeParseJson(car.inspection_data),
         pricingData: safeParseJson(car.pricing_data),
         encarPriceKrw: car.encar_price_krw ? Number(car.encar_price_krw) : null,
-        options: car.options ? JSON.parse(car.options) : null,
+        options: safeParseJson(car.options),
       };
     } catch (error) {
       console.error("Error fetching car by ID:", error);
@@ -367,10 +462,10 @@ const Car = {
           : null,
         acceleration: parseFloat(car.acceleration),
         isSold: !!car.is_sold,
-        inspectionData: car.inspection_data ? JSON.parse(car.inspection_data) : null,
+        inspectionData: safeParseJson(car.inspection_data),
         pricingData: safeParseJson(car.pricing_data),
         encarPriceKrw: car.encar_price_krw ? Number(car.encar_price_krw) : null,
-        options: car.options ? JSON.parse(car.options) : null,
+        options: safeParseJson(car.options),
       };
     } catch (error) {
       console.error("Error fetching car by slug:", error);

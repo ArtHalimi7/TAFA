@@ -346,7 +346,9 @@ export default function Collection() {
             image:
               car.images && car.images.length > 0
                 ? getImageUrl(car.images[0])
-                : "/placeholder-car.jpg",
+                : car.image
+                  ? getImageUrl(car.image)
+                  : "/placeholder-car.jpg",
           }));
           try {
             sessionStorage.setItem(CACHE_KEY, JSON.stringify(transformedCars));

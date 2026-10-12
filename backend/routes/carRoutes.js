@@ -147,6 +147,7 @@ router.get("/", async (req, res) => {
       sortBy: req.query.sortBy,
       limit: req.query.limit,
       offset: req.query.offset,
+      includeHeavy: req.query.includeHeavy === "true",
     };
 
     Object.keys(filters).forEach((key) => {
